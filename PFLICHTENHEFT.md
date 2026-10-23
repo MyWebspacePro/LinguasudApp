@@ -153,7 +153,7 @@ Siehe Rollenmodell oben. Teilnehmer-Portal-Inhalte: nächste Lektionen mit Raum,
 7. **Konkrete Tarif-Preise** (erfassen wir gemeinsam im Setup)
 
 ## Umsetzungsreihenfolge (Vorschlag)
-1. **Projektgerüst:** Next.js + TypeScript + Tailwind + Prisma/PostgreSQL + Dockerfile + Coolify-/Staging-Konfiguration + Test-Setup
+1. **Projektgerüst:** Next.js + TypeScript + Tailwind + Prisma/PostgreSQL + Dockerfile + Coolify-Konfiguration + Test-Setup
 2. Modul 1 — Login & Rechte (+ Audit-Log, E-Mail-Versand-Grundlage)
 3. Modul 2 — Stammdaten + Startdaten Standorte/Räume
 4. Modul 3 — Personenverwaltung

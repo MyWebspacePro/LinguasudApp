@@ -6,7 +6,7 @@ const validBase = {
 };
 
 describe("parseEnv", () => {
-  it("füllt Defaults ergänzt (APP_ENV, APP_URL, MAIL_FROM)", () => {
+  it("ergänzt Defaults (APP_ENV, APP_URL, MAIL_FROM)", () => {
     const env = parseEnv(validBase);
     expect(env.APP_ENV).toBe("development");
     expect(env.APP_URL).toBe("http://localhost:3000");

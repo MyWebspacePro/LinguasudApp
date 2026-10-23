@@ -5,4 +5,3 @@ allowBuilds:
   prisma: true
   esbuild: true
   unrs-resolver: true
-  sharp: false
