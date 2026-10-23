@@ -1,7 +1,7 @@
 # Pflichtenheft — LinguasudApp
 
 **Verwaltungssoftware für die Sprachschule linguasud.com**
-Stand: 23.10.2026 · Status: durchgesprochen mit dem Kunden, wartet auf Baufreigabe
+Stand: 23.10.2026 · Status: Phase 1 (Projektgerüst) **fertig und live** auf `linguasudapp.aiconso.eu` (Health `db:up`, TLS gültig). Nächster Schritt: **Modul 1 — Login & Rechtesystem**.
 
 **Grundsatz:** Produktivsystem, kein Mock-up. Wir bauen direkt für den Live-Betrieb.
 
