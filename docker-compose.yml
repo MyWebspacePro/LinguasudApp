@@ -29,7 +29,7 @@ services:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://linguasud:linguasud@db:5432/linguasud?schema=public
-      APP_ENV: staging
+      APP_ENV: production
       APP_URL: http://localhost:3000
     ports:
       - "${APP_PORT:-3000}:3000"

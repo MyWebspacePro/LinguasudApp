@@ -43,13 +43,12 @@ Weitere Befehle:
 ## Deployment (Coolify)
 
 1. **GitHub:** Push auf `main` (Repo `MyWebspacePro/LinguasudApp`) — Coolify
-   deployt automatisch (Webhook).
+   deployt automatisch (Webhook). Tests laufen lokal; jeder Push geht live.
 2. **Coolify-Ressourcen:**
    - PostgreSQL-Container (Datenbank)
    - App aus dem Dockerfile des Repos, Domain `linguasudapp.aiconso.eu`
-   - Staging-Kopie mit eigener Datenbank (z.B. `staging.aiconso.eu`)
 3. **Umgebungsvariablen in Coolify** (siehe `.env.example`):
-   `DATABASE_URL`, `APP_ENV`, `APP_URL`, später `SMTP_*` (IONOS) und
+   `DATABASE_URL`, `APP_ENV=production`, `APP_URL`, später `SMTP_*` (IONOS) und
    QR-Rechnungs-/OpenRouter-Schlüssel.
 4. Beim Containerstart führt der Entrypoint automatisch `prisma migrate deploy`
    aus; danach startet der Server. Healthcheck: `/api/health`.

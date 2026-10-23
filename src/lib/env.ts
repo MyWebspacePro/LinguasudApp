@@ -8,7 +8,7 @@ import { z } from "zod";
  */
 const envSchema = z.object({
   DATABASE_URL: z.string().url(),
-  APP_ENV: z.enum(["development", "staging", "production"]).default("development"),
+  APP_ENV: z.enum(["development", "production"]).default("development"),
   APP_URL: z.string().url().default("http://localhost:3000"),
   // E-Mail (IONOS SMTP) — erst ab Modul 1 verpflichtend
   SMTP_HOST: z.string().optional(),

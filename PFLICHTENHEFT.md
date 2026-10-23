@@ -14,7 +14,7 @@ Stand: 23.10.2026 · Status: durchgesprochen mit dem Kunden, wartet auf Baufreig
 | Architektur | **Next.js Fullstack** (App Router, React, TypeScript) + **Tailwind CSS** — ein Container |
 | Datenbank | **PostgreSQL** (eigener Container in Coolify), Start leer (keine Alt-Daten) |
 | Deployment | Git push → GitHub (`MyWebspacePro/LinguasudApp`) → **Coolify deployt automatisch** auf den VPS |
-| URLs | Verwaltungs-App: `linguasudapp.aiconso.eu` · **Staging-Umgebung zusätzlich** (eigene Test-DB) |
+| URLs | Verwaltungs-App: `linguasudapp.aiconso.eu` — **eine einzige Produktiv-Umgebung** (Tests laufen lokal, jeder Push auf `main` geht live) |
 | E-Mail | **SMTP über IONOS** (Zugang liefert der Kunde) |
 | Backups | **Täglich automatisch**, ca. 14 Tage Aufbewahrung |
 | PDF | Serverseitige Erzeugung; Rechnungen als **Schweizer QR-Rechnung** |
@@ -138,7 +138,7 @@ Siehe Rollenmodell oben. Teilnehmer-Portal-Inhalte: nächste Lektionen mit Raum,
 
 ## Modul 16 — Deployment
 - GitHub → Coolify **automatisch** bei Push (Webhook).
-- **Staging + Produktion** (getrennte Datenbanken).
+- **Eine Produktiv-Umgebung** auf `linguasudapp.aiconso.eu` (Tests laufen lokal; was auf `main` gepusht wird, ist live).
 - SMTP (IONOS) · **tägliche DB-Backups** (ca. 14 Tage) · Migrationen laufen automatisch · Healthcheck.
 
 ---
@@ -166,4 +166,4 @@ Siehe Rollenmodell oben. Teilnehmer-Portal-Inhalte: nächste Lektionen mit Raum,
 11. Modul 13 — Aufgaben & Anfragen
 12. Modul 14 — KI-Generator (UI fertig, Anbindung inaktiv)
 13. Modul 15 — Öffentliche Website + CMS + Popup
-14. Modul 16 — Deployment-Feinschliff, Backups, Staging-Abnahme, Produktivgang
+14. Modul 16 — Deployment-Feinschliff, Backups, Produktivgang
