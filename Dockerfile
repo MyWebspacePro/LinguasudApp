@@ -16,6 +16,9 @@ WORKDIR /app
 RUN corepack enable
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+# public/ kann leer sein (Git nimmt leere Ordner nicht auf) — für das
+# COPY im Runtime-Stage muss der Ordner trotzdem existieren.
+RUN mkdir -p public
 ENV NEXT_TELEMETRY_DISABLED=1
 # Dummy-DATABASE_URL genügt für den Build (keine Modelle werden beim Bauen gelesen)
 ENV DATABASE_URL=postgresql://build:build@localhost:5432/build
