@@ -1,6 +1,10 @@
 // LinguasudApp — Datenbankschema (PostgreSQL)
 // Bewusst auf Prisma 6 gepinnt (stabile, klassische Migrations-Workflow).
-// Die ersten Modelle entstehen mit Modul 1 (Login & Rechtesystem).
+//
+// Plan: Modul 3 (Personenverwaltung) führt die Person-Kartei ein; jeder User
+// wird dann über User.personId einer Person zugeordnet (E-Mail = Login bleibt
+// auf beiden Seiten synchron). Modul 1 hält das Schema bewusst auf das
+// Login-/Rechtesystem beschränkt.
 
 generator client {
   provider = "prisma-client-js"
@@ -9,4 +13,105 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+/// Die 5 Rollen des Pflichtenhefts — Mehrfachrollen möglich.
+enum Role {
+  ADMIN
+  CHEF
+  BUERO
+  LEHRPERSON
+  TEILNEHMER
+}
+
+model User {
+  id                 String    @id @default(cuid())
+  email              String    @unique // normalisiert (klein, getrimmt) — = Login
+  firstName          String
+  lastName           String
+  roles              Role[]    @default([])
+  /// bcrypt-Hash; null, wenn noch kein Passwort gesetzt wurde (Konto wartet auf Ersteinrichtung per E-Mail-Link).
+  passwordHash       String?
+  isActive           Boolean   @default(true)
+  /// true nach Kontoeinrichtung/Admin-Reset: erzwingt Passwortwechsel nach der nächsten Anmeldung.
+  mustChangePassword Boolean   @default(true)
+  lastLoginAt        DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  sessions           Session[]
+  passwordResetTokens PasswordResetToken[]
+  auditLogsAsActor   AuditLog[]
+
+  @@index([isActive])
+}
+
+model Session {
+  id         String   @id @default(cuid())
+  /// SHA-256 des Cookie-Tokens (Base64url). Der Klartext-Token verlässt den Server nur im Cookie.
+  tokenHash  String   @unique
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ip         String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  lastSeenAt DateTime @default(now())
+  /// Absolute Höchstlaufzeit; zusätzlich gilt ein Idle-Fenster (Verlängerung bei Aktivität).
+  expiresAt  DateTime
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+/// Login- und Reset-Versuche für den Brute-Force-Schutz (fensterbasierte Auswertung).
+enum AuthEventKind {
+  LOGIN
+  PASSWORD_RESET
+}
+
+model LoginAttempt {
+  id        String        @id @default(cuid())
+  kind      AuthEventKind @default(LOGIN)
+  email     String // normalisiert
+  ip        String?
+  success   Boolean
+  createdAt DateTime      @default(now())
+
+  @@index([kind, email, createdAt])
+  @@index([kind, ip, createdAt])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  /// SHA-256 des Tokens aus dem E-Mail-Link.
+  tokenHash String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  /// Handelnder Account; null für System/Bootstrap. E-Mail zusätzlich als Snapshot.
+  actorUserId String?
+  actor       User?    @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+  actorEmail  String?
+  /// Z.B. "user.login", "user.create", "user.roles_change"
+  action      String
+  entity      String?
+  entityId    String?
+  summary     String
+  details     Json?
+  ip          String?
+  userAgent   String?
+
+  @@index([createdAt])
+  @@index([actorUserId, createdAt])
+  @@index([entity, entityId])
+  @@index([action, createdAt])
 }

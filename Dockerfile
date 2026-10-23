@@ -44,6 +44,9 @@ COPY --from=builder /app/public ./public
 # Schema für Migrationen
 COPY --from=builder /app/prisma ./prisma
 
+# Bootstrap-Skript für das erste Admin-Konto (Start ohne Konten)
+COPY --from=builder /app/scripts ./scripts
+
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
