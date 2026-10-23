@@ -1,3 +1,8 @@
+# pnpm 12: Build-Skript-Freigaben (Postinstall) für native Pakete
 allowBuilds:
+  "@prisma/client": true
+  "@prisma/engines": true
+  prisma: true
+  esbuild: true
+  unrs-resolver: true
   sharp: false
-  unrs-resolver: false
