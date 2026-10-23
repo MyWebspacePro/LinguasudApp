@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+/*
+ * LinguasudApp Design-System
+ * Hell und freundlich, zurückhaltend — Bordeaux (dunkles Magenta) als einzige
+ * Akzentfarbe. Kompakte Grunddichte (15px), kein nutzloser Weißraum.
+ */
+@theme {
+  /* Markenfarbe Bordeaux */
+  --color-brand-50: #fbf5f7;
+  --color-brand-100: #f5e6ec;
+  --color-brand-200: #eac6d4;
+  --color-brand-300: #da9db2;
+  --color-brand-400: #c46c8c;
+  --color-brand-500: #a8466b;
+  --color-brand-600: #8c2f54;
+  --color-brand-700: #712544;
+  --color-brand-800: #5c2139;
+  --color-brand-900: #4d1e32;
+
+  /* Warme, helle Flächen */
+  --color-surface: #faf9f7;
+  --color-paper: #ffffff;
+  --color-line: #e7e4df;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+}
+
+@layer base {
+  html {
+    font-size: 15px;
+  }
+
+  body {
+    @apply bg-surface text-slate-800 antialiased;
+  }
+
+  ::selection {
+    @apply bg-brand-100 text-brand-900;
+  }
+}

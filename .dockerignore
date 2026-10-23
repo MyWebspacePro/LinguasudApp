@@ -1,0 +1,16 @@
+node_modules
+.next
+.git
+.gitignore
+.gitattributes
+.zcode
+.DS_Store
+.env
+.env.*
+!.env.example
+PFLICHTENHEFT.md
+README.md
+AGENTS.md
+coverage
+docker-compose.yml
+*.log

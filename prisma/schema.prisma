@@ -1,0 +1,12 @@
+// LinguasudApp — Datenbankschema (PostgreSQL)
+// Bewusst auf Prisma 6 gepinnt (stabile, klassische Migrations-Workflow).
+// Die ersten Modelle entstehen mit Modul 1 (Login & Rechtesystem).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}

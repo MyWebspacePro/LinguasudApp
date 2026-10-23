@@ -1,0 +1,38 @@
+# Lokale Entwicklung: Datenbank (und optional die App als Container).
+# Die App läuft normalerweise lokal mit `pnpm dev`, nur die DB als Container:
+#   pnpm db:up
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: linguasud
+      POSTGRES_PASSWORD: linguasud
+      POSTGRES_DB: linguasud
+    ports:
+      - "5432:5432"
+    volumes:
+      - linguasud-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U linguasud -d linguasud"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Optional: komplette App im Container testen (docker compose --profile app up --build)
+  app:
+    profiles: ["app"]
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://linguasud:linguasud@db:5432/linguasud?schema=public
+      APP_ENV: staging
+      APP_URL: http://localhost:3000
+    ports:
+      - "${APP_PORT:-3000}:3000"
+
+volumes:
+  linguasud-pgdata:
