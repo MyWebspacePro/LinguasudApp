@@ -60,6 +60,52 @@ Weitere Befehle:
 prisma/            Datenbankschema + Migrationen (Modell-Module entstehen pro Modul)
 src/app/           Seiten (Verwaltung, Portal, öffentliche Website) + API-Routen
 src/lib/           geteilte Bibliothek (DB-Client, Env-Validierung, Domänenlogik)
+src/lib/auth/      Login & Rechte (Modul 1): Sessions, Passwort-Politik, Brute-Force, Rollen
+src/components/    UI-Bausteine (Bordeaux-Design-System, siehe globals.css)
+src/proxy.ts       Optimistische Zugangslenkung (Next.js 16 Proxy, früher Middleware)
+src/instrumentation.ts  Server-Start-Hook (legt das erste Admin-Konto an, falls DB leer)
 docker-entrypoint.sh  Migrationen + Serverstart im Container
 PFLICHTENHEFT.md   Anforderungen (verbindlich für die Umsetzung)
 ```
+
+## Modul 1 — Login & Rechtesystem (fertig)
+
+- **5 Rollen** (Admin, Chef, Büro, Lehrperson, Kursteilnehmer), Mehrfachrollen möglich.
+  Rollen vergibt ausschliesslich **Admin**; Büro darf Konten für Lehrpersonen/Teilnehmende anlegen.
+- **Keine Selbstregistrierung** — Konten entstehen nur über `/benutzer/neu` (Büro/Admin)
+  oder den Bootstrap (siehe unten).
+- **Passwort-Politik**: min. 20 Zeichen mit Gross-/Kleinbuchstaben, Ziffer und Sonderzeichen;
+  nach Erstvergabe/Admin-Reset wird ein Wechsel erzwungen (`mustChangePassword`).
+- **Passwort-Reset per E-Mail-Link** (IONOS-SMTP, 60 Minuten gültig, Einmal-Token;
+  nur SHA-256-Hashes in der Datenbank). Ohne SMTP-Konfiguration loggt die Entwicklung
+  den Link in die Server-Konsole.
+- **Sessions**: DB-gestützt, httpOnly-Cookie, 12 h Idle- / 30 Tage absolutes Limit,
+  Verlängerung bei Aktivität; Admin kann Sitzungen beenden.
+- **Brute-Force-Schutz**: 5 fehlgeschlagene Anmeldungen pro E-Mail bzw. 20 pro IP
+  innerhalb von 15 Minuten sperren; Reset-Anfragen sind gedrosselt (3/Stunde pro E-Mail).
+- **Audit-Log** für alle wichtigen Änderungen (Anmeldung, Konten, Rollen, Passwörter,
+  Sitzungen) mit Akteur, IP und Zeit — sichtbar für Admin und Chef unter `/audit`.
+- System-Invariante: es bleibt immer **mindestens eine aktive Admin-Person**.
+
+### Erstes Admin-Konto (Bootstrap)
+
+Da es keine Selbstregistrierung gibt, legt der Server beim Start automatisch das erste
+Admin-Konto an, *wenn die Datenbank noch kein einziges Konto enthält* — Umgebungsvariablen
+in Coolify (siehe `.env.example`):
+
+```
+BOOTSTRAP_ADMIN_EMAIL=...      # = Login
+BOOTSTRAP_ADMIN_FIRST_NAME=...
+BOOTSTRAP_ADMIN_LAST_NAME=...
+BOOTSTRAP_ADMIN_PASSWORD=...   # Politik wie oben; Wechsel wird beim ersten Login erzwungen
+```
+
+Danach (oder wenn Variablen fehlen) tut der Bootstrap nichts — nachträgliche Änderungen
+an den Variablen sind wirkungslos.
+
+### E-Mail-Versand (IONOS)
+
+`SMTP_HOST` (typisch `smtp.ionos.de`), `SMTP_PORT` (587 = STARTTLS), `SMTP_USER`,
+`SMTP_PASS`, `MAIL_FROM` in Coolify setzen. Ohne Konfiguration: Entwicklung loggt die
+Mails, Produktiv meldet den Fehler und bietet in der Benutzerverwaltung den manuellen
+Passwort-Modus an.

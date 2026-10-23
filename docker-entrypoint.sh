@@ -11,11 +11,5 @@ fi
 echo "Führe Datenbank-Migrationen aus..."
 prisma migrate deploy
 
-# Erstes Admin-Konto anlegen, falls die Datenbank leer ist
-# (BOOTSTRAP_ADMIN_* — siehe README). Fehler blockieren den Start nicht.
-if [ -f scripts/bootstrap-admin.mjs ]; then
-  node scripts/bootstrap-admin.mjs || echo "WARNUNG: Admin-Bootstrap fehlgeschlagen (Start wird fortgesetzt)."
-fi
-
 echo "Starte Anwendung..."
 exec "$@"
