@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import type { Role } from "@prisma/client";
-import { prisma } from "@/lib/db";
+import type { Role } from "@/lib/domain";
+import { db } from "@/lib/db";
 import { requireStaff } from "@/lib/auth/session";
 import { canManageStammdaten, canViewStammdaten } from "@/lib/auth/permissions";
 import { FLAT_ENTITIES, type FlatEntityKey } from "@/lib/stammdaten/entities";
@@ -22,7 +22,7 @@ export async function FlatEntityPage({ entity }: { entity: FlatEntityKey }) {
   let rows: FlatRow[] = [];
 
   if (entity === "sprache") {
-    const data = await prisma.sprache.findMany({ orderBy: { name: "asc" } });
+    const data = await db.orm.public.Sprache.orderBy((r) => r.name.asc()).all();
     rows = data.map((r) => ({
       id: r.id,
       active: r.active,
@@ -30,7 +30,9 @@ export async function FlatEntityPage({ entity }: { entity: FlatEntityKey }) {
       values: { name: r.name, code: r.code },
     }));
   } else if (entity === "niveau") {
-    const data = await prisma.niveau.findMany({ orderBy: [{ sortOrder: "asc" }, { code: "asc" }] });
+    const data = await db.orm.public.Niveau
+      .orderBy([(r) => r.sortOrder.asc(), (r) => r.code.asc()])
+      .all();
     rows = data.map((r) => ({
       id: r.id,
       active: r.active,
@@ -38,7 +40,9 @@ export async function FlatEntityPage({ entity }: { entity: FlatEntityKey }) {
       values: { code: r.code, name: r.name, sortOrder: r.sortOrder },
     }));
   } else if (entity === "kursart") {
-    const data = await prisma.kursart.findMany({ orderBy: [{ sortOrder: "asc" }, { name: "asc" }] });
+    const data = await db.orm.public.Kursart
+      .orderBy([(r) => r.sortOrder.asc(), (r) => r.name.asc()])
+      .all();
     rows = data.map((r) => ({
       id: r.id,
       active: r.active,
@@ -51,7 +55,7 @@ export async function FlatEntityPage({ entity }: { entity: FlatEntityKey }) {
       },
     }));
   } else if (entity === "dauer") {
-    const data = await prisma.lektionsdauer.findMany({ orderBy: { minuten: "asc" } });
+    const data = await db.orm.public.Lektionsdauer.orderBy((r) => r.minuten.asc()).all();
     rows = data.map((r) => ({
       id: r.id,
       active: r.active,
@@ -59,7 +63,7 @@ export async function FlatEntityPage({ entity }: { entity: FlatEntityKey }) {
       values: { minuten: r.minuten },
     }));
   } else {
-    const data = await prisma.kostentraeger.findMany({ orderBy: { name: "asc" } });
+    const data = await db.orm.public.Kostentraeger.orderBy((r) => r.name.asc()).all();
     rows = data.map((r) => ({
       id: r.id,
       active: r.active,

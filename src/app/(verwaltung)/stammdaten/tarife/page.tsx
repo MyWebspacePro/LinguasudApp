@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import type { Role } from "@prisma/client";
-import { prisma } from "@/lib/db";
+import type { Role } from "@/lib/db";
+import { db } from "@/lib/db";
 import { requireStaff } from "@/lib/auth/session";
 import { canManageStammdaten, canViewStammdaten } from "@/lib/auth/permissions";
 import { TarifeManager } from "@/components/stammdaten/TarifeManager";
@@ -28,10 +28,13 @@ async function TarifeContent() {
   }
 
   const [tarifstufen, kursarten, dauern, preise] = await Promise.all([
-    prisma.tarifstufe.findMany({ orderBy: { name: "asc" } }),
-    prisma.kursart.findMany({ where: { archivedAt: null }, orderBy: [{ sortOrder: "asc" }, { name: "asc" }] }),
-    prisma.lektionsdauer.findMany({ where: { archivedAt: null }, orderBy: { minuten: "asc" } }),
-    prisma.preis.findMany(),
+    db.orm.public.Tarifstufe.orderBy((t) => t.name.asc()).all(),
+    db.orm.public.Kursart
+      .where((k) => k.archivedAt.isNull())
+      .orderBy([(k) => k.sortOrder.asc(), (k) => k.name.asc()])
+      .all(),
+    db.orm.public.Lektionsdauer.where((d) => d.archivedAt.isNull()).orderBy((d) => d.minuten.asc()).all(),
+    db.orm.public.Preis.all(),
   ]);
 
   const preisMap: Record<string, string> = {};

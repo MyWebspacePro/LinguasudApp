@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { prisma } from "@/lib/db";
+import { db, isPastDbTime } from "@/lib/db";
 import { hashToken } from "@/lib/auth/password";
 import { ResetPasswordForm } from "@/components/ResetPasswordForm";
 
@@ -41,13 +41,12 @@ async function SetPasswordContent({ searchParams }: { searchParams: SearchParams
   const token = typeof params.token === "string" ? params.token : "";
 
   const record = token
-    ? await prisma.passwordResetToken.findUnique({
-        where: { tokenHash: hashToken(token) },
-        include: { user: true },
-      })
+    ? await db.orm.public.PasswordResetToken.where({ tokenHash: hashToken(token) })
+        .include("user")
+        .first()
     : null;
 
-  if (!record || record.usedAt || record.expiresAt < new Date() || !record.user.isActive) {
+  if (!record || record.usedAt !== null || isPastDbTime(record.expiresAt) || !record.user.isActive) {
     return (
       <div>
         <h1 className="text-base font-semibold text-slate-900">Link nicht mehr gültig</h1>

@@ -2,8 +2,9 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import type { Prisma, Role } from "@prisma/client";
-import { prisma } from "@/lib/db";
+import { or } from "@prisma/orm-postgres/orm-client";
+import type { Role } from "@/lib/db";
+import { db, fromDbTime } from "@/lib/db";
 import { requireStaff } from "@/lib/auth/session";
 import { ALL_ROLES, ROLE_LABELS, canViewUsers, hasRole } from "@/lib/auth/permissions";
 import { RoleBadge } from "@/components/RoleBadge";
@@ -27,6 +28,11 @@ export default function UsersPage({
   );
 }
 
+/** LIKE-Teiltreffer ohne Gross-/Kleinschreibung; Wildcards im Suchbegriff werden escapt. */
+function containsIL(value: string): string {
+  return `%${value.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
+}
+
 async function UsersContent({
   searchParams,
 }: {
@@ -44,27 +50,33 @@ async function UsersContent({
   const status = params.status === "aktiv" || params.status === "inaktiv" ? params.status : null;
   const page = Math.max(1, Number.parseInt(typeof params.seite === "string" ? params.seite : "1", 10) || 1);
 
-  const where: Prisma.UserWhereInput = {
-    ...(q && {
-      OR: [
-        { firstName: { contains: q, mode: "insensitive" } },
-        { lastName: { contains: q, mode: "insensitive" } },
-        { email: { contains: q, mode: "insensitive" } },
-      ],
-    }),
-    ...(roleFilter && { roles: { has: roleFilter } }),
-    ...(status === "aktiv" && { isActive: true }),
-    ...(status === "inaktiv" && { isActive: false }),
-  };
+  // Mehrere .where() AND-verknüpfen; das Rollen-Array-Enthält läuft als
+  // parametergebundenes Raw-Fragment (das ORM hat dafür (noch) keinen Operator).
+  let scoped = q
+    ? db.orm.public.User.where((u) =>
+        or(u.firstName.ilike(containsIL(q)), u.lastName.ilike(containsIL(q)), u.email.ilike(containsIL(q))),
+      )
+    : db.orm.public.User;
+  if (roleFilter) {
+    scoped = scoped.where((_u, { fns }) =>
+      fns.raw`"roles" @> ARRAY[${roleFilter}]::"Role"[]`.returns({ codecId: "pg/bool@1" }),
+    );
+  }
+  if (status === "aktiv") scoped = scoped.where({ isActive: true });
+  if (status === "inaktiv") scoped = scoped.where({ isActive: false });
 
   const [users, total] = await Promise.all([
-    prisma.user.findMany({
-      where,
-      orderBy: [{ isActive: "desc" }, { lastName: "asc" }, { firstName: "asc" }],
-      skip: (page - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
-    }),
-    prisma.user.count({ where }),
+    scoped
+      .orderBy([
+        // Booleans haben keine Order-Trait — aktive Konten zuerst via Raw-SQL.
+        (_u, { fns }) => fns.raw`"isActive"`.returns({ codecId: "pg/bool@1" }).desc(),
+        (u) => u.lastName.asc(),
+        (u) => u.firstName.asc(),
+      ])
+      .offset((page - 1) * PAGE_SIZE)
+      .limit(PAGE_SIZE)
+      .all(),
+    scoped.aggregate((a) => ({ n: a.count() })).then((r) => r.n),
   ]);
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const canCreate = hasRole(actorRoles, "ADMIN") || hasRole(actorRoles, "BUERO");
@@ -166,7 +178,7 @@ async function UsersContent({
                   )}
                 </td>
                 <td className="td text-slate-600">
-                  {u.lastLoginAt ? u.lastLoginAt.toLocaleString("de-CH") : "—"}
+                  {u.lastLoginAt ? fromDbTime(u.lastLoginAt).toLocaleString("de-CH") : "—"}
                 </td>
                 <td className="td text-right">
                   <Link

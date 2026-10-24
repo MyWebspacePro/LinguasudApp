@@ -7,8 +7,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import type { Role } from "@prisma/client";
-import { prisma } from "@/lib/db";
+import { db, fromDbTime, toDbTime, type Role } from "@/lib/db";
 import { getEnv } from "@/lib/env";
 import { AUDIT_ACTIONS, recordAudit } from "@/lib/audit";
 import { getRequestMeta } from "@/lib/request";
@@ -60,7 +59,7 @@ export async function loginAction(_prev: FormState, formData: FormData): Promise
     };
   }
 
-  const user = await prisma.user.findUnique({ where: { email } });
+  const user = await db.orm.public.User.where({ email }).first();
   let valid = false;
   if (user?.passwordHash) {
     valid = await verifyPassword(password, user.passwordHash);
@@ -100,7 +99,7 @@ export async function loginAction(_prev: FormState, formData: FormData): Promise
 
   await recordAuthEvent({ kind: "LOGIN", email, ip: meta.ip, success: true });
   await createSession(user.id, meta);
-  await prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
+  await db.orm.public.User.where({ id: user.id }).update({ lastLoginAt: toDbTime(new Date()) });
   await recordAudit({
     actor: { id: user.id, email: user.email },
     action: AUDIT_ACTIONS.userLogin,
@@ -156,24 +155,21 @@ export async function requestPasswordResetAction(
   }
   await recordAuthEvent({ kind: "PASSWORD_RESET", email, ip: meta.ip, success: true });
 
-  const user = await prisma.user.findFirst({ where: { email, isActive: true } });
+  const user = await db.orm.public.User.where({ email, isActive: true }).first();
   if (!user) {
     return genericSuccess;
   }
 
   // Alte, unbenutzte Links entwerten.
-  await prisma.passwordResetToken.updateMany({
-    where: { userId: user.id, usedAt: null },
-    data: { usedAt: new Date() },
+  await db.orm.public.PasswordResetToken.where({ userId: user.id, usedAt: null }).updateAll({
+    usedAt: toDbTime(new Date()),
   });
 
   const token = generateToken();
-  await prisma.passwordResetToken.create({
-    data: {
-      tokenHash: hashToken(token),
-      userId: user.id,
-      expiresAt: new Date(Date.now() + RESET_TOKEN_TTL_MS),
-    },
+  await db.orm.public.PasswordResetToken.create({
+    tokenHash: hashToken(token),
+    userId: user.id,
+    expiresAt: toDbTime(new Date(Date.now() + RESET_TOKEN_TTL_MS)),
   });
 
   const env = getEnv();
@@ -214,24 +210,27 @@ export async function resetPasswordWithTokenAction(
     return { error: "Das Passwort erfüllt die Anforderungen noch nicht.", fieldErrors: { password: policy.join(" · ") } };
   }
 
-  const record = await prisma.passwordResetToken.findUnique({
-    where: { tokenHash: hashToken(token) },
-    include: { user: true },
-  });
-  if (!record || record.usedAt || record.expiresAt < new Date() || !record.user.isActive) {
+  const record = await db.orm.public.PasswordResetToken.where({ tokenHash: hashToken(token) })
+    .include("user")
+    .first();
+  if (
+    !record ||
+    record.usedAt !== null ||
+    fromDbTime(record.expiresAt).getTime() < Date.now() ||
+    !record.user.isActive
+  ) {
     return { error: "Dieser Link ist abgelaufen oder wurde bereits verwendet. Bitte fordern Sie einen neuen Link an." };
   }
 
-  await prisma.$transaction([
-    prisma.user.update({
-      where: { id: record.userId },
-      data: { passwordHash: await hashPassword(password), mustChangePassword: false },
-    }),
-    prisma.passwordResetToken.update({
-      where: { id: record.id },
-      data: { usedAt: new Date() },
-    }),
-  ]);
+  await db.transaction(async (tx) => {
+    await tx.orm.public.User.where({ id: record.userId }).update({
+      passwordHash: await hashPassword(password),
+      mustChangePassword: false,
+    });
+    await tx.orm.public.PasswordResetToken.where({ id: record.id }).update({
+      usedAt: toDbTime(new Date()),
+    });
+  });
   await revokeUserSessions(record.userId);
 
   await recordAudit({
@@ -273,9 +272,9 @@ export async function changeOwnPasswordAction(
     return { error: "Das Passwort erfüllt die Anforderungen noch nicht.", fieldErrors: { password: policy.join(" · ") } };
   }
 
-  await prisma.user.update({
-    where: { id: ctx.user.id },
-    data: { passwordHash: await hashPassword(password), mustChangePassword: false },
+  await db.orm.public.User.where({ id: ctx.user.id }).update({
+    passwordHash: await hashPassword(password),
+    mustChangePassword: false,
   });
   // Andere Geräte ausloggen, die aktuelle Session bleibt.
   await revokeUserSessions(ctx.user.id, ctx.session.id);

@@ -2,8 +2,9 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import type { Role } from "@prisma/client";
-import { prisma } from "@/lib/db";
+import { and, or } from "@prisma/orm-postgres/orm-client";
+import type { Role } from "@/lib/db";
+import { db, fromDbTime, toDbTime } from "@/lib/db";
 import { requireStaff } from "@/lib/auth/session";
 import {
   ALL_ROLES,
@@ -43,10 +44,7 @@ async function UserDetailContent({ params }: { params: Promise<{ id: string }> }
     redirect("/dashboard");
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id },
-    include: { _count: { select: { sessions: true } } },
-  });
+  const user = await db.orm.public.User.where({ id }).first();
   if (!user) {
     notFound();
   }
@@ -61,15 +59,16 @@ async function UserDetailContent({ params }: { params: Promise<{ id: string }> }
   const env = getEnv();
   const emailInviteAvailable = isMailConfigured(env) || env.APP_ENV === "development";
 
-  const auditEntries = await prisma.auditLog.findMany({
-    where: { OR: [{ entity: "user", entityId: user.id }, { actorUserId: user.id }] },
-    orderBy: { createdAt: "desc" },
-    take: 15,
-  });
+  const auditEntries = await db.orm.public.AuditLog
+    .where((a) => or(and(a.entityId.eq(user.id), a.entity.eq("user")), a.actorUserId.eq(user.id)))
+    .orderBy((a) => a.createdAt.desc())
+    .limit(15)
+    .all();
 
-  const activeSessions = await prisma.session.count({
-    where: { userId: user.id, expiresAt: { gt: new Date() } },
-  });
+  const activeSessions = await db.orm.public.Session
+    .where((s) => and(s.userId.eq(user.id), s.expiresAt.gt(toDbTime(new Date()))))
+    .aggregate((a) => ({ n: a.count() }))
+    .then((r) => r.n);
 
   return (
     <div className="max-w-3xl space-y-4">
@@ -120,9 +119,9 @@ async function UserDetailContent({ params }: { params: Promise<{ id: string }> }
                 </span>
               </Row>
               <Row label="Letzte Anmeldung">
-                {user.lastLoginAt ? user.lastLoginAt.toLocaleString("de-CH") : "—"}
+                {user.lastLoginAt ? fromDbTime(user.lastLoginAt).toLocaleString("de-CH") : "—"}
               </Row>
-              <Row label="Erstellt">{user.createdAt.toLocaleDateString("de-CH")}</Row>
+              <Row label="Erstellt">{fromDbTime(user.createdAt).toLocaleDateString("de-CH")}</Row>
               {actor.id === user.id && (
                 <p className="pt-1 text-xs text-slate-500">
                   Eigene Rollenänderungen und Deaktivierung sind eingeschränkt (mindestens eine
@@ -188,7 +187,7 @@ async function UserDetailContent({ params }: { params: Promise<{ id: string }> }
             {auditEntries.map((entry) => (
               <tr key={entry.id}>
                 <td className="td whitespace-nowrap text-slate-600">
-                  {entry.createdAt.toLocaleString("de-CH")}
+                  {fromDbTime(entry.createdAt).toLocaleString("de-CH")}
                 </td>
                 <td className="td font-mono text-xs text-slate-600">{entry.action}</td>
                 <td className="td">{entry.summary}</td>

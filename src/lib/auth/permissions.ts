@@ -4,7 +4,7 @@
 // - Konten anlegen: Büro und Admin (Büro darf nur Teilnehmende/Lehrpersonen verwalten)
 // - Chef: alles sehen — auch Benutzerverwaltung (lesend) und Audit-Log
 
-import type { Role } from "@prisma/client";
+import type { Role } from "@/lib/db";
 
 export const ROLE_LABELS: Record<Role, string> = {
   ADMIN: "Admin",

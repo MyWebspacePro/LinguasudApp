@@ -6,8 +6,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import type { Role } from "@prisma/client";
-import { prisma } from "@/lib/db";
+import { db, roleList, toDbTime, type Role } from "@/lib/db";
 import { getEnv, isMailConfigured } from "@/lib/env";
 import { AUDIT_ACTIONS, recordAudit } from "@/lib/audit";
 import { getRequestMeta } from "@/lib/request";
@@ -36,10 +35,10 @@ async function requireManager(): Promise<{ actor: ActionUser } | { failure: Form
   if (ctx.user.mustChangePassword) {
     return { failure: { error: "Bitte ändern Sie zuerst Ihr eigenes Passwort." } };
   }
-  if (!hasRole(ctx.user.roles, "ADMIN") && !hasRole(ctx.user.roles, "BUERO")) {
+  if (!hasRole(roleList(ctx.user.roles), "ADMIN") && !hasRole(roleList(ctx.user.roles), "BUERO")) {
     return { failure: { error: "Sie haben keine Berechtigung für die Benutzerverwaltung." } };
   }
-  return { actor: { id: ctx.user.id, email: ctx.user.email, roles: ctx.user.roles as Role[] } };
+  return { actor: { id: ctx.user.id, email: ctx.user.email, roles: roleList(ctx.user.roles) } };
 }
 
 function parseRoles(formData: FormData): Role[] {
@@ -63,10 +62,14 @@ async function wouldRemoveLastActiveAdmin(
     targetActive && targetRoles.includes("ADMIN") && (!newRoles.includes("ADMIN") || !newActive);
   if (!losingAdmin) return false;
 
-  const others = await prisma.user.count({
-    where: { id: { not: targetId }, isActive: true, roles: { has: "ADMIN" } },
-  });
-  return others === 0;
+  // Array-Contains-Filter (roles @> ['ADMIN']) hat im ORM keine direkte
+  // Entsprechung — bei Sprachschulgrösse ist der client-seitige Check
+  // über die aktiven Konten völlig ausreichend.
+  const others = await db.orm.public.User.where({ isActive: true })
+    .where((u) => u.id.neq(targetId))
+    .select("roles")
+    .all();
+  return !others.some((u) => roleList(u.roles).includes("ADMIN"));
 }
 
 /** Legt ein Konto an — Passwort direkt oder per Einladungs-Link per E-Mail. */
@@ -112,7 +115,7 @@ export async function createUserAction(_prev: FormState, formData: FormData): Pr
     }
   }
 
-  const existing = await prisma.user.findUnique({ where: { email } });
+  const existing = await db.orm.public.User.where({ email }).first();
   if (existing) {
     return { error: "Für diese E-Mail-Adresse existiert bereits ein Konto.", fieldErrors: { email: "Bereits vergeben" } };
   }
@@ -122,16 +125,14 @@ export async function createUserAction(_prev: FormState, formData: FormData): Pr
     inviteToken = generateToken();
   }
 
-  const user = await prisma.user.create({
-    data: {
-      email,
-      firstName,
-      lastName,
-      roles,
-      // Bei E-Mail-Mode setzt die Person ihr Passwort selbst über den Link.
-      passwordHash: mode === "manual" ? await hashPassword(password) : null,
-      mustChangePassword: true,
-    },
+  const user = await db.orm.public.User.create({
+    email,
+    firstName,
+    lastName,
+    roles,
+    // Bei E-Mail-Mode setzt die Person ihr Passwort selbst über den Link.
+    passwordHash: mode === "manual" ? await hashPassword(password) : null,
+    mustChangePassword: true,
   });
 
   const meta = await getRequestMeta();
@@ -148,12 +149,10 @@ export async function createUserAction(_prev: FormState, formData: FormData): Pr
   if (mode === "email" && inviteToken) {
     const env = getEnv();
     const url = `${env.APP_URL.replace(/\/$/, "")}/login/passwort-setzen?token=${inviteToken}`;
-    await prisma.passwordResetToken.create({
-      data: {
-        tokenHash: hashToken(inviteToken),
-        userId: user.id,
-        expiresAt: new Date(Date.now() + RESET_TOKEN_TTL_MS),
-      },
+    await db.orm.public.PasswordResetToken.create({
+      tokenHash: hashToken(inviteToken),
+      userId: user.id,
+      expiresAt: toDbTime(new Date(Date.now() + RESET_TOKEN_TTL_MS)),
     });
     const result = await sendMail(passwordResetMail(email, firstName, url, true));
     await recordAudit({
@@ -183,7 +182,7 @@ export async function updateUserAction(_prev: FormState, formData: FormData): Pr
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const roles = parseRoles(formData);
 
-  const target = await prisma.user.findUnique({ where: { id: userId } });
+  const target = await db.orm.public.User.where({ id: userId }).first();
   if (!target) return { error: "Benutzer nicht gefunden." };
 
   const fieldErrors: Record<string, string> = {};
@@ -198,18 +197,16 @@ export async function updateUserAction(_prev: FormState, formData: FormData): Pr
 
   // Namen/E-Mail dürfen Büro und Admin ändern (soweit es das Konto darf),
   // Rollen nur, wer sie auch vergeben könnte.
-  if (!canEditUser(actor.roles, target.roles as Role[])) {
+  const targetRoles = roleList(target.roles);
+  if (!canEditUser(actor.roles, targetRoles)) {
     return { error: "Sie dürfen dieses Konto nicht bearbeiten." };
   }
-  if (
-    JSON.stringify([...roles].sort()) !== JSON.stringify([...target.roles].sort()) &&
-    !canAssignRoles(actor.roles, roles)
-  ) {
+  if (JSON.stringify([...roles].sort()) !== JSON.stringify([...targetRoles].sort()) && !canAssignRoles(actor.roles, roles)) {
     return { error: "Sie dürfen diese Rollenkombination nicht vergeben." };
   }
 
   if (email !== target.email) {
-    const existing = await prisma.user.findUnique({ where: { email } });
+    const existing = await db.orm.public.User.where({ email }).first();
     if (existing) {
       return { error: "Diese E-Mail-Adresse wird bereits verwendet.", fieldErrors: { email: "Bereits vergeben" } };
     }
@@ -218,7 +215,7 @@ export async function updateUserAction(_prev: FormState, formData: FormData): Pr
   if (
     await wouldRemoveLastActiveAdmin(
       target.id,
-      target.roles as Role[],
+      targetRoles,
       target.isActive,
       roles,
       target.isActive,
@@ -227,7 +224,7 @@ export async function updateUserAction(_prev: FormState, formData: FormData): Pr
     return { error: "Es muss mindestens eine aktive Admin-Person geben. Änderung nicht möglich." };
   }
 
-  await prisma.user.update({ where: { id: target.id }, data: { firstName, lastName, email, roles } });
+  await db.orm.public.User.where({ id: target.id }).update({ firstName, lastName, email, roles });
 
   await recordAudit({
     actor,
@@ -236,7 +233,7 @@ export async function updateUserAction(_prev: FormState, formData: FormData): Pr
     entityId: target.id,
     summary: `Konto bearbeitet: ${firstName} ${lastName} (${email})`,
     details: {
-      rolesChanged: JSON.stringify([...roles].sort()) !== JSON.stringify([...target.roles].sort()),
+      rolesChanged: JSON.stringify([...roles].sort()) !== JSON.stringify([...targetRoles].sort()),
       roles,
     },
   });
@@ -255,18 +252,19 @@ export async function setUserActiveAction(_prev: FormState, formData: FormData):
   const userId = String(formData.get("userId") ?? "");
   const active = String(formData.get("active") ?? "") === "true";
 
-  const target = await prisma.user.findUnique({ where: { id: userId } });
+  const target = await db.orm.public.User.where({ id: userId }).first();
   if (!target) return { error: "Benutzer nicht gefunden." };
-  if (!canEditUser(actor.roles, target.roles as Role[])) {
+  const targetRoles = roleList(target.roles);
+  if (!canEditUser(actor.roles, targetRoles)) {
     return { error: "Sie dürfen dieses Konto nicht bearbeiten." };
   }
   if (
-    await wouldRemoveLastActiveAdmin(target.id, target.roles as Role[], target.isActive, target.roles as Role[], active)
+    await wouldRemoveLastActiveAdmin(target.id, targetRoles, target.isActive, targetRoles, active)
   ) {
     return { error: "Es muss mindestens eine aktive Admin-Person geben." };
   }
 
-  await prisma.user.update({ where: { id: target.id }, data: { isActive: active } });
+  await db.orm.public.User.where({ id: target.id }).update({ isActive: active });
   if (!active) {
     await revokeUserSessions(target.id);
   }
@@ -294,9 +292,9 @@ export async function adminSetPasswordAction(_prev: FormState, formData: FormDat
   const mode = String(formData.get("mode") ?? "manual") === "email" ? "email" : "manual";
   const password = String(formData.get("password") ?? "");
 
-  const target = await prisma.user.findUnique({ where: { id: userId } });
+  const target = await db.orm.public.User.where({ id: userId }).first();
   if (!target) return { error: "Benutzer nicht gefunden." };
-  if (!canEditUser(actor.roles, target.roles as Role[])) {
+  if (!canEditUser(actor.roles, roleList(target.roles))) {
     return { error: "Sie dürfen für dieses Konto kein Passwort setzen." };
   }
 
@@ -305,9 +303,9 @@ export async function adminSetPasswordAction(_prev: FormState, formData: FormDat
     if (policy.length > 0) {
       return { error: "Das Passwort erfüllt die Anforderungen nicht.", fieldErrors: { password: policy.join(" · ") } };
     }
-    await prisma.user.update({
-      where: { id: target.id },
-      data: { passwordHash: await hashPassword(password), mustChangePassword: true },
+    await db.orm.public.User.where({ id: target.id }).update({
+      passwordHash: await hashPassword(password),
+      mustChangePassword: true,
     });
     const revoked = await revokeUserSessions(target.id);
     await recordAudit({
@@ -323,24 +321,23 @@ export async function adminSetPasswordAction(_prev: FormState, formData: FormDat
   }
 
   // E-Mail-Mode: alten Links entwerten, neuen versenden.
-  await prisma.passwordResetToken.updateMany({
-    where: { userId: target.id, usedAt: null },
-    data: { usedAt: new Date() },
+  await db.orm.public.PasswordResetToken.where({ userId: target.id, usedAt: null }).updateAll({
+    usedAt: toDbTime(new Date()),
   });
   const token = generateToken();
-  await prisma.passwordResetToken.create({
-    data: {
-      tokenHash: hashToken(token),
-      userId: target.id,
-      expiresAt: new Date(Date.now() + RESET_TOKEN_TTL_MS),
-    },
+  await db.orm.public.PasswordResetToken.create({
+    tokenHash: hashToken(token),
+    userId: target.id,
+    expiresAt: toDbTime(new Date(Date.now() + RESET_TOKEN_TTL_MS)),
   });
   const env = getEnv();
   const url = `${env.APP_URL.replace(/\/$/, "")}/login/passwort-setzen?token=${token}`;
   const result = await sendMail(passwordResetMail(target.email, target.firstName, url, !target.passwordHash));
 
   if (!result.delivered && !result.devLogged) {
-    await prisma.passwordResetToken.update({ where: { tokenHash: hashToken(token) }, data: { usedAt: new Date() } });
+    await db.orm.public.PasswordResetToken.where({ tokenHash: hashToken(token) }).update({
+      usedAt: toDbTime(new Date()),
+    });
     return {
       error:
         "Die E-Mail konnte nicht versendet werden (SMTP nicht konfiguriert oder fehlerhaft). Bitte setzen Sie das Passwort direkt.",
@@ -366,9 +363,9 @@ export async function revokeUserSessionsAction(_prev: FormState, formData: FormD
   const actor = guard.actor;
 
   const userId = String(formData.get("userId") ?? "");
-  const target = await prisma.user.findUnique({ where: { id: userId } });
+  const target = await db.orm.public.User.where({ id: userId }).first();
   if (!target) return { error: "Benutzer nicht gefunden." };
-  if (!canEditUser(actor.roles, target.roles as Role[])) {
+  if (!canEditUser(actor.roles, roleList(target.roles))) {
     return { error: "Sie dürfen dieses Konto nicht bearbeiten." };
   }
 

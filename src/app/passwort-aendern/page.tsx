@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getAuthContext } from "@/lib/auth/session";
 import { landingRoute } from "@/lib/auth/permissions";
+import { roleList } from "@/lib/db";
 import { ChangePasswordForm } from "@/components/ChangePasswordForm";
 
 export const metadata: Metadata = {
@@ -51,7 +52,7 @@ async function ChangePasswordGate() {
         </p>
       )}
       <div className={forced ? "" : "mt-5"}>
-        <ChangePasswordForm continueHref={landingRoute(ctx.user.roles)} />
+        <ChangePasswordForm continueHref={landingRoute(roleList(ctx.user.roles))} />
       </div>
     </div>
   );

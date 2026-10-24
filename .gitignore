@@ -43,3 +43,6 @@ next-env.d.ts
 
 # ZCode / Editor
 /.zcode
+node_modules/
+dist/
+.env

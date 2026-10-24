@@ -1,18 +1,15 @@
 // LinguasudApp — Datenbankschema (PostgreSQL)
-// Bewusst auf Prisma 6 gepinnt (stabile, klassische Migrations-Workflow).
+// Prisma 8 liest dieses Schema als Contract-Quelle: nach jeder Änderung
+// `pnpm db:generate` (contract emit) laufen lassen und mit `pnpm db:plan`
+// + `pnpm db:migrate` migrieren.
 //
 // Plan: Modul 3 (Personenverwaltung) führt die Person-Kartei ein; jeder User
 // wird dann über User.personId einer Person zugeordnet (E-Mail = Login bleibt
 // auf beiden Seiten synchron). Modul 1 hält das Schema bewusst auf das
 // Login-/Rechtesystem beschränkt.
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 /// Die 5 Rollen des Pflichtenhefts — Mehrfachrollen möglich.

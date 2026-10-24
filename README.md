@@ -13,7 +13,7 @@ Die vollständigen Anforderungen stehen im **[PFLICHTENHEFT.md](./PFLICHTENHEFT.
 | Framework | **Next.js 16** (App Router, React 19, TypeScript) | Fullstack: Verwaltung + öffentliche Website in einer App |
 | Styling | **Tailwind CSS 4** | Hell/freundlich, Bordeaux (`--color-brand-*`) als Akzentfarbe, kompakte Dichte |
 | Datenbank | **PostgreSQL 17** | Lokal via Docker, im VPS als Coolify-Container |
-| ORM | **Prisma 6** (bewusst gepinnt) | Klassischer, stabiler Migrations-Workflow; Prisma 7 ist ein Neuanfang mit anderem Konzept und für den Produktivbetrieb (noch) nicht nötig |
+| ORM | **Prisma 8** (`8.0.0-rc.27` + `@prisma/orm-postgres`, exakt gepinnt) | Contract-basiertes ORM: `prisma/schema.prisma` ist die Contract-Quelle; Queries über `db.orm.public.<Modell>`, DateTime-Felder als UTC-Strings (Konvertierung in `src/lib/domain.ts`) |
 | Tests | **Vitest** | |
 | Versand | **Docker** (node:22-alpine, Standalone-Build) | Deployment über Coolify auf den VPS |
 
@@ -25,7 +25,7 @@ Voraussetzungen: Node 22, pnpm, Docker Desktop (für die Datenbank).
 pnpm install          # Abhängigkeiten
 pnpm db:up            # PostgreSQL als Container starten
 cp .env.example .env  # falls noch nicht vorhanden (lokal vorkonfiguriert)
-pnpm db:migrate       # Migrationen anwenden / neue erstellen
+pnpm db:generate      # Contract aus dem Schema kompilieren (nach jeder Schema-Änderung)
 pnpm dev              # http://localhost:3000
 ```
 
@@ -37,8 +37,19 @@ Weitere Befehle:
 | `pnpm test` / `pnpm test:watch` | Tests (Vitest) |
 | `pnpm typecheck` | TypeScript-Prüfung |
 | `pnpm lint` | ESLint |
-| `pnpm db:studio` | Prisma Studio (DB ansehen) |
+| `pnpm db:plan` | Migration aus dem Contract planen (z.B. `pnpm db:plan --name mein_change`) |
+| `pnpm db:migrate` | Geplante Migrationen lokal anwenden (`db migrate --advance-ref db`) |
+| `pnpm db:status` | Migrations-Status der Datenbank |
+| `pnpm db:verify` | Schema + Marker gegen den Contract prüfen |
 | `pnpm db:down` | Datenbank-Container stoppen |
+
+### Prisma-8-Workflow (Schema ändern)
+
+1. `prisma/schema.prisma` anpassen.
+2. `pnpm db:generate` — kompiliert `src/prisma/contract.json` + `contract.d.ts` (beide liegen in Git).
+3. `pnpm db:plan --name <snake_case_name>` — schreibt ein Migrations-Paket nach `migrations/app/`. Bei Datenverlust-Fragen antwortet die CLI interaktiv (`--delete`/`--rename`).
+4. `pnpm db:migrate` — wendet die Pakete an und rückt den `db`-Ref nach.
+5. Falls nötig: `pnpm db:verify` (Diagnose bei Drift).
 
 ## Deployment (Coolify)
 
@@ -50,21 +61,25 @@ Weitere Befehle:
 3. **Umgebungsvariablen in Coolify** (siehe `.env.example`):
    `DATABASE_URL`, `APP_ENV=production`, `APP_URL`, später `SMTP_*` (IONOS) und
    QR-Rechnungs-/OpenRouter-Schlüssel.
-4. Beim Containerstart führt der Entrypoint automatisch `prisma migrate deploy`
-   aus; danach startet der Server. Healthcheck: `/api/health`.
+4. Beim Containerstart prüft der Entrypoint das Schema gegen den Contract
+   (`prisma db sign`, adoptiert bestehende Datenbanken) und wendet dann
+   ausstehende Migrationen an (`prisma db migrate`); danach startet der Server.
+   Healthcheck: `/api/health`.
 5. **Backups:** Coolify-Datenbank-Backup täglich, ca. 14 Tage Aufbewahrung.
 
 ## Projektstruktur
 
 ```
-prisma/            Datenbankschema + Migrationen (Modell-Module entstehen pro Modul)
+prisma/            Datenbankschema (Contract-Quelle) + alte Prisma-6/7-SQL-Migrationen (Historie, inert)
+migrations/        Prisma-8-Migrationspakete (migrations/app/) + Snapshot-Store
+src/prisma/        Generierter Contract + DB-Client (prisma contract emit)
 src/app/           Seiten (Verwaltung, Portal, öffentliche Website) + API-Routen
-src/lib/           geteilte Bibliothek (DB-Client, Env-Validierung, Domänenlogik)
+src/lib/           geteilte Bibliothek (DB-Client, pures Domain-Modul, Env-Validierung, Domänenlogik)
 src/lib/auth/      Login & Rechte (Modul 1): Sessions, Passwort-Politik, Brute-Force, Rollen
 src/components/    UI-Bausteine (Bordeaux-Design-System, siehe globals.css)
 src/proxy.ts       Optimistische Zugangslenkung (Next.js 16 Proxy, früher Middleware)
 src/instrumentation.ts  Server-Start-Hook (legt das erste Admin-Konto an, falls DB leer)
-docker-entrypoint.sh  Migrationen + Serverstart im Container
+docker-entrypoint.sh  Schema-Adoption + Migrationen + Serverstart im Container
 PFLICHTENHEFT.md   Anforderungen (verbindlich für die Umsetzung)
 ```
 

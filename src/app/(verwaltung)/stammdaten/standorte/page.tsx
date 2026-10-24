@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import type { Role } from "@prisma/client";
-import { prisma } from "@/lib/db";
+import type { Role } from "@/lib/db";
+import { db } from "@/lib/db";
 import { requireStaff } from "@/lib/auth/session";
 import { canManageStammdaten, canViewStammdaten } from "@/lib/auth/permissions";
 import { StandorteManager } from "@/components/stammdaten/StandorteManager";
@@ -27,15 +27,14 @@ async function StandorteContent() {
     redirect("/dashboard");
   }
 
-  const standorte = await prisma.standort.findMany({
-    orderBy: { name: "asc" },
-    include: {
-      etagen: {
-        orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-        include: { raeume: { orderBy: { name: "asc" } } },
-      },
-    },
-  });
+  const standorte = await db.orm.public.Standort
+    .include("etagen", (etagen) =>
+      etagen
+        .orderBy([(e) => e.sortOrder.asc(), (e) => e.name.asc()])
+        .include("raeume", (raeume) => raeume.orderBy((r) => r.name.asc())),
+    )
+    .orderBy((s) => s.name.asc())
+    .all();
 
   return (
     <div className="space-y-5">

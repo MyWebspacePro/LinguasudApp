@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Role } from "@prisma/client";
+import type { Role } from "@/lib/domain";
 import { ALL_ROLES, ROLE_LABELS } from "@/lib/auth/permissions";
 
 /**

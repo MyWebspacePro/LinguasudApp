@@ -1,10 +1,10 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import type { Role } from "@prisma/client";
+import type { Role } from "@/lib/db";
+import { db, fromDbTime } from "@/lib/db";
 import { requireStaff } from "@/lib/auth/session";
 import { canViewAuditLog, canViewUsers, hasRole } from "@/lib/auth/permissions";
-import { prisma } from "@/lib/db";
 import { RoleBadge } from "@/components/RoleBadge";
 
 export const metadata: Metadata = {
@@ -24,13 +24,15 @@ async function DashboardContent() {
   const { user } = await requireStaff();
   const roles = user.roles as Role[];
   const [userCount, recentLogins] = await Promise.all([
-    canViewUsers(roles) ? prisma.user.count() : Promise.resolve(null),
+    canViewUsers(roles)
+      ? db.orm.public.User.aggregate((a) => ({ n: a.count() })).then((r) => r.n)
+      : Promise.resolve(null),
     canViewAuditLog(roles)
-      ? prisma.auditLog.findMany({
-          where: { action: { in: ["user.login", "user.login_failed"] } },
-          orderBy: { createdAt: "desc" },
-          take: 5,
-        })
+      ? db.orm.public.AuditLog
+          .where((e) => e.action.in(["user.login", "user.login_failed"]))
+          .orderBy((e) => e.createdAt.desc())
+          .limit(5)
+          .all()
       : Promise.resolve(null),
   ]);
 
@@ -79,7 +81,7 @@ async function DashboardContent() {
                   <li key={entry.id} className="flex items-baseline justify-between gap-3 py-1.5">
                     <span className="min-w-0 truncate text-slate-700">{entry.summary}</span>
                     <span className="shrink-0 text-xs text-slate-500">
-                      {entry.createdAt.toLocaleString("de-CH")}
+                      {fromDbTime(entry.createdAt).toLocaleString("de-CH")}
                     </span>
                   </li>
                 ))}

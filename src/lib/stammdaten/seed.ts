@@ -1,6 +1,6 @@
 import "server-only";
 
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 
 /**
  * Startdaten für Modul 2 (Pflichtenheft): Standorte/Räume, Sprachen, Niveaus,
@@ -77,61 +77,70 @@ const SEED_MARKER = "stammdaten.startdaten";
 
 export async function seedStartdaten(): Promise<void> {
   try {
-    const marker = await prisma.systemSetting.findUnique({ where: { key: SEED_MARKER } });
+    const marker = await db.orm.public.SystemSetting.where({ key: SEED_MARKER }).first();
     if (marker) return;
 
-    const standortCount = await prisma.standort.count();
-    if (standortCount > 0) {
+    const standortCount = await db.orm.public.Standort.aggregate((a) => ({ n: a.count() }));
+    if (standortCount.n > 0) {
       // Manuell vorbefüllt — nichts säen, aber merken, damit wir nie erneut prüfen.
-      await prisma.systemSetting.create({
-        data: { key: SEED_MARKER, value: new Date().toISOString() },
+      await db.orm.public.SystemSetting.create({
+        key: SEED_MARKER,
+        value: new Date().toISOString(),
       });
       return;
     }
 
-    for (const standort of START_STANDORTE) {
-      await prisma.standort.create({
-        data: {
+    await db.transaction(async (tx) => {
+      // Hierarchie Standort → Etage → Raum explizit (keine verschachtelten Writes).
+      for (const standort of START_STANDORTE) {
+        const s = await tx.orm.public.Standort.create({
           name: standort.name,
           strasse: standort.strasse,
           plz: standort.plz,
           ort: standort.ort,
-          etagen: {
-            create: standort.etagen.map((etage, etageIndex) => ({
-              name: etage.name,
-              sortOrder: etageIndex,
-              raeume: {
-                create: Array.from({ length: etage.raeume }, (_, i) => ({
-                  // Platzhalter bis die echten Raumnamen erfasst sind.
-                  name: `Raum ${etageIndex + 1}.${String(i + 1).padStart(2, "0")}`,
-                  seats: 0,
-                })),
-              },
-            })),
-          },
-        },
+        });
+        for (const [etageIndex, etage] of standort.etagen.entries()) {
+          const e = await tx.orm.public.Etage.create({
+            standortId: s.id,
+            name: etage.name,
+            sortOrder: etageIndex,
+          });
+          for (let i = 0; i < etage.raeume; i++) {
+            await tx.orm.public.Raum.create({
+              etageId: e.id,
+              // Platzhalter bis die echten Raumnamen erfasst sind.
+              name: `Raum ${etageIndex + 1}.${String(i + 1).padStart(2, "0")}`,
+              seats: 0,
+            });
+          }
+        }
+      }
+
+      for (const sprache of START_SPRACHEN) {
+        await tx.orm.public.Sprache.create({ name: sprache.name, code: sprache.code });
+      }
+      for (const [i, code] of START_NIVEAUS.entries()) {
+        await tx.orm.public.Niveau.create({ code, sortOrder: i + 1 });
+      }
+      for (const [i, kursart] of START_KURSARTEN.entries()) {
+        await tx.orm.public.Kursart.create({
+          name: kursart.name,
+          maxParticipants: kursart.maxParticipants,
+          requiresRoom: kursart.requiresRoom,
+          sortOrder: i + 1,
+        });
+      }
+      for (const minuten of START_DAUERN) {
+        await tx.orm.public.Lektionsdauer.create({ minuten });
+      }
+      for (const tarifstufe of START_TARIFSTUFEN) {
+        await tx.orm.public.Tarifstufe.create({ ...tarifstufe });
+      }
+
+      await tx.orm.public.SystemSetting.create({
+        key: SEED_MARKER,
+        value: new Date().toISOString(),
       });
-    }
-
-    await prisma.sprache.createMany({
-      data: START_SPRACHEN.map((s) => ({ name: s.name, code: s.code })),
-    });
-    await prisma.niveau.createMany({
-      data: START_NIVEAUS.map((code, i) => ({ code, sortOrder: i + 1 })),
-    });
-    await prisma.kursart.createMany({
-      data: START_KURSARTEN.map((k, i) => ({
-        name: k.name,
-        maxParticipants: k.maxParticipants,
-        requiresRoom: k.requiresRoom,
-        sortOrder: i + 1,
-      })),
-    });
-    await prisma.lektionsdauer.createMany({ data: START_DAUERN.map((minuten) => ({ minuten })) });
-    await prisma.tarifstufe.createMany({ data: START_TARIFSTUFEN.map((t) => ({ ...t })) });
-
-    await prisma.systemSetting.create({
-      data: { key: SEED_MARKER, value: new Date().toISOString() },
     });
 
     console.log("Startdaten angelegt: Standorte/Räume, Sprachen, Niveaus, Kursarten, Dauern, Tarifstufen.");

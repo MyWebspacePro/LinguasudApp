@@ -2,8 +2,8 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import type { Prisma } from "@prisma/client";
-import { prisma } from "@/lib/db";
+import { or } from "@prisma/orm-postgres/orm-client";
+import { db, fromDbTime, roleList } from "@/lib/db";
 import { requireStaff } from "@/lib/auth/session";
 import { canViewAuditLog } from "@/lib/auth/permissions";
 
@@ -75,13 +75,18 @@ export default function AuditPage({
   );
 }
 
+/** LIKE-Teiltreffer ohne Gross-/Kleinschreibung; Wildcards im Suchbegriff werden escapt. */
+function containsIL(value: string): string {
+  return `%${value.replace(/[\\%_]/g, (c) => `\\${c}`)}%`;
+}
+
 async function AuditContent({
   searchParams,
 }: {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { user: actor } = await requireStaff();
-  if (!canViewAuditLog(actor.roles)) {
+  if (!canViewAuditLog(roleList(actor.roles))) {
     redirect("/dashboard");
   }
 
@@ -90,25 +95,22 @@ async function AuditContent({
   const action = typeof params.aktion === "string" && params.aktion ? params.aktion : null;
   const page = Math.max(1, Number.parseInt(typeof params.seite === "string" ? params.seite : "1", 10) || 1);
 
-  const where: Prisma.AuditLogWhereInput = {
-    ...(q && {
-      OR: [
-        { summary: { contains: q, mode: "insensitive" } },
-        { actorEmail: { contains: q, mode: "insensitive" } },
-      ],
-    }),
-    ...(action && { action }),
-  };
+  // Mehrere .where() AND-verknüpfen.
+  const filtered = q
+    ? db.orm.public.AuditLog.where((e) =>
+        or(e.summary.ilike(containsIL(q)), e.actorEmail.ilike(containsIL(q))),
+      )
+    : db.orm.public.AuditLog;
+  const scoped = action ? filtered.where({ action }) : filtered;
 
   const [entries, total, actionCounts] = await Promise.all([
-    prisma.auditLog.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      skip: (page - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
-    }),
-    prisma.auditLog.count({ where }),
-    prisma.auditLog.groupBy({ by: ["action"], _count: { _all: true } }),
+    scoped
+      .orderBy((e) => e.createdAt.desc())
+      .offset((page - 1) * PAGE_SIZE)
+      .limit(PAGE_SIZE)
+      .all(),
+    scoped.aggregate((a) => ({ n: a.count() })).then((r) => r.n),
+    db.orm.public.AuditLog.groupBy("action").aggregate((a) => ({ n: a.count() })),
   ]);
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -147,7 +149,7 @@ async function AuditContent({
               .sort((a, b) => a.action.localeCompare(b.action))
               .map((row) => (
                 <option key={row.action} value={row.action}>
-                  {ACTION_LABELS[row.action] ?? row.action} ({row._count._all})
+                  {ACTION_LABELS[row.action] ?? row.action} ({row.n})
                 </option>
               ))}
           </select>
@@ -172,7 +174,7 @@ async function AuditContent({
             {entries.map((entry) => (
               <tr key={entry.id}>
                 <td className="td whitespace-nowrap text-slate-600">
-                  {entry.createdAt.toLocaleString("de-CH")}
+                  {fromDbTime(entry.createdAt).toLocaleString("de-CH")}
                 </td>
                 <td className="td whitespace-nowrap">
                   <span className="rounded bg-brand-50 px-1.5 py-0.5 font-mono text-xs text-brand-800">

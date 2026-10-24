@@ -2,8 +2,8 @@
 // Die Entscheidung (`isRateLimited`) ist pur und damit testbar; die DB-Funktionen
 // laufen dagegen in Server Actions.
 
-import type { AuthEventKind, Prisma } from "@prisma/client";
-import { prisma } from "@/lib/db";
+import { and, or } from "@prisma/orm-postgres/orm-client";
+import { db, fromDbTime, toDbTime, type AuthEventKind } from "@/lib/db";
 import {
   AUTH_EVENT_RETENTION_MS,
   LOGIN_MAX_FAILS_EMAIL,
@@ -47,18 +47,26 @@ export function isRateLimited(
   return perEmail >= options.maxPerEmail || perIp >= options.maxPerIp;
 }
 
-// ——— Die DB-Schicht ————————————————————————————————————————————
+// ——— Die DB-Schicht ——————————————————————————————————————————————————
 
 async function recentEvents(kind: AuthEventKind, email: string, ip: string | null, windowMs: number) {
-  const since = new Date(Date.now() - windowMs);
-  const emailFilter: Prisma.LoginAttemptWhereInput = { kind, email, createdAt: { gte: since } };
-  const ipFilter: Prisma.LoginAttemptWhereInput =
-    ip === null ? {} : { kind, ip, createdAt: { gte: since } };
+  const since = toDbTime(new Date(Date.now() - windowMs));
 
-  return prisma.loginAttempt.findMany({
-    where: { OR: [emailFilter, ipFilter] },
-    select: { email: true, ip: true, success: true, createdAt: true },
-  });
+  const base = ip === null
+    ? db.orm.public.LoginAttempt.where((e) =>
+        and(e.kind.eq(kind), e.email.eq(email), e.createdAt.gte(since)),
+      )
+    : db.orm.public.LoginAttempt.where((e) =>
+        or(
+          and(e.kind.eq(kind), e.email.eq(email), e.createdAt.gte(since)),
+          and(e.kind.eq(kind), e.ip.eq(ip), e.createdAt.gte(since)),
+        ),
+      );
+
+  const rows = await base.select("email", "ip", "success", "createdAt").all();
+  // Prisma 8 liefert DateTime als String — für die pur funktionale
+  // Entscheidung in Date konvertieren.
+  return rows.map((e) => ({ email: e.email, ip: e.ip, success: e.success, createdAt: fromDbTime(e.createdAt) }));
 }
 
 /** Prüft die Sperre für einen Login-Versuch (nur Fehlversuche zählen). */
@@ -86,11 +94,11 @@ export async function recordAuthEvent(input: {
   ip: string | null;
   success: boolean;
 }): Promise<void> {
-  await prisma.loginAttempt.create({ data: input });
+  await db.orm.public.LoginAttempt.create(input);
 }
 
 /** Löscht Alt-Ereignisse; wird gelegentlich nebenbei aufgerufen. */
 export async function cleanupAuthEvents(): Promise<void> {
-  const cutoff = new Date(Date.now() - AUTH_EVENT_RETENTION_MS);
-  await prisma.loginAttempt.deleteMany({ where: { createdAt: { lt: cutoff } } });
+  const cutoff = toDbTime(new Date(Date.now() - AUTH_EVENT_RETENTION_MS));
+  await db.orm.public.LoginAttempt.where((e) => e.createdAt.lt(cutoff)).deleteAll();
 }

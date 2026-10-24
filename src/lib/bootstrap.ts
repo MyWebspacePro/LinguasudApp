@@ -1,6 +1,6 @@
 import "server-only";
 
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 import { hashPassword } from "@/lib/auth/password";
 import { passwordPolicyErrors } from "@/lib/auth/password-policy";
 
@@ -13,8 +13,8 @@ import { passwordPolicyErrors } from "@/lib/auth/password-policy";
  */
 export async function bootstrapAdmin(): Promise<void> {
   try {
-    const existing = await prisma.user.count();
-    if (existing > 0) {
+    const existing = await db.orm.public.User.aggregate((a) => ({ n: a.count() }));
+    if (existing.n > 0) {
       console.log("Bootstrap übersprungen: es existieren bereits Konten.");
       return;
     }
@@ -48,27 +48,23 @@ export async function bootstrapAdmin(): Promise<void> {
       return;
     }
 
-    const user = await prisma.user.create({
-      data: {
-        email,
-        firstName,
-        lastName,
-        roles: ["ADMIN"],
-        passwordHash: await hashPassword(password),
-        isActive: true,
-        mustChangePassword: true,
-      },
+    const user = await db.orm.public.User.create({
+      email,
+      firstName,
+      lastName,
+      roles: ["ADMIN"],
+      passwordHash: await hashPassword(password),
+      isActive: true,
+      mustChangePassword: true,
     });
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: user.id,
-        actorEmail: user.email,
-        action: "user.bootstrap",
-        entity: "user",
-        entityId: user.id,
-        summary: `Erstes Admin-Konto eingerichtet: ${firstName} ${lastName} (${email})`,
-        details: { roles: ["ADMIN"], bootstrap: true },
-      },
+    await db.orm.public.AuditLog.create({
+      actorUserId: user.id,
+      actorEmail: user.email,
+      action: "user.bootstrap",
+      entity: "user",
+      entityId: user.id,
+      summary: `Erstes Admin-Konto eingerichtet: ${firstName} ${lastName} (${email})`,
+      details: { roles: ["ADMIN"], bootstrap: true },
     });
 
     console.log(

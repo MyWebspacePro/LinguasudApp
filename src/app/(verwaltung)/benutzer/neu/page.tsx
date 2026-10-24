@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import type { Role } from "@prisma/client";
+import type { Role } from "@/lib/db";
 import { requireStaff } from "@/lib/auth/session";
 import { hasRole } from "@/lib/auth/permissions";
 import { ALL_ROLES, BUERO_ASSIGNABLE_ROLES } from "@/lib/auth/permissions";

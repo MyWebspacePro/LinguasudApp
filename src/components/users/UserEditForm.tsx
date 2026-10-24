@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import type { Role } from "@prisma/client";
+import { roleList, type Role } from "@/lib/domain";
 import { updateUserAction } from "@/lib/users/actions";
 import { idleFormState } from "@/lib/forms";
 import { FormAlert } from "@/components/FormAlert";
@@ -71,7 +71,7 @@ export function UserEditForm({
 
       <RoleSelector
         assignableRoles={assignableRoles}
-        initialRoles={user.roles}
+        initialRoles={roleList(user.roles)}
         error={state.fieldErrors?.roles}
       />
 

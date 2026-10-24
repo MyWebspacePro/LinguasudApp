@@ -19,7 +19,7 @@ Stand: 24.10.2026 · Status: Phase 1 (Projektgerüst) **fertig und live** auf `l
 | Backups | **Täglich automatisch**, ca. 14 Tage Aufbewahrung |
 | PDF | Serverseitige Erzeugung; Rechnungen als **Schweizer QR-Rechnung** |
 | Währung / UI-Sprache | CHF / Verwaltung deutsch |
-| ORM/Schema | Prisma (Migrationen laufen beim Deployment automatisch) |
+| ORM/Schema | **Prisma 8** (`8.0.0-rc.27` + `@prisma/orm-postgres`, exakt gepinnt; Prisma 6 erhält nur noch bis 19.11.2026 Sicherheitspatches): `prisma/schema.prisma` als Contract-Quelle, Migrationen via `migration plan` + `db migrate`, laufen beim Deployment automatisch |
 
 ## Rollenmodell (5 Rollen, Mehrfachrollen möglich)
 

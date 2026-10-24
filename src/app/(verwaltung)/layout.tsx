@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
-import type { Role } from "@prisma/client";
+import type { Role } from "@/lib/db";
 import { requireStaff } from "@/lib/auth/session";
 import { canViewAuditLog, canViewStammdaten, canViewUsers, hasRole } from "@/lib/auth/permissions";
 import { logoutAction } from "@/lib/auth/actions";

@@ -1,14 +1,10 @@
-import { PrismaClient } from "@prisma/client";
+// Zentrale Datenbank-Exporte (Prisma 8) — nur für Servercode ("server-only"
+// Datenzugriff). Der Client liegt in src/prisma/db.ts (wird von
+// `prisma contract emit` verwaltet); pures Domain-Zeug (Typen, Konverter)
+// liegt in src/lib/domain.ts und wird von Client-Components direkt von dort
+// importiert, damit der DB-Client nie in den Browser-Bundle gelangt.
 
-// Ein PrismaClient pro Prozess (Next.js Hot-Reload sicher).
-const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
+import { db } from "@/prisma/db";
 
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log: process.env.APP_ENV === "development" ? ["warn", "error"] : ["error"],
-  });
-
-if (process.env.APP_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
-}
+export { db };
+export * from "@/lib/domain";

@@ -5,11 +5,10 @@
 // anlegen · aktivieren/deaktivieren · löschen nur wenn unbenutzt · archivieren.
 
 import { revalidatePath } from "next/cache";
-import { Prisma, type KostentraegerArt, type Role } from "@prisma/client";
-import { prisma } from "@/lib/db";
+import { db, isForeignKeyViolation, isUniqueViolation, toDbTime, type KostentraegerArt, type Role } from "@/lib/db";
 import { getAuthContext } from "@/lib/auth/session";
 import { canManageStammdaten } from "@/lib/auth/permissions";
-import { recordAudit } from "@/lib/audit";
+import { recordAudit, type AuditDetails } from "@/lib/audit";
 import type { FormState } from "@/lib/forms";
 import { normalizeTimeInput } from "./tarif";
 
@@ -26,7 +25,7 @@ async function requireManager(): Promise<{ actor: { id: string; email: string } 
 }
 
 function uniqueMessage(error: unknown): string | null {
-  if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+  if (isUniqueViolation(error)) {
     return "Dieser Name bzw. dieses Kürzel existiert bereits.";
   }
   return null;
@@ -44,10 +43,10 @@ function revalidateStammdaten(...paths: string[]) {
 interface AuditRef {
   actor: { id: string; email: string };
   entity: string;
-  entityId: string;
+  entityId: string | null;
 }
 
-async function audited(ref: AuditRef, action: string, summary: string, details?: Prisma.InputJsonValue) {
+async function audited(ref: AuditRef, action: string, summary: string, details?: AuditDetails) {
   await recordAudit({ actor: ref.actor, action, entity: ref.entity, entityId: ref.entityId, summary, details });
 }
 
@@ -68,9 +67,9 @@ export async function saveSpracheAction(_prev: FormState, formData: FormData): P
 
   try {
     const row = id
-      ? await prisma.sprache.update({ where: { id }, data: { name, code } })
-      : await prisma.sprache.create({ data: { name, code } });
-    await audited({ actor, entity: "sprache", entityId: row.id }, "sprache.update", `Sprache «${name}» (${code}) ${id ? "geändert" : "angelegt"}`);
+      ? await db.orm.public.Sprache.where({ id }).update({ name, code })
+      : await db.orm.public.Sprache.create({ name, code });
+    await audited({ actor, entity: "sprache", entityId: row?.id ?? id }, "sprache.update", `Sprache «${name}» (${code}) ${id ? "geändert" : "angelegt"}`);
     revalidateStammdaten("/stammdaten/sprachen");
     return { success: id ? "Sprache gespeichert." : `Sprache «${name}» angelegt.` };
   } catch (error) {
@@ -95,9 +94,9 @@ export async function saveNiveauAction(_prev: FormState, formData: FormData): Pr
 
   try {
     const row = id
-      ? await prisma.niveau.update({ where: { id }, data: { code, name, sortOrder } })
-      : await prisma.niveau.create({ data: { code, name, sortOrder } });
-    await audited({ actor, entity: "niveau", entityId: row.id }, "niveau.update", `Niveau «${code}» ${id ? "geändert" : "angelegt"}`);
+      ? await db.orm.public.Niveau.where({ id }).update({ code, name, sortOrder })
+      : await db.orm.public.Niveau.create({ code, name, sortOrder });
+    await audited({ actor, entity: "niveau", entityId: row?.id ?? id }, "niveau.update", `Niveau «${code}» ${id ? "geändert" : "angelegt"}`);
     revalidateStammdaten("/stammdaten/niveaus");
     return { success: id ? "Niveau gespeichert." : `Niveau «${code}» angelegt.` };
   } catch (error) {
@@ -127,9 +126,9 @@ export async function saveKursartAction(_prev: FormState, formData: FormData): P
   try {
     const data = { name, maxParticipants, requiresRoom, sortOrder };
     const row = id
-      ? await prisma.kursart.update({ where: { id }, data })
-      : await prisma.kursart.create({ data });
-    await audited({ actor, entity: "kursart", entityId: row.id }, "kursart.update", `Kursart «${name}» ${id ? "geändert" : "angelegt"}`, { maxParticipants, requiresRoom });
+      ? await db.orm.public.Kursart.where({ id }).update(data)
+      : await db.orm.public.Kursart.create(data);
+    await audited({ actor, entity: "kursart", entityId: row?.id ?? id }, "kursart.update", `Kursart «${name}» ${id ? "geändert" : "angelegt"}`, { maxParticipants, requiresRoom });
     revalidateStammdaten("/stammdaten/kursarten", "/stammdaten/tarife");
     return { success: id ? "Kursart gespeichert." : `Kursart «${name}» angelegt.` };
   } catch (error) {
@@ -152,9 +151,9 @@ export async function saveDauerAction(_prev: FormState, formData: FormData): Pro
 
   try {
     const row = id
-      ? await prisma.lektionsdauer.update({ where: { id }, data: { minuten } })
-      : await prisma.lektionsdauer.create({ data: { minuten } });
-    await audited({ actor, entity: "dauer", entityId: row.id }, "dauer.update", `Lektionsdauer ${minuten} Min. ${id ? "geändert" : "angelegt"}`);
+      ? await db.orm.public.Lektionsdauer.where({ id }).update({ minuten })
+      : await db.orm.public.Lektionsdauer.create({ minuten });
+    await audited({ actor, entity: "dauer", entityId: row?.id ?? id }, "dauer.update", `Lektionsdauer ${minuten} Min. ${id ? "geändert" : "angelegt"}`);
     revalidateStammdaten("/stammdaten/dauern", "/stammdaten/tarife");
     return { success: id ? "Dauer gespeichert." : `Dauer ${minuten} Minuten angelegt.` };
   } catch (error) {
@@ -201,9 +200,9 @@ export async function saveTarifstufeAction(_prev: FormState, formData: FormData)
   try {
     const data = { name, lessonsPerPackage, ...times };
     const row = id
-      ? await prisma.tarifstufe.update({ where: { id }, data })
-      : await prisma.tarifstufe.create({ data });
-    await audited({ actor, entity: "tarifstufe", entityId: row.id }, "tarifstufe.update", `Tarifstufe «${name}» (${lessonsPerPackage} Lektionen/Paket) ${id ? "geändert" : "angelegt"}`, { ...times });
+      ? await db.orm.public.Tarifstufe.where({ id }).update(data)
+      : await db.orm.public.Tarifstufe.create(data);
+    await audited({ actor, entity: "tarifstufe", entityId: row?.id ?? id }, "tarifstufe.update", `Tarifstufe «${name}» (${lessonsPerPackage} Lektionen/Paket) ${id ? "geändert" : "angelegt"}`, { ...times });
     revalidateStammdaten("/stammdaten/tarife");
     return { success: id ? "Tarifstufe gespeichert." : `Tarifstufe «${name}» angelegt.` };
   } catch (error) {
@@ -240,9 +239,9 @@ export async function saveKostentraegerAction(_prev: FormState, formData: FormDa
   try {
     const data = { art, name, kundennummer, ...adresse };
     const row = id
-      ? await prisma.kostentraeger.update({ where: { id }, data })
-      : await prisma.kostentraeger.create({ data });
-    await audited({ actor, entity: "kostentraeger", entityId: row.id }, "kostentraeger.update", `Kostenträger «${name}» (${kundennummer}) ${id ? "geändert" : "angelegt"}`);
+      ? await db.orm.public.Kostentraeger.where({ id }).update(data)
+      : await db.orm.public.Kostentraeger.create(data);
+    await audited({ actor, entity: "kostentraeger", entityId: row?.id ?? id }, "kostentraeger.update", `Kostenträger «${name}» (${kundennummer}) ${id ? "geändert" : "angelegt"}`);
     revalidateStammdaten("/stammdaten/kostentraeger");
     return { success: id ? "Kostenträger gespeichert." : `Kostenträger «${name}» angelegt.` };
   } catch (error) {
@@ -270,9 +269,9 @@ export async function saveStandortAction(_prev: FormState, formData: FormData): 
 
   try {
     const row = id
-      ? await prisma.standort.update({ where: { id }, data })
-      : await prisma.standort.create({ data });
-    await audited({ actor, entity: "standort", entityId: row.id }, "standort.update", `Standort «${data.name}» ${id ? "geändert" : "angelegt"}`);
+      ? await db.orm.public.Standort.where({ id }).update(data)
+      : await db.orm.public.Standort.create(data);
+    await audited({ actor, entity: "standort", entityId: row?.id ?? id }, "standort.update", `Standort «${data.name}» ${id ? "geändert" : "angelegt"}`);
     revalidateStammdaten("/stammdaten/standorte");
     return { success: id ? "Standort gespeichert." : `Standort «${data.name}» angelegt.` };
   } catch (error) {
@@ -294,9 +293,9 @@ export async function saveEtageAction(_prev: FormState, formData: FormData): Pro
 
   try {
     const row = id
-      ? await prisma.etage.update({ where: { id }, data: { name, sortOrder } })
-      : await prisma.etage.create({ data: { standortId, name, sortOrder } });
-    await audited({ actor, entity: "etage", entityId: row.id }, "etage.update", `Etage «${name}» ${id ? "geändert" : "angelegt"}`);
+      ? await db.orm.public.Etage.where({ id }).update({ name, sortOrder })
+      : await db.orm.public.Etage.create({ standortId, name, sortOrder });
+    await audited({ actor, entity: "etage", entityId: row?.id ?? id }, "etage.update", `Etage «${name}» ${id ? "geändert" : "angelegt"}`);
     revalidateStammdaten("/stammdaten/standorte");
     return { success: id ? "Etage gespeichert." : `Etage «${name}» angelegt.` };
   } catch (error) {
@@ -321,9 +320,9 @@ export async function saveRaumAction(_prev: FormState, formData: FormData): Prom
 
   try {
     const row = id
-      ? await prisma.raum.update({ where: { id }, data: { name, seats } })
-      : await prisma.raum.create({ data: { etageId, name, seats } });
-    await audited({ actor, entity: "raum", entityId: row.id }, "raum.update", `Raum «${name}» (${seats} Plätze) ${id ? "geändert" : "angelegt"}`);
+      ? await db.orm.public.Raum.where({ id }).update({ name, seats })
+      : await db.orm.public.Raum.create({ etageId, name, seats });
+    await audited({ actor, entity: "raum", entityId: row?.id ?? id }, "raum.update", `Raum «${name}» (${seats} Plätze) ${id ? "geändert" : "angelegt"}`);
     revalidateStammdaten("/stammdaten/standorte");
     return { success: id ? "Raum gespeichert." : `Raum «${name}» angelegt.` };
   } catch (error) {
@@ -354,17 +353,20 @@ export async function savePreiseAction(_prev: FormState, formData: FormData): Pr
   }
 
   try {
-    await prisma.$transaction([
-      prisma.preis.deleteMany({}),
-      prisma.preis.createMany({
-        data: cells.map((c) => ({
+    // Alles-löschen gibt es im ORM nur mit Filter — der SQL-Builder ist hier
+    // der dokumentierte Weg (ohne WHERE = ganze Tabelle).
+    const clearPlan = db.sql.public.Preis.delete().build();
+    await db.transaction(async (tx) => {
+      await tx.execute(clearPlan);
+      for (const c of cells) {
+        await tx.orm.public.Preis.create({
           kursartId: c.kursartId,
           lektionsdauerId: c.lektionsdauerId,
           tarifstufeId: c.tarifstufeId,
-          amountChf: new Prisma.Decimal(c.amount.toFixed(2)),
-        })),
-      }),
-    ]);
+          amountChf: c.amount.toFixed(2), // numeric(8,2) wird als Dezimalstring geschrieben
+        });
+      }
+    });
     await audited({ actor, entity: "preisliste", entityId: "matrix" }, "preisliste.update", `Preisliste gespeichert (${cells.length} Preise)`);
     revalidateStammdaten("/stammdaten/tarife");
     return { success: `Preisliste gespeichert (${cells.length} Preise). Leere Zellen wurden entfernt.` };
@@ -397,83 +399,83 @@ interface EntityOps {
 
 const ENTITY_OPS: Record<StammdatenEntity, EntityOps> = {
   sprache: {
-    label: async (r) => (await prisma.sprache.findUnique({ where: { id: r.id } }))?.name ?? r.id,
-    setActive: (id, active) => prisma.sprache.update({ where: { id }, data: { active } }),
+    label: async (r) => (await db.orm.public.Sprache.where({ id: r.id }).first())?.name ?? r.id,
+    setActive: (id, active) => db.orm.public.Sprache.where({ id }).update({ active }),
     setArchived: (id, archived) =>
-      prisma.sprache.update({ where: { id }, data: { archivedAt: archived ? new Date() : null } }),
+      db.orm.public.Sprache.where({ id }).update({ archivedAt: archived ? toDbTime(new Date()) : null }),
     remove: async (id) => {
       // Nutzung durch Kurse kommt mit Modul 4; dann hier blocken.
-      await prisma.sprache.delete({ where: { id } });
+      await db.orm.public.Sprache.where({ id }).delete();
     },
   },
   niveau: {
-    label: async (r) => (await prisma.niveau.findUnique({ where: { id: r.id } }))?.code ?? r.id,
-    setActive: (id, active) => prisma.niveau.update({ where: { id }, data: { active } }),
+    label: async (r) => (await db.orm.public.Niveau.where({ id: r.id }).first())?.code ?? r.id,
+    setActive: (id, active) => db.orm.public.Niveau.where({ id }).update({ active }),
     setArchived: (id, archived) =>
-      prisma.niveau.update({ where: { id }, data: { archivedAt: archived ? new Date() : null } }),
+      db.orm.public.Niveau.where({ id }).update({ archivedAt: archived ? toDbTime(new Date()) : null }),
     remove: async (id) => {
-      await prisma.niveau.delete({ where: { id } });
+      await db.orm.public.Niveau.where({ id }).delete();
     },
   },
   kursart: {
-    label: async (r) => (await prisma.kursart.findUnique({ where: { id: r.id } }))?.name ?? r.id,
-    setActive: (id, active) => prisma.kursart.update({ where: { id }, data: { active } }),
+    label: async (r) => (await db.orm.public.Kursart.where({ id: r.id }).first())?.name ?? r.id,
+    setActive: (id, active) => db.orm.public.Kursart.where({ id }).update({ active }),
     setArchived: (id, archived) =>
-      prisma.kursart.update({ where: { id }, data: { archivedAt: archived ? new Date() : null } }),
+      db.orm.public.Kursart.where({ id }).update({ archivedAt: archived ? toDbTime(new Date()) : null }),
     remove: async (id) => {
-      const preise = await prisma.preis.count({ where: { kursartId: id } });
-      if (preise > 0) throw new Error("Diese Kursart hat Preise in der Preisliste — zuerst diese entfernen.");
-      await prisma.kursart.delete({ where: { id } });
+      const preise = await db.orm.public.Preis.where({ kursartId: id }).aggregate((a) => ({ n: a.count() }));
+      if (preise.n > 0) throw new Error("Diese Kursart hat Preise in der Preisliste — zuerst diese entfernen.");
+      await db.orm.public.Kursart.where({ id }).delete();
     },
   },
   dauer: {
     label: async (r) => {
-      const row = await prisma.lektionsdauer.findUnique({ where: { id: r.id } });
+      const row = await db.orm.public.Lektionsdauer.where({ id: r.id }).first();
       return row ? `${row.minuten} Min.` : r.id;
     },
-    setActive: (id, active) => prisma.lektionsdauer.update({ where: { id }, data: { active } }),
+    setActive: (id, active) => db.orm.public.Lektionsdauer.where({ id }).update({ active }),
     setArchived: (id, archived) =>
-      prisma.lektionsdauer.update({ where: { id }, data: { archivedAt: archived ? new Date() : null } }),
+      db.orm.public.Lektionsdauer.where({ id }).update({ archivedAt: archived ? toDbTime(new Date()) : null }),
     remove: async (id) => {
-      const preise = await prisma.preis.count({ where: { lektionsdauerId: id } });
-      if (preise > 0) throw new Error("Diese Dauer hat Preise in der Preisliste — zuerst diese entfernen.");
-      await prisma.lektionsdauer.delete({ where: { id } });
+      const preise = await db.orm.public.Preis.where({ lektionsdauerId: id }).aggregate((a) => ({ n: a.count() }));
+      if (preise.n > 0) throw new Error("Diese Dauer hat Preise in der Preisliste — zuerst diese entfernen.");
+      await db.orm.public.Lektionsdauer.where({ id }).delete();
     },
   },
   tarifstufe: {
-    label: async (r) => (await prisma.tarifstufe.findUnique({ where: { id: r.id } }))?.name ?? r.id,
-    setActive: (id, active) => prisma.tarifstufe.update({ where: { id }, data: { active } }),
+    label: async (r) => (await db.orm.public.Tarifstufe.where({ id: r.id }).first())?.name ?? r.id,
+    setActive: (id, active) => db.orm.public.Tarifstufe.where({ id }).update({ active }),
     setArchived: (id, archived) =>
-      prisma.tarifstufe.update({ where: { id }, data: { archivedAt: archived ? new Date() : null } }),
+      db.orm.public.Tarifstufe.where({ id }).update({ archivedAt: archived ? toDbTime(new Date()) : null }),
     remove: async (id) => {
-      const preise = await prisma.preis.count({ where: { tarifstufeId: id } });
-      if (preise > 0) throw new Error("Diese Tarifstufe hat Preise in der Preisliste — zuerst diese entfernen.");
-      await prisma.tarifstufe.delete({ where: { id } });
+      const preise = await db.orm.public.Preis.where({ tarifstufeId: id }).aggregate((a) => ({ n: a.count() }));
+      if (preise.n > 0) throw new Error("Diese Tarifstufe hat Preise in der Preisliste — zuerst diese entfernen.");
+      await db.orm.public.Tarifstufe.where({ id }).delete();
     },
   },
   kostentraeger: {
-    label: async (r) => (await prisma.kostentraeger.findUnique({ where: { id: r.id } }))?.name ?? r.id,
-    setActive: (id, active) => prisma.kostentraeger.update({ where: { id }, data: { active } }),
+    label: async (r) => (await db.orm.public.Kostentraeger.where({ id: r.id }).first())?.name ?? r.id,
+    setActive: (id, active) => db.orm.public.Kostentraeger.where({ id }).update({ active }),
     setArchived: (id, archived) =>
-      prisma.kostentraeger.update({ where: { id }, data: { archivedAt: archived ? new Date() : null } }),
+      db.orm.public.Kostentraeger.where({ id }).update({ archivedAt: archived ? toDbTime(new Date()) : null }),
     remove: async (id) => {
       // Nutzung durch Anmeldungen/Rechnungen kommt mit Modul 5/9.
-      await prisma.kostentraeger.delete({ where: { id } });
+      await db.orm.public.Kostentraeger.where({ id }).delete();
     },
   },
   standort: {
-    label: async (r) => (await prisma.standort.findUnique({ where: { id: r.id } }))?.name ?? r.id,
-    setActive: (id, active) => prisma.standort.update({ where: { id }, data: { active } }),
+    label: async (r) => (await db.orm.public.Standort.where({ id: r.id }).first())?.name ?? r.id,
+    setActive: (id, active) => db.orm.public.Standort.where({ id }).update({ active }),
     setArchived: (id, archived) =>
-      prisma.standort.update({ where: { id }, data: { archivedAt: archived ? new Date() : null } }),
+      db.orm.public.Standort.where({ id }).update({ archivedAt: archived ? toDbTime(new Date()) : null }),
     remove: async (id) => {
-      const etagen = await prisma.etage.count({ where: { standortId: id } });
-      if (etagen > 0) throw new Error("Dieser Standort hat Etagen/Räume — zuerst diese löschen (oder den Standort archivieren).");
-      await prisma.standort.delete({ where: { id } });
+      const etagen = await db.orm.public.Etage.where({ standortId: id }).aggregate((a) => ({ n: a.count() }));
+      if (etagen.n > 0) throw new Error("Dieser Standort hat Etagen/Räume — zuerst diese löschen (oder den Standort archivieren).");
+      await db.orm.public.Standort.where({ id }).delete();
     },
   },
   etage: {
-    label: async (r) => (await prisma.etage.findUnique({ where: { id: r.id } }))?.name ?? r.id,
+    label: async (r) => (await db.orm.public.Etage.where({ id: r.id }).first())?.name ?? r.id,
     setActive: () => {
       throw new Error("Etagen haben keinen eigenen Status.");
     },
@@ -481,19 +483,19 @@ const ENTITY_OPS: Record<StammdatenEntity, EntityOps> = {
       throw new Error("Etagen können nicht archiviert werden.");
     },
     remove: async (id) => {
-      const raeume = await prisma.raum.count({ where: { etageId: id } });
-      if (raeume > 0) throw new Error("Diese Etage hat Räume — zuerst diese löschen.");
-      await prisma.etage.delete({ where: { id } });
+      const raeume = await db.orm.public.Raum.where({ etageId: id }).aggregate((a) => ({ n: a.count() }));
+      if (raeume.n > 0) throw new Error("Diese Etage hat Räume — zuerst diese löschen.");
+      await db.orm.public.Etage.where({ id }).delete();
     },
   },
   raum: {
-    label: async (r) => (await prisma.raum.findUnique({ where: { id: r.id } }))?.name ?? r.id,
-    setActive: (id, active) => prisma.raum.update({ where: { id }, data: { active } }),
+    label: async (r) => (await db.orm.public.Raum.where({ id: r.id }).first())?.name ?? r.id,
+    setActive: (id, active) => db.orm.public.Raum.where({ id }).update({ active }),
     setArchived: (id, archived) =>
-      prisma.raum.update({ where: { id }, data: { archivedAt: archived ? new Date() : null } }),
+      db.orm.public.Raum.where({ id }).update({ archivedAt: archived ? toDbTime(new Date()) : null }),
     remove: async (id) => {
       // Nutzung durch Lektionen kommt mit Modul 6; dann hier blocken.
-      await prisma.raum.delete({ where: { id } });
+      await db.orm.public.Raum.where({ id }).delete();
     },
   },
 };
@@ -559,7 +561,7 @@ export async function deleteEntityAction(_prev: FormState, formData: FormData): 
     revalidateStammdaten();
     return { success: `${label} gelöscht.` };
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2003") {
+    if (isForeignKeyViolation(error)) {
       return { error: "Dieser Eintrag wird verwendet und kann nicht gelöscht werden. Bitte archivieren." };
     }
     return { error: error instanceof Error ? error.message : "Löschen fehlgeschlagen." };

@@ -1,7 +1,6 @@
 import "server-only";
 
-import type { Prisma } from "@prisma/client";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 import type { RequestMeta } from "@/lib/request";
 
 /** Audit-Aktionen von Modul 1 (Namenskonvention: <entity>.<vorgang>). */
@@ -21,13 +20,16 @@ export const AUDIT_ACTIONS = {
   userSessionsRevoked: "user.sessions_revoked",
 } as const;
 
+/** JSON-Wert für das Audit-`details`-Feld (jsonb). */
+export type AuditDetails = string | number | boolean | null | AuditDetails[] | { [key: string]: AuditDetails };
+
 export interface AuditInput {
   actor?: { id: string; email: string } | null;
   action: string;
   entity?: string;
-  entityId?: string;
+  entityId?: string | null;
   summary: string;
-  details?: Prisma.InputJsonValue;
+  details?: AuditDetails;
   request?: RequestMeta;
 }
 
@@ -37,18 +39,16 @@ export interface AuditInput {
  */
 export async function recordAudit(input: AuditInput): Promise<void> {
   try {
-    await prisma.auditLog.create({
-      data: {
-        actorUserId: input.actor?.id ?? null,
-        actorEmail: input.actor?.email ?? null,
-        action: input.action,
-        entity: input.entity ?? null,
-        entityId: input.entityId ?? null,
-        summary: input.summary,
-        details: input.details ?? undefined,
-        ip: input.request?.ip ?? null,
-        userAgent: input.request?.userAgent ?? null,
-      },
+    await db.orm.public.AuditLog.create({
+      actorUserId: input.actor?.id ?? null,
+      actorEmail: input.actor?.email ?? null,
+      action: input.action,
+      entity: input.entity ?? null,
+      entityId: input.entityId ?? null,
+      summary: input.summary,
+      details: input.details ?? null,
+      ip: input.request?.ip ?? null,
+      userAgent: input.request?.userAgent ?? null,
     });
   } catch (error) {
     console.error("Audit-Log konnte nicht geschrieben werden:", error);

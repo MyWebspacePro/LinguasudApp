@@ -2,8 +2,8 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import type { Role } from "@prisma/client";
-import { prisma } from "@/lib/db";
+import type { Role } from "@/lib/db";
+import { db } from "@/lib/db";
 import { requireStaff } from "@/lib/auth/session";
 import { canManageStammdaten, canViewStammdaten } from "@/lib/auth/permissions";
 
@@ -40,14 +40,14 @@ async function StammdatenContent() {
 
   const [standorte, raeume, sprachen, niveaus, kursarten, dauern, preise, kostentraeger] =
     await Promise.all([
-      prisma.standort.count(),
-      prisma.raum.count(),
-      prisma.sprache.count(),
-      prisma.niveau.count(),
-      prisma.kursart.count(),
-      prisma.lektionsdauer.count(),
-      prisma.preis.count(),
-      prisma.kostentraeger.count(),
+      db.orm.public.Standort.aggregate((a) => ({ n: a.count() })).then((r) => r.n),
+      db.orm.public.Raum.aggregate((a) => ({ n: a.count() })).then((r) => r.n),
+      db.orm.public.Sprache.aggregate((a) => ({ n: a.count() })).then((r) => r.n),
+      db.orm.public.Niveau.aggregate((a) => ({ n: a.count() })).then((r) => r.n),
+      db.orm.public.Kursart.aggregate((a) => ({ n: a.count() })).then((r) => r.n),
+      db.orm.public.Lektionsdauer.aggregate((a) => ({ n: a.count() })).then((r) => r.n),
+      db.orm.public.Preis.aggregate((a) => ({ n: a.count() })).then((r) => r.n),
+      db.orm.public.Kostentraeger.aggregate((a) => ({ n: a.count() })).then((r) => r.n),
     ]);
 
   const counts: Record<string, number> = {

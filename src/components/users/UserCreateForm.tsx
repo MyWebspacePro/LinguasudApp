@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import type { Role } from "@prisma/client";
+import type { Role } from "@/lib/domain";
 import { createUserAction } from "@/lib/users/actions";
 import { idleFormState } from "@/lib/forms";
 import { generatePassword } from "@/lib/auth/password-policy";

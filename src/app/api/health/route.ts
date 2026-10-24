@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { db } from "@/lib/db";
 
 /**
  * Liveness/Readiness-Endpunkt für Coolify.
@@ -7,16 +7,19 @@ import { prisma } from "@/lib/db";
  * mitgeliefert, damit ein fehlkonfigurierter Container im Log auffällt.
  */
 export async function GET() {
-  let db: "up" | "down" = "down";
+  let dbState: "up" | "down" = "down";
   try {
-    await prisma.$queryRaw`SELECT 1`;
-    db = "up";
+    const plan = db.raw.sql`SELECT 1 AS one`
+      .returnsRow({ one: "pg/int@1" })
+      .build();
+    await db.query(plan);
+    dbState = "up";
   } catch {
     // bewusst geschluckt: Health soll den Prozess, nicht die DB, prüfen
   }
 
   return NextResponse.json(
-    { status: "ok", db, timestamp: new Date().toISOString() },
+    { status: "ok", db: dbState, timestamp: new Date().toISOString() },
     { headers: { "cache-control": "no-store" } },
   );
 }
