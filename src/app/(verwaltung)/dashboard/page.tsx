@@ -50,9 +50,9 @@ async function DashboardContent() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {canViewUsers(roles) && (
           <div className="card p-5">
-            <p className="text-xs font-semibold tracking-wide text-slate-400 uppercase">Konten</p>
+            <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">Konten</p>
             <p className="mt-1 text-2xl font-semibold text-slate-900">{userCount}</p>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-slate-600">
               {hasRole(roles, "ADMIN") || hasRole(roles, "BUERO") ? (
                 <>
                   <Link href="/benutzer/neu" className="font-medium text-brand-700 hover:text-brand-800">
@@ -70,7 +70,7 @@ async function DashboardContent() {
 
         {canViewAuditLog(roles) && (
           <div className="card p-5 sm:col-span-2">
-            <p className="text-xs font-semibold tracking-wide text-slate-400 uppercase">
+            <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
               Letzte Anmelde-Ereignisse
             </p>
             {recentLogins && recentLogins.length > 0 ? (
@@ -78,14 +78,14 @@ async function DashboardContent() {
                 {recentLogins.map((entry) => (
                   <li key={entry.id} className="flex items-baseline justify-between gap-3 py-1.5">
                     <span className="min-w-0 truncate text-slate-700">{entry.summary}</span>
-                    <span className="shrink-0 text-xs text-slate-400">
+                    <span className="shrink-0 text-xs text-slate-500">
                       {entry.createdAt.toLocaleString("de-CH")}
                     </span>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="mt-2 text-sm text-slate-500">Noch keine Ereignisse.</p>
+              <p className="mt-2 text-sm text-slate-600">Noch keine Ereignisse.</p>
             )}
             <p className="mt-2 text-sm">
               <Link href="/audit" className="font-medium text-brand-700 hover:text-brand-800">

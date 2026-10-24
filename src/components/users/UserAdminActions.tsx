@@ -26,7 +26,7 @@ export function UserActiveToggle({
         {isActive ? (
           <span className="font-medium text-emerald-700">aktiv</span>
         ) : (
-          <span className="font-medium text-slate-500">deaktiviert</span>
+          <span className="font-medium text-slate-600">deaktiviert</span>
         )}
       </p>
       <SubmitButton className={isActive ? "btn-danger" : "btn-secondary"}>

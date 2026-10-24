@@ -36,11 +36,11 @@ async function NewUserContent() {
   return (
     <div className="max-w-xl space-y-4">
       <div>
-        <Link href="/benutzer" className="text-sm text-slate-500 hover:text-brand-700">
+        <Link href="/benutzer" className="text-sm text-slate-600 hover:text-brand-700">
           ← Benutzerliste
         </Link>
         <h1 className="mt-1 text-lg font-semibold text-slate-900">Neues Konto anlegen</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-slate-600">
           Konten werden nur hier eingerichtet — eine Selbstregistrierung gibt es nicht.
         </p>
       </div>

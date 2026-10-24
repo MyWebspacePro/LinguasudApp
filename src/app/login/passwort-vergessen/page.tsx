@@ -13,7 +13,7 @@ export default function ForgotPasswordPage() {
       <div className="mx-auto w-full max-w-sm">
         <div className="card p-6">
           <h1 className="text-base font-semibold text-slate-900">Passwort zurücksetzen</h1>
-          <p className="mt-1 mb-5 text-sm text-slate-500">
+          <p className="mt-1 mb-5 text-sm text-slate-600">
             Geben Sie die E-Mail-Adresse Ihres Kontos ein. Wir senden Ihnen einen Link, mit dem Sie
             ein neues Passwort festlegen können.
           </p>

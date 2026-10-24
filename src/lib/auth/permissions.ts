@@ -38,6 +38,16 @@ export function canViewAuditLog(roles: Role[]): boolean {
   return hasRole(roles, "ADMIN") || hasRole(roles, "CHEF");
 }
 
+/** Stammdaten pflegen (Modul 2): nur Admin. */
+export function canManageStammdaten(roles: Role[]): boolean {
+  return hasRole(roles, "ADMIN");
+}
+
+/** Stammdaten sehen: Admin und Chef (lesend). */
+export function canViewStammdaten(roles: Role[]): boolean {
+  return hasRole(roles, "ADMIN") || hasRole(roles, "CHEF");
+}
+
 /** Darf dieser Akteur dem Ziel diese Rollen zuweisen? */
 export function canAssignRoles(actorRoles: Role[], targetRoles: Role[]): boolean {
   if (hasRole(actorRoles, "ADMIN")) return true;

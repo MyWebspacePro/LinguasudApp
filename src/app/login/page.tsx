@@ -19,7 +19,7 @@ export default function LoginPage() {
             <h1 className="text-lg leading-tight font-semibold text-slate-900">
               Linguasud Verwaltung
             </h1>
-            <p className="text-sm text-slate-500">Sprachschule linguasud.com</p>
+            <p className="text-sm text-slate-600">Sprachschule linguasud.com</p>
           </div>
         </div>
 
@@ -38,7 +38,7 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <p className="mt-4 text-center text-xs text-slate-400">
+        <p className="mt-4 text-center text-xs text-slate-500">
           Konten werden ausschliesslich durch das Verwaltungsteam eingerichtet.
         </p>
       </div>

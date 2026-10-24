@@ -68,6 +68,32 @@ docker-entrypoint.sh  Migrationen + Serverstart im Container
 PFLICHTENHEFT.md   Anforderungen (verbindlich für die Umsetzung)
 ```
 
+## Modul 2 — Stammdaten (fertig)
+
+Pflegt ausschliesslich **Admin** (`/stammdaten`); Chef sieht lesend. Alles nach der
+Regel: anlegen · aktivieren/deaktivieren · **löschen nur wenn unbenutzt** · archivieren
+— jede Änderung steht im Audit-Log.
+
+- **Standorte & Räume**: Hierarchie Standort → Etage → Raum (Raumname + Sitzplätze),
+  Startdaten laut Pflichtenheft werden beim ersten Start automatisch angelegt
+  (Raumnamen/Plätze sind Platzhalter bis zum gemeinsamen Setup).
+- **Sprachen** (Name + Kürzel für Kurscodes), **Niveaus** (A1…C2, frei sortierbar),
+  **Kursarten** (Einzel/2er/3er/4er/6er/Online/Firmenkurs — beliebig erweiterbar;
+  Online: Raum optional, keine Teilnehmerzahl-Beschränkung pro Art konfigurierbar),
+  **Lektionsdauern** (45/60/90 …).
+- **Tarife**: Tarifstufen mit Paketgrösse (Hochtarif 14 / Niedertarif 15) und
+  Zeitfenstern (Mittag/Abend) für die automatische Vorbelegung nach Tageszeit
+  (Modul 5 kann das Büro jederzeit übersteuern). **Preisliste** je
+  Kursart × Dauer × Tarifstufe — **jederzeitig anpassbar** (kein Jahres-Mechanismus).
+- **Kostenträger**: Firmen + öffentliche Einrichtungen mit Kundennummer und
+  Rechnungsadresse.
+
+### Löschen-Regeln (unbenutzt-Prüfung)
+
+Kursart/Dauer/Tarifstufe mit Preisen, Standort mit Etagen, Etage mit Räumen können
+nicht gelöscht werden (archivieren stattdessen). Weitere Nutzungsprüfen (Kurse,
+Lektionen, Rechnungen) entstehen mit den Modulen 4–9.
+
 ## Modul 1 — Login & Rechtesystem (fertig)
 
 - **5 Rollen** (Admin, Chef, Büro, Lehrperson, Kursteilnehmer), Mehrfachrollen möglich.

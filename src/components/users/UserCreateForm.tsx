@@ -141,7 +141,7 @@ function ModeOption({
       />
       <span>
         <span className="font-medium text-slate-800">{title}</span>
-        <span className="block text-xs text-slate-500">{hint}</span>
+        <span className="block text-xs text-slate-600">{hint}</span>
       </span>
     </label>
   );

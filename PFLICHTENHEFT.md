@@ -1,7 +1,7 @@
 # Pflichtenheft — LinguasudApp
 
 **Verwaltungssoftware für die Sprachschule linguasud.com**
-Stand: 23.10.2026 · Status: Phase 1 (Projektgerüst) **fertig und live** auf `linguasudapp.aiconso.eu` (Health `db:up`, TLS gültig). **Modul 1 — Login & Rechtesystem: fertig** (5 Rollen, Passwort-Politik 20+, E-Mail-Reset, Brute-Force-Schutz, Audit-Log, Bootstrap-Admin, Benutzerliste/-verwaltung; live nach dem nächsten Push auf `main`). Nächster Schritt: **Modul 2 — Stammdaten**.
+Stand: 24.10.2026 · Status: Phase 1 (Projektgerüst) **fertig und live** auf `linguasudapp.aiconso.eu` (Health `db:up`, TLS gültig). **Modul 1 — Login & Rechtesystem: fertig** (5 Rollen, Passwort-Politik 20+, E-Mail-Reset, Brute-Force-Schutz, Audit-Log, Bootstrap-Admin, Benutzerliste/-verwaltung). **Modul 2 — Stammdaten: fertig** (Standorte/Etagen/Räume mit Startdaten, Sprachen, Niveaus, Kursarten, Lektionsdauern, Tarifstufen + Preisliste Kursart×Dauer×Stufe — jederzeit anpassbar, Kostenträger; pflegt nur Admin, Chef lesend; löschen nur wenn unbenutzt, archivieren, Audit). Nächster Schritt: **Modul 3 — Personenverwaltung** (+ Design-Runde).
 
 **Grundsatz:** Produktivsystem, kein Mock-up. Wir bauen direkt für den Live-Betrieb.
 

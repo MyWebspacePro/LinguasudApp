@@ -101,7 +101,7 @@ model AuditLog {
   actorUserId String?
   actor       User?    @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
   actorEmail  String?
-  /// Z.B. "user.login", "user.create", "user.roles_change"
+  /// Z.B. "user.login", "user.create", "standort.create"
   action      String
   entity      String?
   entityId    String?
@@ -114,4 +114,176 @@ model AuditLog {
   @@index([actorUserId, createdAt])
   @@index([entity, entityId])
   @@index([action, createdAt])
+}
+
+// ————————————————————————————————————————————————————————————————
+// Modul 2 — Stammdaten
+// Regel (Pflichtenheft): anlegen · aktivieren/deaktivieren ·
+// löschen nur wenn unbenutzt · archivieren. Preise jederzeit anpassbar
+// (Änderungen laufen über den Audit-Log).
+// ————————————————————————————————————————————————————————————————
+
+/// Schlüssel-Wert-Einstellungen (z.B. Seed-Marker, später OpenRouter-Key).
+model SystemSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+/// Standort der Sprachschule (Hierarchie Standort → Etage → Raum).
+model Standort {
+  id         String    @id @default(cuid())
+  name       String    @unique // z.B. "Vorstadt 18"
+  strasse    String
+  plz        String
+  ort        String
+  active     Boolean   @default(true)
+  archivedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  etagen     Etage[]
+
+  @@index([active])
+}
+
+model Etage {
+  id         String   @id @default(cuid())
+  standortId String
+  standort   Standort @relation(fields: [standortId], references: [id], onDelete: Cascade)
+  /// z.B. "1. Stock"
+  name       String
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  raeume     Raum[]
+
+  @@unique([standortId, name])
+}
+
+model Raum {
+  id         String    @id @default(cuid())
+  etageId    String
+  etage      Etage     @relation(fields: [etageId], references: [id], onDelete: Cascade)
+  /// Raumname, z.B. "Oxford"
+  name       String
+  /// Sitzplatzzahl
+  seats      Int
+  active     Boolean   @default(true)
+  archivedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@unique([etageId, name])
+}
+
+model Sprache {
+  id         String    @id @default(cuid())
+  name       String    @unique // Deutsch, Englisch, …
+  /// Kürzel für Kurscodes, z.B. DE, EN
+  code       String    @unique
+  active     Boolean   @default(true)
+  archivedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+/// Niveaustufen (A1 … C2), Sortierung frei definierbar.
+model Niveau {
+  id         String    @id @default(cuid())
+  code       String    @unique // A1, A2, B1, …
+  name       String? // optionale Bezeichnung
+  sortOrder  Int       @default(0)
+  active     Boolean   @default(true)
+  archivedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+/// Kursarten: Einzel, 2er, 3er, 4er, 6er, Online, Firmenkurs — beliebig erweiterbar.
+model Kursart {
+  id         String    @id @default(cuid())
+  name       String    @unique
+  /// Übliche Teilnehmerzahl; null = individuell (Firmenkurs).
+  maxParticipants Int?
+  /// Online-Kurse: Raum optional (mal Schulungsraum, mal von zu Hause).
+  requiresRoom    Boolean   @default(true)
+  sortOrder       Int       @default(0)
+  active          Boolean   @default(true)
+  archivedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  preise          Preis[]
+}
+
+/// Lektionsdauern in Minuten (45, 60, 90, …).
+model Lektionsdauer {
+  id         String    @id @default(cuid())
+  minuten    Int       @unique
+  active     Boolean   @default(true)
+  archivedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  preise     Preis[]
+}
+
+/// Tarifstufen: Hochtarif = 14 Lektionen/Paket (über Mittag/Abend),
+/// Niedertarif = 15 Lektionen/Paket (Vormittag/Nachmittag).
+/// Zeitfenster "HH:mm" bestimmen die Standard-Ableitung nach Tageszeit
+/// (Modul 5); das Büro kann immer übersteuern.
+model Tarifstufe {
+  id                String  @id @default(cuid())
+  name              String  @unique // "Hochtarif", "Niedertarif"
+  lessonsPerPackage Int
+  /// Gilt ein Kursstart in diesem Fenster als Hochtarif? (Mittagsfenster von–bis)
+  middayFrom        String?
+  middayTo          String?
+  /// Abendfenster ab (Hochtarif); Vormittag/Nachmittag = Rest des Tages.
+  eveningFrom       String?
+  active            Boolean   @default(true)
+  archivedAt        DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  preise            Preis[]
+}
+
+/// Preisliste: Betrag je Kursart × Lektionsdauer × Tarifstufe — jederzeit anpassbar.
+model Preis {
+  id             String       @id @default(cuid())
+  kursartId      String
+  kursart        Kursart      @relation(fields: [kursartId], references: [id], onDelete: Cascade)
+  lektionsdauerId String
+  lektionsdauer  Lektionsdauer @relation(fields: [lektionsdauerId], references: [id], onDelete: Cascade)
+  tarifstufeId   String
+  tarifstufe     Tarifstufe   @relation(fields: [tarifstufeId], references: [id], onDelete: Cascade)
+  amountChf      Decimal      @db.Decimal(8, 2)
+
+  @@unique([kursartId, lektionsdauerId, tarifstufeId])
+}
+
+/// Kostenträger: Firmen und öffentliche Einrichtungen (Rechnungsempfänger).
+enum KostentraegerArt {
+  FIRMA
+  OEFFENTLICHE_EINRICHTUNG
+}
+
+model Kostentraeger {
+  id            String           @id @default(cuid())
+  art           KostentraegerArt
+  name          String
+  kundennummer  String           @unique
+  strasse       String
+  plz           String
+  ort           String
+  active        Boolean          @default(true)
+  archivedAt    DateTime?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@index([name])
+  @@index([active])
 }

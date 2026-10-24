@@ -9,6 +9,9 @@ export const metadata: Metadata = {
   title: "Passwort ändern",
 };
 
+// Auth-lastige Route: bewusst blockierend statt Instant-Navigation.
+export const instant = false;
+
 /**
  * Eigenes Passwort ändern — freiwillig aus der Navigation oder erzwungen
  * nach Erstvergabe/Admin-Reset (Ziel der Umleitung bei mustChangePassword).
@@ -42,7 +45,7 @@ async function ChangePasswordGate() {
           Passwort, um fortzufahren.
         </div>
       ) : (
-        <p className="mt-1 mb-5 text-sm text-slate-500">
+        <p className="mt-1 mb-5 text-sm text-slate-600">
           Wählen Sie ein neues Passwort (mindestens 20 Zeichen). Nach dem Wechsel werden alle
           anderen Sitzungen abgemeldet.
         </p>

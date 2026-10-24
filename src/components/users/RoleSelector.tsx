@@ -49,7 +49,7 @@ export function RoleSelector({
               <span>
                 <span className="font-medium text-slate-800">{ROLE_LABELS[role]}</span>
                 {!assignable && (
-                  <span className="ml-2 text-xs text-slate-400">(nur Admin vergebbar)</span>
+                  <span className="ml-2 text-xs text-slate-500">(nur Admin vergebbar)</span>
                 )}
               </span>
             </label>

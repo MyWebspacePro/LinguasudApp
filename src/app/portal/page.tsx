@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   title: "Mein Portal",
 };
 
+// Auth-lastige Route: bewusst blockierend statt Instant-Navigation.
+export const instant = false;
+
 /**
  * Kursteilnehmenden-Portal. Die Inhalte (nächste Lektionen + Raum, eigene
  * Rechnungen, Kursbestätigungen) entstehen mit den Modulen 4/6, 9 und 10 —
@@ -37,7 +40,7 @@ async function PortalContent() {
           <div className="flex items-center gap-3">
             <Link
               href="/passwort-aendern"
-              className="text-sm text-slate-500 transition hover:text-brand-700"
+              className="text-sm text-slate-600 transition hover:text-brand-700"
             >
               Passwort ändern
             </Link>
@@ -61,36 +64,36 @@ async function PortalContent() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="card p-5">
             <h2 className="text-sm font-semibold text-slate-800">Nächste Lektionen</h2>
-            <p className="mt-1.5 text-sm text-slate-500">
+            <p className="mt-1.5 text-sm text-slate-600">
               Ihre kommenden Lektionen mit Datum, Zeit und Raum erscheinen hier, sobald der
               Stundenplan eingerichtet ist.
             </p>
-            <p className="mt-3 text-xs text-slate-400">Folgt mit Modul 4 &amp; 6 (Kurse &amp; Planer)</p>
+            <p className="mt-3 text-xs text-slate-500">Folgt mit Modul 4 &amp; 6 (Kurse &amp; Planer)</p>
           </div>
 
           <div className="card p-5">
             <h2 className="text-sm font-semibold text-slate-800">Termine &amp; Änderungen</h2>
-            <p className="mt-1.5 text-sm text-slate-500">
+            <p className="mt-1.5 text-sm text-slate-600">
               Bei neuen Terminen oder Verschiebungen werden Sie hier und per E-Mail informiert.
             </p>
-            <p className="mt-3 text-xs text-slate-400">Folgt mit Modul 6</p>
+            <p className="mt-3 text-xs text-slate-500">Folgt mit Modul 6</p>
           </div>
 
           <div className="card p-5">
             <h2 className="text-sm font-semibold text-slate-800">Meine Rechnungen</h2>
-            <p className="mt-1.5 text-sm text-slate-500">
+            <p className="mt-1.5 text-sm text-slate-600">
               Ihre Rechnungen können Sie hier einsehen und ausdrucken.
             </p>
-            <p className="mt-3 text-xs text-slate-400">Folgt mit Modul 9 (QR-Rechnungen)</p>
+            <p className="mt-3 text-xs text-slate-500">Folgt mit Modul 9 (QR-Rechnungen)</p>
           </div>
 
           <div className="card p-5">
             <h2 className="text-sm font-semibold text-slate-800">Kursbestätigungen</h2>
-            <p className="mt-1.5 text-sm text-slate-500">
+            <p className="mt-1.5 text-sm text-slate-600">
               Bestätigungen über abgeschlossene Niveau-Abschnitte stehen hier zum Selbstdrucken
               bereit.
             </p>
-            <p className="mt-3 text-xs text-slate-400">Folgt mit Modul 10</p>
+            <p className="mt-3 text-xs text-slate-500">Folgt mit Modul 10</p>
           </div>
         </div>
       </main>

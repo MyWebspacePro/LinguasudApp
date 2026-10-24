@@ -53,7 +53,7 @@ export function PasswordField({
         />
         <button
           type="button"
-          className="absolute inset-y-0 right-2 cursor-pointer text-xs font-medium text-slate-500 hover:text-brand-700"
+          className="absolute inset-y-0 right-2 cursor-pointer text-xs font-medium text-slate-600 hover:text-brand-700"
           onClick={() => setVisible((v) => !v)}
         >
           {visible ? "Verbergen" : "Anzeigen"}
@@ -63,7 +63,7 @@ export function PasswordField({
       {showPolicy && (
         <ul
           aria-hidden={current.length === 0}
-          className="mt-1.5 space-y-0.5 text-xs text-slate-500"
+          className="mt-1.5 space-y-0.5 text-xs text-slate-600"
         >
           <PolicyRow ok={current.length >= PASSWORD_MIN_LENGTH}>
             Mindestens {PASSWORD_MIN_LENGTH} Zeichen

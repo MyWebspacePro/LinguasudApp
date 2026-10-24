@@ -27,6 +27,39 @@ const ACTION_LABELS: Record<string, string> = {
   "user.password_set_by_admin": "Passwort gesetzt (Verwaltung)",
   "user.invite_sent": "Einladung/Link gesendet",
   "user.sessions_revoked": "Sitzungen beendet",
+  "sprache.update": "Sprache geändert",
+  "sprache.toggle": "Sprache aktiv/deaktiv",
+  "sprache.archive": "Sprache archiviert",
+  "sprache.delete": "Sprache gelöscht",
+  "niveau.update": "Niveau geändert",
+  "niveau.toggle": "Niveau aktiv/deaktiv",
+  "niveau.archive": "Niveau archiviert",
+  "niveau.delete": "Niveau gelöscht",
+  "kursart.update": "Kursart geändert",
+  "kursart.toggle": "Kursart aktiv/deaktiv",
+  "kursart.archive": "Kursart archiviert",
+  "kursart.delete": "Kursart gelöscht",
+  "dauer.update": "Lektionsdauer geändert",
+  "dauer.toggle": "Dauer aktiv/deaktiv",
+  "dauer.archive": "Dauer archiviert",
+  "dauer.delete": "Dauer gelöscht",
+  "tarifstufe.update": "Tarifstufe geändert",
+  "tarifstufe.delete": "Tarifstufe gelöscht",
+  "preisliste.update": "Preisliste gespeichert",
+  "kostentraeger.update": "Kostenträger geändert",
+  "kostentraeger.toggle": "Kostenträger aktiv/deaktiv",
+  "kostentraeger.archive": "Kostenträger archiviert",
+  "kostentraeger.delete": "Kostenträger gelöscht",
+  "standort.update": "Standort geändert",
+  "standort.toggle": "Standort aktiv/deaktiv",
+  "standort.archive": "Standort archiviert",
+  "standort.delete": "Standort gelöscht",
+  "etage.update": "Etage geändert",
+  "etage.delete": "Etage gelöscht",
+  "raum.update": "Raum geändert",
+  "raum.toggle": "Raum aktiv/deaktiv",
+  "raum.archive": "Raum archiviert",
+  "raum.delete": "Raum gelöscht",
 };
 
 /** Audit-Log (Admin + Chef): alle wichtigen Änderungen, filterbar. */
@@ -92,7 +125,7 @@ async function AuditContent({
     <div className="space-y-4">
       <div>
         <h1 className="text-lg font-semibold text-slate-900">Audit-Log</h1>
-        <p className="mt-0.5 text-sm text-slate-500">
+        <p className="mt-0.5 text-sm text-slate-600">
           Nachvollziehbarkeit aller wichtigen Änderungen (wer, was, wann, von wo).
         </p>
       </div>
@@ -138,7 +171,7 @@ async function AuditContent({
           <tbody className="divide-y divide-line">
             {entries.map((entry) => (
               <tr key={entry.id}>
-                <td className="td whitespace-nowrap text-slate-500">
+                <td className="td whitespace-nowrap text-slate-600">
                   {entry.createdAt.toLocaleString("de-CH")}
                 </td>
                 <td className="td whitespace-nowrap">
@@ -155,16 +188,16 @@ async function AuditContent({
                       {entry.actorEmail ?? entry.actorUserId}
                     </Link>
                   ) : (
-                    <span className="text-slate-500">{entry.actorEmail ?? "System"}</span>
+                    <span className="text-slate-600">{entry.actorEmail ?? "System"}</span>
                   )}
                 </td>
                 <td className="td">{entry.summary}</td>
-                <td className="td text-slate-500">{entry.ip ?? "—"}</td>
+                <td className="td text-slate-600">{entry.ip ?? "—"}</td>
               </tr>
             ))}
             {entries.length === 0 && (
               <tr>
-                <td className="td py-8 text-center text-slate-500" colSpan={5}>
+                <td className="td py-8 text-center text-slate-600" colSpan={5}>
                   Keine Einträge gefunden.
                 </td>
               </tr>
@@ -173,7 +206,7 @@ async function AuditContent({
         </table>
       </div>
 
-      <div className="flex items-center justify-between text-sm text-slate-500">
+      <div className="flex items-center justify-between text-sm text-slate-600">
         <span>
           {total} Einträge · Seite {page} von {pageCount}
         </span>

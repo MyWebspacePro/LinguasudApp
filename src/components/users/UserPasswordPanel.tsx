@@ -38,7 +38,7 @@ export function UserPasswordPanel({
             className="accent-brand-700"
           />
           Link per E-Mail senden
-          {!emailInviteAvailable && <span className="text-xs text-slate-400">(SMTP fehlt)</span>}
+          {!emailInviteAvailable && <span className="text-xs text-slate-500">(SMTP fehlt)</span>}
         </label>
         <label className="flex cursor-pointer items-center gap-2">
           <input
@@ -76,7 +76,7 @@ export function UserPasswordPanel({
       <SubmitButton className={mode === "manual" ? "btn-danger" : "btn-primary"}>
         {mode === "email" ? "E-Mail mit Link versenden" : "Passwort setzen"}
       </SubmitButton>
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-slate-600">
         Nach dem Setzen werden alle laufenden Sitzungen dieser Person beendet und ein Passwortwechsel
         bei der nächsten Anmeldung erzwungen.
       </p>

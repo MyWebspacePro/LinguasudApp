@@ -3,6 +3,9 @@ import { redirect } from "next/navigation";
 import { getAuthContext } from "@/lib/auth/session";
 import { landingRoute } from "@/lib/auth/permissions";
 
+// Session-abhängige Weiterleitung: bewusst blockierend statt Instant-Navigation.
+export const instant = false;
+
 /**
  * Einstiegsseite: leitet angemeldete Personen zu ihrer Startseite
  * (Verwaltung bzw. Teilnehmer-Portal), alle anderen zum Login.

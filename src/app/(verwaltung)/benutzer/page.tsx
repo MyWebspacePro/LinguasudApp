@@ -145,10 +145,10 @@ async function UsersContent({
           </thead>
           <tbody className="divide-y divide-line">
             {users.map((u) => (
-              <tr key={u.id} className={u.isActive ? "" : "text-slate-400"}>
+              <tr key={u.id} className={u.isActive ? "" : "text-slate-500"}>
                 <td className="td font-medium">
                   {u.firstName} {u.lastName}
-                  {u.id === actor.id && <span className="ml-1.5 text-xs text-slate-400">(Sie)</span>}
+                  {u.id === actor.id && <span className="ml-1.5 text-xs text-slate-500">(Sie)</span>}
                 </td>
                 <td className="td">{u.email}</td>
                 <td className="td">
@@ -165,7 +165,7 @@ async function UsersContent({
                     <span>inaktiv</span>
                   )}
                 </td>
-                <td className="td text-slate-500">
+                <td className="td text-slate-600">
                   {u.lastLoginAt ? u.lastLoginAt.toLocaleString("de-CH") : "—"}
                 </td>
                 <td className="td text-right">
@@ -180,7 +180,7 @@ async function UsersContent({
             ))}
             {users.length === 0 && (
               <tr>
-                <td className="td py-8 text-center text-slate-500" colSpan={6}>
+                <td className="td py-8 text-center text-slate-600" colSpan={6}>
                   Keine Konten gefunden.
                 </td>
               </tr>
@@ -189,7 +189,7 @@ async function UsersContent({
         </table>
       </div>
 
-      <div className="flex items-center justify-between text-sm text-slate-500">
+      <div className="flex items-center justify-between text-sm text-slate-600">
         <span>
           {total} Konto{total === 1 ? "" : "konten"} · Seite {page} von {pageCount}
         </span>

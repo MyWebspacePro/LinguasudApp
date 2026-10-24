@@ -51,7 +51,7 @@ async function SetPasswordContent({ searchParams }: { searchParams: SearchParams
     return (
       <div>
         <h1 className="text-base font-semibold text-slate-900">Link nicht mehr gültig</h1>
-        <p className="mt-1 mb-5 text-sm text-slate-500">
+        <p className="mt-1 mb-5 text-sm text-slate-600">
           Dieser Link ist abgelaufen (60 Minuten) oder wurde bereits verwendet. Fordern Sie einen
           neuen Link an.
         </p>
@@ -67,7 +67,7 @@ async function SetPasswordContent({ searchParams }: { searchParams: SearchParams
       <h1 className="text-base font-semibold text-slate-900">
         {record.user.passwordHash ? "Neues Passwort festlegen" : "Willkommen"}
       </h1>
-      <p className="mt-1 mb-5 text-sm text-slate-500">
+      <p className="mt-1 mb-5 text-sm text-slate-600">
         {record.user.passwordHash
           ? `Legen Sie ein neues Passwort für ${record.user.email} fest.`
           : `Für ${record.user.email} wurde ein Zugang eingerichtet — bitte legen Sie Ihr Passwort fest.`}

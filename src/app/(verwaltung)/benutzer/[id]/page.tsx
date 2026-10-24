@@ -74,7 +74,7 @@ async function UserDetailContent({ params }: { params: Promise<{ id: string }> }
   return (
     <div className="max-w-3xl space-y-4">
       <div>
-        <Link href="/benutzer" className="text-sm text-slate-500 hover:text-brand-700">
+        <Link href="/benutzer" className="text-sm text-slate-600 hover:text-brand-700">
           ← Benutzerliste
         </Link>
         <div className="mt-1 flex flex-wrap items-center gap-2">
@@ -85,12 +85,12 @@ async function UserDetailContent({ params }: { params: Promise<{ id: string }> }
             <RoleBadge key={role} role={role} />
           ))}
           {!user.isActive && (
-            <span className="rounded-full border border-line px-2 py-0.5 text-[11px] text-slate-500">
+            <span className="rounded-full border border-line px-2 py-0.5 text-[11px] text-slate-600">
               deaktiviert
             </span>
           )}
         </div>
-        <p className="mt-0.5 text-sm text-slate-500">{user.email}</p>
+        <p className="mt-0.5 text-sm text-slate-600">{user.email}</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
@@ -124,7 +124,7 @@ async function UserDetailContent({ params }: { params: Promise<{ id: string }> }
               </Row>
               <Row label="Erstellt">{user.createdAt.toLocaleDateString("de-CH")}</Row>
               {actor.id === user.id && (
-                <p className="pt-1 text-xs text-slate-400">
+                <p className="pt-1 text-xs text-slate-500">
                   Eigene Rollenänderungen und Deaktivierung sind eingeschränkt (mindestens eine
                   aktive Admin-Person muss bleiben).
                 </p>
@@ -138,7 +138,7 @@ async function UserDetailContent({ params }: { params: Promise<{ id: string }> }
             <>
               <section className="card p-5">
                 <h2 className="mb-1 text-sm font-semibold text-slate-800">Passwort</h2>
-                <p className="mb-4 text-xs text-slate-500">
+                <p className="mb-4 text-xs text-slate-600">
                   {user.passwordHash
                     ? "Zurücksetzen oder Link senden."
                     : "Noch kein Passwort gesetzt — Link senden oder direkt setzen."}
@@ -153,7 +153,7 @@ async function UserDetailContent({ params }: { params: Promise<{ id: string }> }
 
               <section className="card p-5">
                 <h2 className="mb-1 text-sm font-semibold text-slate-800">Sitzungen</h2>
-                <p className="mb-3 text-xs text-slate-500">
+                <p className="mb-3 text-xs text-slate-600">
                   {activeSessions === 0
                     ? "Keine laufenden Sitzungen."
                     : `${activeSessions} laufende Sitzung${activeSessions === 1 ? "" : "en"}.`}
@@ -187,17 +187,17 @@ async function UserDetailContent({ params }: { params: Promise<{ id: string }> }
           <tbody className="divide-y divide-line">
             {auditEntries.map((entry) => (
               <tr key={entry.id}>
-                <td className="td whitespace-nowrap text-slate-500">
+                <td className="td whitespace-nowrap text-slate-600">
                   {entry.createdAt.toLocaleString("de-CH")}
                 </td>
                 <td className="td font-mono text-xs text-slate-600">{entry.action}</td>
                 <td className="td">{entry.summary}</td>
-                <td className="td text-slate-500">{entry.ip ?? "—"}</td>
+                <td className="td text-slate-600">{entry.ip ?? "—"}</td>
               </tr>
             ))}
             {auditEntries.length === 0 && (
               <tr>
-                <td className="td py-6 text-center text-slate-500" colSpan={4}>
+                <td className="td py-6 text-center text-slate-600" colSpan={4}>
                   Keine Einträge.
                 </td>
               </tr>
@@ -212,7 +212,7 @@ async function UserDetailContent({ params }: { params: Promise<{ id: string }> }
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex gap-3">
-      <dt className="w-36 shrink-0 text-slate-500">{label}</dt>
+      <dt className="w-36 shrink-0 text-slate-600">{label}</dt>
       <dd className="min-w-0 text-slate-800">{children}</dd>
     </div>
   );
