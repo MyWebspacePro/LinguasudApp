@@ -16,6 +16,8 @@ const eslintConfig = defineConfig([
     "src/prisma/contract.json",
     "src/prisma/contract.d.ts",
     "src/prisma/ops.json",
+    // Von `prisma migration plan` generierte Snapshots (Contract-Kopien):
+    "migrations/snapshots/**",
   ]),
 ]);
 

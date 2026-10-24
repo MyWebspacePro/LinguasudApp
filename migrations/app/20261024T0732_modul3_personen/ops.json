@@ -1,0 +1,1102 @@
+[
+  {
+    "id": "createNativeEnumType.Anrede",
+    "label": "Create enum type \"Anrede\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "Anrede"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"Anrede\"",
+        "sql": "CREATE TYPE \"public\".\"Anrede\" AS ENUM ('HERR', 'FRAU', 'DIVERS')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "createNativeEnumType.PersonStatus",
+    "label": "Create enum type \"PersonStatus\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "PersonStatus"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"PersonStatus\"",
+        "sql": "CREATE TYPE \"public\".\"PersonStatus\" AS ENUM ('INTERESSENT', 'AKTIV', 'INAKTIV')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.Lehrqualifikation",
+    "label": "Create table \"Lehrqualifikation\"",
+    "summary": "Creates table \"Lehrqualifikation\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Lehrqualifikation"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Lehrqualifikation\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Lehrqualifikation\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"Lehrqualifikation\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Lehrqualifikation\"",
+        "sql": "CREATE TABLE \"public\".\"Lehrqualifikation\" (\n  \"id\" text NOT NULL,\n  \"niveauId\" text NOT NULL,\n  \"personId\" text NOT NULL,\n  \"spracheId\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Lehrqualifikation\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"Lehrqualifikation\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Lehrqualifikation\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.Person",
+    "label": "Create table \"Person\"",
+    "summary": "Creates table \"Person\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Person"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Person\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Person\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"Person\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Person\"",
+        "sql": "CREATE TABLE \"public\".\"Person\" (\n  \"anrede\" \"Anrede\" NOT NULL,\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"email\" text,\n  \"id\" text NOT NULL,\n  \"istLehrperson\" bool DEFAULT false NOT NULL,\n  \"kuerzel\" text,\n  \"nachname\" text NOT NULL,\n  \"ort\" text,\n  \"plz\" text,\n  \"rechnungOrt\" text,\n  \"rechnungPlz\" text,\n  \"rechnungStrasse\" text,\n  \"signal1\" bool DEFAULT false NOT NULL,\n  \"signal2\" bool DEFAULT false NOT NULL,\n  \"status\" \"PersonStatus\" DEFAULT 'INTERESSENT'::\"PersonStatus\" NOT NULL,\n  \"strasse\" text,\n  \"telefon1\" text,\n  \"telefon2\" text,\n  \"updatedAt\" timestamp(3) NOT NULL,\n  \"vorname\" text NOT NULL,\n  \"whatsapp1\" bool DEFAULT false NOT NULL,\n  \"whatsapp2\" bool DEFAULT false NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Person\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"Person\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Person\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.PersonBeziehung",
+    "label": "Create table \"PersonBeziehung\"",
+    "summary": "Creates table \"PersonBeziehung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "PersonBeziehung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"PersonBeziehung\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"PersonBeziehung\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"PersonBeziehung\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"PersonBeziehung\"",
+        "sql": "CREATE TABLE \"public\".\"PersonBeziehung\" (\n  \"berechtigterId\" text NOT NULL,\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"kindId\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"PersonBeziehung\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"PersonBeziehung\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"PersonBeziehung\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.PersonNotiz",
+    "label": "Create table \"PersonNotiz\"",
+    "summary": "Creates table \"PersonNotiz\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "PersonNotiz"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"PersonNotiz\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"PersonNotiz\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"PersonNotiz\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"PersonNotiz\"",
+        "sql": "CREATE TABLE \"public\".\"PersonNotiz\" (\n  \"authorName\" text NOT NULL,\n  \"authorUserId\" text,\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"personId\" text NOT NULL,\n  \"text\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"PersonNotiz\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"PersonNotiz\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"PersonNotiz\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "column.public.User.personId",
+    "label": "Add column \"personId\" to \"User\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "personId",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"personId\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "personId"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"personId\" on \"User\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"personId\"",
+        "sql": "ALTER TABLE \"public\".\"User\" ADD COLUMN \"personId\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"personId\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "personId"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"personId\" on \"User\""
+        }
+      },
+      {
+        "description": "verify column \"personId\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "User",
+          "personId",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Lehrqualifikation.Lehrqualifikation_personId_spracheId_niveauId_key",
+    "label": "Create index \"Lehrqualifikation_personId_spracheId_niveauId_key\" on \"Lehrqualifikation\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Lehrqualifikation_personId_spracheId_niveauId_key",
+        "table": "Lehrqualifikation"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Lehrqualifikation_personId_spracheId_niveauId_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Lehrqualifikation_personId_spracheId_niveauId_key\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Lehrqualifikation_personId_spracheId_niveauId_key\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Lehrqualifikation_personId_spracheId_niveauId_key\"",
+        "sql": "CREATE UNIQUE INDEX \"Lehrqualifikation_personId_spracheId_niveauId_key\" ON \"public\".\"Lehrqualifikation\" (\"personId\", \"spracheId\", \"niveauId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Lehrqualifikation_personId_spracheId_niveauId_key\" exists on \"Lehrqualifikation\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Lehrqualifikation_personId_spracheId_niveauId_key\"",
+          "i",
+          "I",
+          "\"public\".\"Lehrqualifikation\"",
+          "btree",
+          "[\"personId\",\"spracheId\",\"niveauId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Person.Person_kuerzel_key",
+    "label": "Create index \"Person_kuerzel_key\" on \"Person\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Person_kuerzel_key",
+        "table": "Person"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Person_kuerzel_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Person_kuerzel_key\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Person_kuerzel_key\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Person_kuerzel_key\"",
+        "sql": "CREATE UNIQUE INDEX \"Person_kuerzel_key\" ON \"public\".\"Person\" (\"kuerzel\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Person_kuerzel_key\" exists on \"Person\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Person_kuerzel_key\"",
+          "i",
+          "I",
+          "\"public\".\"Person\"",
+          "btree",
+          "[\"kuerzel\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Person.Person_nachname_vorname_idx",
+    "label": "Create index \"Person_nachname_vorname_idx\" on \"Person\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Person_nachname_vorname_idx",
+        "table": "Person"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Person_nachname_vorname_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Person_nachname_vorname_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Person_nachname_vorname_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Person_nachname_vorname_idx\"",
+        "sql": "CREATE INDEX \"Person_nachname_vorname_idx\" ON \"public\".\"Person\" (\"nachname\", \"vorname\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Person_nachname_vorname_idx\" exists on \"Person\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Person_nachname_vorname_idx\"",
+          "i",
+          "I",
+          "\"public\".\"Person\"",
+          "btree",
+          "[\"nachname\",\"vorname\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Person.Person_status_idx",
+    "label": "Create index \"Person_status_idx\" on \"Person\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Person_status_idx",
+        "table": "Person"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Person_status_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Person_status_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Person_status_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Person_status_idx\"",
+        "sql": "CREATE INDEX \"Person_status_idx\" ON \"public\".\"Person\" (\"status\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Person_status_idx\" exists on \"Person\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Person_status_idx\"",
+          "i",
+          "I",
+          "\"public\".\"Person\"",
+          "btree",
+          "[\"status\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.PersonBeziehung.PersonBeziehung_berechtigterId_idx",
+    "label": "Create index \"PersonBeziehung_berechtigterId_idx\" on \"PersonBeziehung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "PersonBeziehung_berechtigterId_idx",
+        "table": "PersonBeziehung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"PersonBeziehung_berechtigterId_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"PersonBeziehung_berechtigterId_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"PersonBeziehung_berechtigterId_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"PersonBeziehung_berechtigterId_idx\"",
+        "sql": "CREATE INDEX \"PersonBeziehung_berechtigterId_idx\" ON \"public\".\"PersonBeziehung\" (\"berechtigterId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"PersonBeziehung_berechtigterId_idx\" exists on \"PersonBeziehung\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"PersonBeziehung_berechtigterId_idx\"",
+          "i",
+          "I",
+          "\"public\".\"PersonBeziehung\"",
+          "btree",
+          "[\"berechtigterId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.PersonBeziehung.PersonBeziehung_kindId_berechtigterId_key",
+    "label": "Create index \"PersonBeziehung_kindId_berechtigterId_key\" on \"PersonBeziehung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "PersonBeziehung_kindId_berechtigterId_key",
+        "table": "PersonBeziehung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"PersonBeziehung_kindId_berechtigterId_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"PersonBeziehung_kindId_berechtigterId_key\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"PersonBeziehung_kindId_berechtigterId_key\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"PersonBeziehung_kindId_berechtigterId_key\"",
+        "sql": "CREATE UNIQUE INDEX \"PersonBeziehung_kindId_berechtigterId_key\" ON \"public\".\"PersonBeziehung\" (\"kindId\", \"berechtigterId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"PersonBeziehung_kindId_berechtigterId_key\" exists on \"PersonBeziehung\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"PersonBeziehung_kindId_berechtigterId_key\"",
+          "i",
+          "I",
+          "\"public\".\"PersonBeziehung\"",
+          "btree",
+          "[\"kindId\",\"berechtigterId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.PersonNotiz.PersonNotiz_personId_createdAt_idx",
+    "label": "Create index \"PersonNotiz_personId_createdAt_idx\" on \"PersonNotiz\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "PersonNotiz_personId_createdAt_idx",
+        "table": "PersonNotiz"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"PersonNotiz_personId_createdAt_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"PersonNotiz_personId_createdAt_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"PersonNotiz_personId_createdAt_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"PersonNotiz_personId_createdAt_idx\"",
+        "sql": "CREATE INDEX \"PersonNotiz_personId_createdAt_idx\" ON \"public\".\"PersonNotiz\" (\"personId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"PersonNotiz_personId_createdAt_idx\" exists on \"PersonNotiz\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"PersonNotiz_personId_createdAt_idx\"",
+          "i",
+          "I",
+          "\"public\".\"PersonNotiz\"",
+          "btree",
+          "[\"personId\",\"createdAt\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.User.User_personId_key",
+    "label": "Create index \"User_personId_key\" on \"User\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "User_personId_key",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"User_personId_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"User_personId_key\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"User_personId_key\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"User_personId_key\"",
+        "sql": "CREATE UNIQUE INDEX \"User_personId_key\" ON \"public\".\"User\" (\"personId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"User_personId_key\" exists on \"User\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"User_personId_key\"",
+          "i",
+          "I",
+          "\"public\".\"User\"",
+          "btree",
+          "[\"personId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Lehrqualifikation.Lehrqualifikation_personId_fkey",
+    "label": "Add foreign key \"Lehrqualifikation_personId_fkey\" on \"Lehrqualifikation\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Lehrqualifikation_personId_fkey",
+        "table": "Lehrqualifikation"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Lehrqualifikation_personId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Lehrqualifikation_personId_fkey",
+          "public",
+          "\"public\".\"Lehrqualifikation\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Lehrqualifikation_personId_fkey\" on \"Lehrqualifikation\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Lehrqualifikation_personId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Lehrqualifikation\"\nADD CONSTRAINT \"Lehrqualifikation_personId_fkey\"\nFOREIGN KEY (\"personId\")\nREFERENCES \"public\".\"Person\" (\"id\")\nON DELETE CASCADE\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Lehrqualifikation_personId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Lehrqualifikation_personId_fkey",
+          "public",
+          "\"public\".\"Lehrqualifikation\"",
+          "f",
+          "[\"personId\"]",
+          "\"public\".\"Person\"",
+          "[\"id\"]",
+          "c",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Lehrqualifikation.Lehrqualifikation_spracheId_fkey",
+    "label": "Add foreign key \"Lehrqualifikation_spracheId_fkey\" on \"Lehrqualifikation\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Lehrqualifikation_spracheId_fkey",
+        "table": "Lehrqualifikation"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Lehrqualifikation_spracheId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Lehrqualifikation_spracheId_fkey",
+          "public",
+          "\"public\".\"Lehrqualifikation\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Lehrqualifikation_spracheId_fkey\" on \"Lehrqualifikation\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Lehrqualifikation_spracheId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Lehrqualifikation\"\nADD CONSTRAINT \"Lehrqualifikation_spracheId_fkey\"\nFOREIGN KEY (\"spracheId\")\nREFERENCES \"public\".\"Sprache\" (\"id\")\nON DELETE CASCADE\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Lehrqualifikation_spracheId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Lehrqualifikation_spracheId_fkey",
+          "public",
+          "\"public\".\"Lehrqualifikation\"",
+          "f",
+          "[\"spracheId\"]",
+          "\"public\".\"Sprache\"",
+          "[\"id\"]",
+          "c",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Lehrqualifikation.Lehrqualifikation_niveauId_fkey",
+    "label": "Add foreign key \"Lehrqualifikation_niveauId_fkey\" on \"Lehrqualifikation\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Lehrqualifikation_niveauId_fkey",
+        "table": "Lehrqualifikation"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Lehrqualifikation_niveauId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Lehrqualifikation_niveauId_fkey",
+          "public",
+          "\"public\".\"Lehrqualifikation\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Lehrqualifikation_niveauId_fkey\" on \"Lehrqualifikation\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Lehrqualifikation_niveauId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Lehrqualifikation\"\nADD CONSTRAINT \"Lehrqualifikation_niveauId_fkey\"\nFOREIGN KEY (\"niveauId\")\nREFERENCES \"public\".\"Niveau\" (\"id\")\nON DELETE CASCADE\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Lehrqualifikation_niveauId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Lehrqualifikation_niveauId_fkey",
+          "public",
+          "\"public\".\"Lehrqualifikation\"",
+          "f",
+          "[\"niveauId\"]",
+          "\"public\".\"Niveau\"",
+          "[\"id\"]",
+          "c",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.PersonBeziehung.PersonBeziehung_kindId_fkey",
+    "label": "Add foreign key \"PersonBeziehung_kindId_fkey\" on \"PersonBeziehung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "PersonBeziehung_kindId_fkey",
+        "table": "PersonBeziehung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"PersonBeziehung_kindId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "PersonBeziehung_kindId_fkey",
+          "public",
+          "\"public\".\"PersonBeziehung\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"PersonBeziehung_kindId_fkey\" on \"PersonBeziehung\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"PersonBeziehung_kindId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"PersonBeziehung\"\nADD CONSTRAINT \"PersonBeziehung_kindId_fkey\"\nFOREIGN KEY (\"kindId\")\nREFERENCES \"public\".\"Person\" (\"id\")\nON DELETE CASCADE\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"PersonBeziehung_kindId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "PersonBeziehung_kindId_fkey",
+          "public",
+          "\"public\".\"PersonBeziehung\"",
+          "f",
+          "[\"kindId\"]",
+          "\"public\".\"Person\"",
+          "[\"id\"]",
+          "c",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.PersonBeziehung.PersonBeziehung_berechtigterId_fkey",
+    "label": "Add foreign key \"PersonBeziehung_berechtigterId_fkey\" on \"PersonBeziehung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "PersonBeziehung_berechtigterId_fkey",
+        "table": "PersonBeziehung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"PersonBeziehung_berechtigterId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "PersonBeziehung_berechtigterId_fkey",
+          "public",
+          "\"public\".\"PersonBeziehung\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"PersonBeziehung_berechtigterId_fkey\" on \"PersonBeziehung\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"PersonBeziehung_berechtigterId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"PersonBeziehung\"\nADD CONSTRAINT \"PersonBeziehung_berechtigterId_fkey\"\nFOREIGN KEY (\"berechtigterId\")\nREFERENCES \"public\".\"Person\" (\"id\")\nON DELETE CASCADE\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"PersonBeziehung_berechtigterId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "PersonBeziehung_berechtigterId_fkey",
+          "public",
+          "\"public\".\"PersonBeziehung\"",
+          "f",
+          "[\"berechtigterId\"]",
+          "\"public\".\"Person\"",
+          "[\"id\"]",
+          "c",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.PersonNotiz.PersonNotiz_personId_fkey",
+    "label": "Add foreign key \"PersonNotiz_personId_fkey\" on \"PersonNotiz\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "PersonNotiz_personId_fkey",
+        "table": "PersonNotiz"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"PersonNotiz_personId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "PersonNotiz_personId_fkey",
+          "public",
+          "\"public\".\"PersonNotiz\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"PersonNotiz_personId_fkey\" on \"PersonNotiz\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"PersonNotiz_personId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"PersonNotiz\"\nADD CONSTRAINT \"PersonNotiz_personId_fkey\"\nFOREIGN KEY (\"personId\")\nREFERENCES \"public\".\"Person\" (\"id\")\nON DELETE CASCADE\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"PersonNotiz_personId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "PersonNotiz_personId_fkey",
+          "public",
+          "\"public\".\"PersonNotiz\"",
+          "f",
+          "[\"personId\"]",
+          "\"public\".\"Person\"",
+          "[\"id\"]",
+          "c",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.PersonNotiz.PersonNotiz_authorUserId_fkey",
+    "label": "Add foreign key \"PersonNotiz_authorUserId_fkey\" on \"PersonNotiz\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "PersonNotiz_authorUserId_fkey",
+        "table": "PersonNotiz"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"PersonNotiz_authorUserId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "PersonNotiz_authorUserId_fkey",
+          "public",
+          "\"public\".\"PersonNotiz\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"PersonNotiz_authorUserId_fkey\" on \"PersonNotiz\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"PersonNotiz_authorUserId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"PersonNotiz\"\nADD CONSTRAINT \"PersonNotiz_authorUserId_fkey\"\nFOREIGN KEY (\"authorUserId\")\nREFERENCES \"public\".\"User\" (\"id\")\nON DELETE SET NULL\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"PersonNotiz_authorUserId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "PersonNotiz_authorUserId_fkey",
+          "public",
+          "\"public\".\"PersonNotiz\"",
+          "f",
+          "[\"authorUserId\"]",
+          "\"public\".\"User\"",
+          "[\"id\"]",
+          "n",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.User.User_personId_fkey",
+    "label": "Add foreign key \"User_personId_fkey\" on \"User\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "User_personId_fkey",
+        "table": "User"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"User_personId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "User_personId_fkey",
+          "public",
+          "\"public\".\"User\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"User_personId_fkey\" on \"User\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"User_personId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"User\"\nADD CONSTRAINT \"User_personId_fkey\"\nFOREIGN KEY (\"personId\")\nREFERENCES \"public\".\"Person\" (\"id\")\nON DELETE SET NULL\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"User_personId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "User_personId_fkey",
+          "public",
+          "\"public\".\"User\"",
+          "f",
+          "[\"personId\"]",
+          "\"public\".\"Person\"",
+          "[\"id\"]",
+          "n",
+          "c"
+        ]
+      }
+    ]
+  }
+]

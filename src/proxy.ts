@@ -28,6 +28,7 @@ export const config = {
   matcher: [
     "/dashboard/:path*",
     "/benutzer/:path*",
+    "/personen/:path*",
     "/audit/:path*",
     "/portal/:path*",
     "/passwort-aendern/:path*",

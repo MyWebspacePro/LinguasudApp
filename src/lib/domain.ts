@@ -12,11 +12,39 @@ import type { Scalars } from "@prisma/orm-postgres/family-contract/types";
 export type Role = NonNullable<NonNullable<Models.public_User["roles"]>[number]>;
 export type KostentraegerArt = Models.public_Kostentraeger["art"];
 export type AuthEventKind = Models.public_LoginAttempt["kind"];
+/** Status-Laufbahn der Personen-Kartei (Modul 3): Interessent/in → aktiv → inaktiv. */
+export type PersonStatus = Models.public_Person["status"];
+/** Anrede/Geschlecht — zwingend laut Pflichtenheft. */
+export type Anrede = Models.public_Person["anrede"];
 
 /** Zeilen-Typen ohne Relationen (das, was Queries zurückgeben). */
 export type UserRow = Scalars<Models.public_User>;
 export type SessionRow = Scalars<Models.public_Session>;
 export type AuditLogRow = Scalars<Models.public_AuditLog>;
+export type PersonRow = Scalars<Models.public_Person>;
+export type PersonNotizRow = Scalars<Models.public_PersonNotiz>;
+export type PersonBeziehungRow = Scalars<Models.public_PersonBeziehung>;
+export type LehrqualifikationRow = Scalars<Models.public_Lehrqualifikation>;
+
+/** Anrede-Bezeichnungen für Formulare und Anzeigen. */
+export const ANREDE_LABELS: Record<Anrede, string> = {
+  HERR: "Herr",
+  FRAU: "Frau",
+  DIVERS: "Divers",
+};
+
+/** Gültige Anrede-Werte (Reihenfolge für Auswahl). */
+export const ANREDE_WERTE: readonly Anrede[] = ["HERR", "FRAU", "DIVERS"];
+
+/** Status-Bezeichnungen der Personen-Kartei. */
+export const PERSON_STATUS_LABELS: Record<PersonStatus, string> = {
+  INTERESSENT: "Interessent/in",
+  AKTIV: "aktiv",
+  INAKTIV: "inaktiv",
+};
+
+/** Gültige Status-Werte in Laufbahn-Reihenfolge. */
+export const PERSON_STATUS_WERTE: readonly PersonStatus[] = ["INTERESSENT", "AKTIV", "INAKTIV"];
 
 /**
  * List-Felder sind im Contract konservativ als (Element | null)[] | null

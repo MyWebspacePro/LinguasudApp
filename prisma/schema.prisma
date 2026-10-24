@@ -35,10 +35,14 @@ model User {
   lastLoginAt        DateTime?
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
+  /// Verknüpfte Person der Kartei (Modul 3). E-Mail bleibt auf beiden Seiten synchron.
+  personId           String?   @unique
+  person             Person?   @relation(fields: [personId], references: [id], onDelete: SetNull)
 
-  sessions           Session[]
+  sessions            Session[]
   passwordResetTokens PasswordResetToken[]
-  auditLogsAsActor   AuditLog[]
+  auditLogsAsActor    AuditLog[]
+  personNotizen       PersonNotiz[]
 
   @@index([isActive])
 }
@@ -184,6 +188,8 @@ model Sprache {
   archivedAt DateTime?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
+
+  qualifikationen Lehrqualifikation[]
 }
 
 /// Niveaustufen (A1 … C2), Sortierung frei definierbar.
@@ -196,6 +202,8 @@ model Niveau {
   archivedAt DateTime?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
+
+  qualifikationen Lehrqualifikation[]
 }
 
 /// Kursarten: Einzel, 2er, 3er, 4er, 6er, Online, Firmenkurs — beliebig erweiterbar.
@@ -283,4 +291,113 @@ model Kostentraeger {
 
   @@index([name])
   @@index([active])
+}
+
+// ————————————————————————————————————————————————————————————————
+// Modul 3 — Personenverwaltung (Kartei)
+// Eine Kartei für alle: Teilnehmende, Interessent/innen, Lehrpersonen,
+// Kinder, Büro-/Schulpersonal. Status-Laufbahn laut Pflichtenheft:
+// Interessent/in → aktiv → inaktiv («Interessent» wird bei der Anmeldung,
+// Modul 5, weiterverwendet).
+// ————————————————————————————————————————————————————————————————
+
+/// Lebenszyklus einer Person in der Kartei.
+enum PersonStatus {
+  INTERESSENT
+  AKTIV
+  INAKTIV
+}
+
+/// Anrede/Geschlecht — zwingend laut Pflichtenheft (Herr/Frau/divers).
+enum Anrede {
+  HERR
+  FRAU
+  DIVERS
+}
+
+model Person {
+  id        String       @id @default(cuid())
+  status    PersonStatus @default(INTERESSENT)
+  anrede    Anrede
+  vorname   String
+  nachname  String
+  /// Kontakt-E-Mail; bei verknüpftem Konto synchron mit User.email (= Login).
+  email     String?
+  strasse   String?
+  plz       String?
+  ort       String?
+  /// Abweichende Rechnungsadresse (Modul 9); komplett leer = Postadresse gilt auch für Rechnungen.
+  rechnungStrasse String?
+  rechnungPlz     String?
+  rechnungOrt     String?
+
+  /// Zwei Telefonnummern mit Messenger-Flags.
+  telefon1  String?
+  whatsapp1 Boolean   @default(false)
+  signal1   Boolean   @default(false)
+  telefon2  String?
+  whatsapp2 Boolean   @default(false)
+  signal2   Boolean   @default(false)
+
+  /// Lehrperson-Führung: eindeutiges Kürzel (automatisch aus Vor-/Nachname,
+  /// Suffix bei Doppelung) + Qualifikationen Sprache × Niveau.
+  istLehrperson Boolean @default(false)
+  kuerzel       String? @unique
+
+  /// Verknüpftes Login-Konto (null = noch kein Konto).
+  user User?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  notizen         PersonNotiz[]
+  elternLinks     PersonBeziehung[] @relation("Kind") // diese Person ist das Kind
+  kinderLinks     PersonBeziehung[] @relation("Erziehungsberechtigte") // diese Person ist Elternteil
+  qualifikationen Lehrqualifikation[]
+
+  @@index([status])
+  @@index([nachname, vorname])
+}
+
+/// CRM-Notiz zu einer Person — mit Autor und Datum (Pflichtenheft).
+model PersonNotiz {
+  id           String   @id @default(cuid())
+  personId     String
+  person       Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
+  text         String
+  /// Autor-Konto; der Name wird als Snapshot festgehalten, damit Notizen auch
+  /// nach Kontolöschung zuordenbar bleiben.
+  authorUserId String?
+  authorUser   User?    @relation(fields: [authorUserId], references: [id], onDelete: SetNull)
+  authorName   String
+  createdAt    DateTime @default(now())
+
+  @@index([personId, createdAt])
+}
+
+/// Eltern/Erziehungsberechtigte-Verknüpfung: ein Kind kann mehrere berechtigte
+/// Personen haben, eine Person mehrere Kinder (Rechnungsempfänger, Modul 9).
+model PersonBeziehung {
+  id             String   @id @default(cuid())
+  kindId         String
+  kind           Person   @relation("Kind", fields: [kindId], references: [id], onDelete: Cascade)
+  berechtigterId String
+  berechtigter   Person   @relation("Erziehungsberechtigte", fields: [berechtigterId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+
+  @@unique([kindId, berechtigterId])
+  @@index([berechtigterId])
+}
+
+/// Lehrperson-Qualifikation: unterrichtet Sprache auf Niveau (mehrere möglich).
+model Lehrqualifikation {
+  id        String  @id @default(cuid())
+  personId  String
+  person    Person  @relation(fields: [personId], references: [id], onDelete: Cascade)
+  spracheId String
+  sprache   Sprache @relation(fields: [spracheId], references: [id], onDelete: Cascade)
+  niveauId  String
+  niveau    Niveau  @relation(fields: [niveauId], references: [id], onDelete: Cascade)
+
+  @@unique([personId, spracheId, niveauId])
 }

@@ -48,6 +48,19 @@ export function canViewStammdaten(roles: Role[]): boolean {
   return hasRole(roles, "ADMIN") || hasRole(roles, "CHEF");
 }
 
+/** Personen-Kartei sehen (Modul 3): Admin, Chef, Büro. */
+export function canViewPersonen(roles: Role[]): boolean {
+  return hasRole(roles, "ADMIN") || hasRole(roles, "CHEF") || hasRole(roles, "BUERO");
+}
+
+/**
+ * Personen-Kartei pflegen: Büro operativ; Chef darf «alles sehen/bearbeiten
+ * ausser Rechtevergabe»; Admin ohnehin.
+ */
+export function canManagePersonen(roles: Role[]): boolean {
+  return hasRole(roles, "ADMIN") || hasRole(roles, "CHEF") || hasRole(roles, "BUERO");
+}
+
 /** Darf dieser Akteur dem Ziel diese Rollen zuweisen? */
 export function canAssignRoles(actorRoles: Role[], targetRoles: Role[]): boolean {
   if (hasRole(actorRoles, "ADMIN")) return true;

@@ -33,7 +33,7 @@ Weitere Befehle:
 
 | Befehl | Zweck |
 |---|---|
-| `pnpm build` | Produktions-Build |
+| `pnpm build` | Produktions-Build (**nicht bei laufendem `pnpm dev`** — er korrumpiert den Dev-Cache unter `.next`; vorher stoppen, danach Dev neu starten) |
 | `pnpm test` / `pnpm test:watch` | Tests (Vitest) |
 | `pnpm typecheck` | TypeScript-Prüfung |
 | `pnpm lint` | ESLint |
@@ -82,6 +82,33 @@ src/instrumentation.ts  Server-Start-Hook (legt das erste Admin-Konto an, falls 
 docker-entrypoint.sh  Schema-Adoption + Migrationen + Serverstart im Container
 PFLICHTENHEFT.md   Anforderungen (verbindlich für die Umsetzung)
 ```
+
+## Modul 3 — Personenverwaltung (fertig)
+
+**Eine Kartei für alle** (`/personen`): Interessent/innen, Teilnehmende, Kinder,
+Lehrpersonen — sehen und pflegen dürfen Admin, Chef und Büro. Status-Laufbahn
+**Interessent/in → aktiv → inaktiv** («Interessent» wird bei der Anmeldung,
+Modul 5, weiterverwendet).
+
+- **Pflichtfelder:** Anrede/Geschlecht (Herr/Frau/divers), Vor-/Nachname.
+- **Kontakt:** E-Mail, Postadresse, **abweichende Rechnungsadresse**, zwei
+  Telefonnummern mit «nutzt WhatsApp»/«nutzt Signal».
+- **CRM-Notizen** mit automatisch erfasstem **Autor + Datum**; Löschen nur nach
+  Bestätigung, jede Änderung im Audit-Log.
+- **Kinder ↔ Eltern/Erziehungsberechtigte** als beidseitig verknüpfte Personen
+  (dienen mit Modul 9 als Rechnungsempfänger).
+- **Lehrpersonen:** Kürzel wird **automatisch aus Vor- + Nachname** abgeleitet
+  (Sandra Mittal → `SMIT`), bei Doppelung mit zweistelligem Suffix (`SMIT01`);
+  Kürzel bleiben nach Namensänderungen stabil, da Kurscodes darauf verweisen.
+  **Qualifikationen** als Sprache × Niveau aus den Stammdaten — Sprachen/Niveaus
+  mit Qualifikationen können nicht gelöscht, sondern nur archiviert werden.
+- **Konto ↔ Person:** jedes Konto wird über `User.personId` einer Person
+  zugeordnet (Verknüpfung im Benutzerdetail); die **E-Mail bleibt auf beiden
+  Seiten synchron** (= Login). Der Bootstrap legt zum ersten Admin-Konto eine
+  Person mit an.
+- **Löschen nur wenn unbenutzt:** mit verknüpftem Konto, Familien-Verknüpfungen
+  oder Qualifikationen ist keine Löschung möglich (Status «inaktiv» stattdessen).
+  Die **Kurs-Historie** folgt mit Modul 4/5.
 
 ## Modul 2 — Stammdaten (fertig)
 

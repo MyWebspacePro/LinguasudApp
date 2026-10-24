@@ -6,7 +6,8 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { db, roleList, toDbTime, type Role } from "@/lib/db";
+import { db, roleList, toDbTime, type Anrede, type Role } from "@/lib/db";
+import { ANREDE_WERTE } from "@/lib/db";
 import { getEnv, isMailConfigured } from "@/lib/env";
 import { AUDIT_ACTIONS, recordAudit } from "@/lib/audit";
 import { getRequestMeta } from "@/lib/request";
@@ -17,6 +18,7 @@ import { canAssignRoles, canEditUser, hasRole } from "@/lib/auth/permissions";
 import { passwordPolicyErrors } from "@/lib/auth/password-policy";
 import { generateToken, hashPassword, hashToken } from "@/lib/auth/password";
 import { RESET_TOKEN_TTL_MS } from "@/lib/auth/constants";
+import { nextFreeKuerzel } from "@/lib/personen/kuerzel-server";
 
 const emailSchema = z.email({ error: "Bitte eine gültige E-Mail-Adresse eingeben." });
 
@@ -226,6 +228,11 @@ export async function updateUserAction(_prev: FormState, formData: FormData): Pr
 
   await db.orm.public.User.where({ id: target.id }).update({ firstName, lastName, email, roles });
 
+  // E-Mail bleibt mit der verknüpften Person der Kartei synchron (Modul 3).
+  if (target.personId && email !== target.email) {
+    await db.orm.public.Person.where({ id: target.personId }).update({ email });
+  }
+
   await recordAudit({
     actor,
     action: AUDIT_ACTIONS.userUpdate,
@@ -380,4 +387,120 @@ export async function revokeUserSessionsAction(_prev: FormState, formData: FormD
   });
   revalidatePath(`/benutzer/${target.id}`);
   return { success: revoked > 0 ? `${revoked} Sitzung(en) beendet.` : "Es gab keine laufenden Sitzungen." };
+}
+
+// ——— Konto ↔ Person (Modul 3): jeder User gehört zu einer Person der Kartei ——
+
+/** Konto mit einer bestehenden Person der Kartei verknüpfen. */
+export async function linkUserPersonAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  const guard = await requireManager();
+  if ("failure" in guard) return guard.failure;
+  const actor = guard.actor;
+
+  const userId = String(formData.get("userId") ?? "");
+  const personId = String(formData.get("personId") ?? "");
+  if (!personId) return { error: "Bitte eine Person auswählen." };
+
+  const user = await db.orm.public.User.where({ id: userId }).first();
+  if (!user) return { error: "Konto nicht gefunden." };
+  if (!canEditUser(actor.roles, roleList(user.roles))) {
+    return { error: "Sie dürfen dieses Konto nicht bearbeiten." };
+  }
+  if (user.personId) return { error: "Dieses Konto ist bereits mit einer Person verknüpft." };
+
+  const person = await db.orm.public.Person.where({ id: personId }).include("user").first();
+  if (!person) return { error: "Person nicht gefunden." };
+  if (person.user) {
+    return { error: "Diese Person ist bereits mit einem anderen Konto verknüpft." };
+  }
+
+  await db.orm.public.User.where({ id: userId }).update({ personId });
+  await recordAudit({
+    actor,
+    action: "user.person_link",
+    entity: "user",
+    entityId: userId,
+    summary: `Konto ${user.email} mit Person «${person.vorname} ${person.nachname}» verknüpft`,
+    details: { personId },
+  });
+  revalidatePath(`/benutzer/${userId}`);
+  revalidatePath(`/personen/${personId}`);
+  return { success: `Konto mit ${person.vorname} ${person.nachname} verknüpft.` };
+}
+
+/** Verknüpfung zwischen Konto und Person lösen (E-Mails bleiben unabhängig). */
+export async function unlinkUserPersonAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  const guard = await requireManager();
+  if ("failure" in guard) return guard.failure;
+  const actor = guard.actor;
+
+  const userId = String(formData.get("userId") ?? "");
+  const user = await db.orm.public.User.where({ id: userId }).first();
+  if (!user) return { error: "Konto nicht gefunden." };
+  if (!canEditUser(actor.roles, roleList(user.roles))) {
+    return { error: "Sie dürfen dieses Konto nicht bearbeiten." };
+  }
+  if (!user.personId) return { error: "Dieses Konto ist nicht mit einer Person verknüpft." };
+
+  const personId = user.personId;
+  await db.orm.public.User.where({ id: userId }).update({ personId: null });
+  await recordAudit({
+    actor,
+    action: "user.person_unlink",
+    entity: "user",
+    entityId: userId,
+    summary: `Konto ${user.email} von seiner Person gelöst`,
+    details: { personId },
+  });
+  revalidatePath(`/benutzer/${userId}`);
+  revalidatePath(`/personen/${personId}`);
+  return { success: "Verknüpfung gelöst." };
+}
+
+/** Person der Kartei direkt aus den Kontodaten anlegen und verknüpfen. */
+export async function createPersonForUserAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  const guard = await requireManager();
+  if ("failure" in guard) return guard.failure;
+  const actor = guard.actor;
+
+  const userId = String(formData.get("userId") ?? "");
+  const anredeRaw = String(formData.get("anrede") ?? "") as Anrede;
+  if (!ANREDE_WERTE.includes(anredeRaw)) {
+    return { error: "Bitte eine Anrede wählen.", fieldErrors: { anrede: "Pflichtfeld" } };
+  }
+
+  const user = await db.orm.public.User.where({ id: userId }).first();
+  if (!user) return { error: "Konto nicht gefunden." };
+  if (!canEditUser(actor.roles, roleList(user.roles))) {
+    return { error: "Sie dürfen dieses Konto nicht bearbeiten." };
+  }
+  if (user.personId) return { error: "Dieses Konto ist bereits mit einer Person verknüpft." };
+
+  const roles = roleList(user.roles);
+  const istLehrperson = roles.includes("LEHRPERSON");
+  const kuerzel = istLehrperson ? await nextFreeKuerzel(user.firstName, user.lastName) : null;
+
+  const person = await db.orm.public.Person.create({
+    status: "AKTIV",
+    anrede: anredeRaw,
+    vorname: user.firstName,
+    nachname: user.lastName,
+    email: user.email,
+    istLehrperson,
+    kuerzel,
+  });
+  await db.orm.public.User.where({ id: userId }).update({ personId: person.id });
+
+  await recordAudit({
+    actor,
+    action: "person.create",
+    entity: "person",
+    entityId: person.id,
+    summary: `Person «${person.vorname} ${person.nachname}» aus dem Konto ${user.email} angelegt`,
+    details: { userId, istLehrperson, kuerzel },
+  });
+  revalidatePath(`/benutzer/${userId}`);
+  revalidatePath("/personen");
+  revalidatePath("/dashboard");
+  return { success: `Person «${person.vorname} ${person.nachname}» angelegt und verknüpft.` };
 }

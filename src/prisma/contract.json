@@ -20,6 +20,10 @@
       "model": "Kursart",
       "namespace": "public"
     },
+    "Lehrqualifikation": {
+      "model": "Lehrqualifikation",
+      "namespace": "public"
+    },
     "Lektionsdauer": {
       "model": "Lektionsdauer",
       "namespace": "public"
@@ -34,6 +38,18 @@
     },
     "PasswordResetToken": {
       "model": "PasswordResetToken",
+      "namespace": "public"
+    },
+    "Person": {
+      "model": "Person",
+      "namespace": "public"
+    },
+    "PersonBeziehung": {
+      "model": "PersonBeziehung",
+      "namespace": "public"
+    },
+    "PersonNotiz": {
+      "model": "PersonNotiz",
       "namespace": "public"
     },
     "Preis": {
@@ -582,6 +598,106 @@
               "table": "Kursart"
             }
           },
+          "Lehrqualifikation": {
+            "fields": {
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "niveauId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "personId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "spracheId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "niveau": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "niveauId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Niveau",
+                  "namespace": "public"
+                }
+              },
+              "person": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "personId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Person",
+                  "namespace": "public"
+                }
+              },
+              "sprache": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "spracheId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Sprache",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "id": {
+                  "column": "id"
+                },
+                "niveauId": {
+                  "column": "niveauId"
+                },
+                "personId": {
+                  "column": "personId"
+                },
+                "spracheId": {
+                  "column": "spracheId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Lehrqualifikation"
+            }
+          },
           "Lektionsdauer": {
             "fields": {
               "active": {
@@ -823,7 +939,23 @@
                 }
               }
             },
-            "relations": {},
+            "relations": {
+              "qualifikationen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "niveauId"
+                  ]
+                },
+                "to": {
+                  "model": "Lehrqualifikation",
+                  "namespace": "public"
+                }
+              }
+            },
             "storage": {
               "fields": {
                 "active": {
@@ -950,6 +1082,520 @@
               },
               "namespaceId": "public",
               "table": "PasswordResetToken"
+            }
+          },
+          "Person": {
+            "fields": {
+              "anrede": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "Anrede"
+                  }
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "email": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "istLehrperson": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "kuerzel": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "nachname": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "ort": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "plz": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "rechnungOrt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "rechnungPlz": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "rechnungStrasse": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "signal1": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "signal2": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "PersonStatus"
+                  }
+                }
+              },
+              "strasse": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "telefon1": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "telefon2": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "vorname": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "whatsapp1": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "whatsapp2": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "elternLinks": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "kindId"
+                  ]
+                },
+                "to": {
+                  "model": "PersonBeziehung",
+                  "namespace": "public"
+                }
+              },
+              "kinderLinks": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "berechtigterId"
+                  ]
+                },
+                "to": {
+                  "model": "PersonBeziehung",
+                  "namespace": "public"
+                }
+              },
+              "notizen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "personId"
+                  ]
+                },
+                "to": {
+                  "model": "PersonNotiz",
+                  "namespace": "public"
+                }
+              },
+              "qualifikationen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "personId"
+                  ]
+                },
+                "to": {
+                  "model": "Lehrqualifikation",
+                  "namespace": "public"
+                }
+              },
+              "user": {
+                "cardinality": "1:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "personId"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "anrede": {
+                  "column": "anrede"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "email": {
+                  "column": "email"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "istLehrperson": {
+                  "column": "istLehrperson"
+                },
+                "kuerzel": {
+                  "column": "kuerzel"
+                },
+                "nachname": {
+                  "column": "nachname"
+                },
+                "ort": {
+                  "column": "ort"
+                },
+                "plz": {
+                  "column": "plz"
+                },
+                "rechnungOrt": {
+                  "column": "rechnungOrt"
+                },
+                "rechnungPlz": {
+                  "column": "rechnungPlz"
+                },
+                "rechnungStrasse": {
+                  "column": "rechnungStrasse"
+                },
+                "signal1": {
+                  "column": "signal1"
+                },
+                "signal2": {
+                  "column": "signal2"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "strasse": {
+                  "column": "strasse"
+                },
+                "telefon1": {
+                  "column": "telefon1"
+                },
+                "telefon2": {
+                  "column": "telefon2"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                },
+                "vorname": {
+                  "column": "vorname"
+                },
+                "whatsapp1": {
+                  "column": "whatsapp1"
+                },
+                "whatsapp2": {
+                  "column": "whatsapp2"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Person"
+            }
+          },
+          "PersonBeziehung": {
+            "fields": {
+              "berechtigterId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "kindId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "berechtigter": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "berechtigterId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Person",
+                  "namespace": "public"
+                }
+              },
+              "kind": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "kindId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Person",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "berechtigterId": {
+                  "column": "berechtigterId"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "kindId": {
+                  "column": "kindId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "PersonBeziehung"
+            }
+          },
+          "PersonNotiz": {
+            "fields": {
+              "authorName": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "authorUserId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "personId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "text": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "authorUser": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "authorUserId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "person": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "personId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Person",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "authorName": {
+                  "column": "authorName"
+                },
+                "authorUserId": {
+                  "column": "authorUserId"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "personId": {
+                  "column": "personId"
+                },
+                "text": {
+                  "column": "text"
+                }
+              },
+              "namespaceId": "public",
+              "table": "PersonNotiz"
             }
           },
           "Preis": {
@@ -1361,7 +2007,23 @@
                 }
               }
             },
-            "relations": {},
+            "relations": {
+              "qualifikationen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "spracheId"
+                  ]
+                },
+                "to": {
+                  "model": "Lehrqualifikation",
+                  "namespace": "public"
+                }
+              }
+            },
             "storage": {
               "fields": {
                 "active": {
@@ -1767,6 +2429,13 @@
                   "kind": "scalar"
                 }
               },
+              "personId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "roles": {
                 "many": {
                   "elementNullable": true
@@ -1822,6 +2491,37 @@
                   "namespace": "public"
                 }
               },
+              "person": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "personId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Person",
+                  "namespace": "public"
+                }
+              },
+              "personNotizen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "authorUserId"
+                  ]
+                },
+                "to": {
+                  "model": "PersonNotiz",
+                  "namespace": "public"
+                }
+              },
               "sessions": {
                 "cardinality": "1:N",
                 "on": {
@@ -1867,6 +2567,9 @@
                 "passwordHash": {
                   "column": "passwordHash"
                 },
+                "personId": {
+                  "column": "personId"
+                },
                 "roles": {
                   "column": "roles"
                 },
@@ -1887,6 +2590,15 @@
       "public": {
         "entries": {
           "native_enum": {
+            "Anrede": {
+              "kind": "postgres-enum",
+              "members": [
+                "HERR",
+                "FRAU",
+                "DIVERS"
+              ],
+              "typeName": "Anrede"
+            },
             "AuthEventKind": {
               "kind": "postgres-enum",
               "members": [
@@ -1902,6 +2614,15 @@
                 "OEFFENTLICHE_EINRICHTUNG"
               ],
               "typeName": "KostentraegerArt"
+            },
+            "PersonStatus": {
+              "kind": "postgres-enum",
+              "members": [
+                "INTERESSENT",
+                "AKTIV",
+                "INAKTIV"
+              ],
+              "typeName": "PersonStatus"
             },
             "Role": {
               "kind": "postgres-enum",
@@ -2336,6 +3057,106 @@
               },
               "uniques": []
             },
+            "Lehrqualifikation": {
+              "columns": {
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "niveauId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "personId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "spracheId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "Lehrqualifikation_personId_spracheId_niveauId_key"
+                  },
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "personId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Lehrqualifikation"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Person"
+                  }
+                },
+                {
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "spracheId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Lehrqualifikation"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Sprache"
+                  }
+                },
+                {
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "niveauId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Lehrqualifikation"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Niveau"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "personId",
+                    "spracheId",
+                    "niveauId"
+                  ],
+                  "name": "Lehrqualifikation_personId_spracheId_niveauId_key",
+                  "unique": true
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "Lektionsdauer": {
               "columns": {
                 "active": {
@@ -2647,6 +3468,399 @@
                     "userId"
                   ],
                   "name": "PasswordResetToken_userId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "Person": {
+              "columns": {
+                "anrede": {
+                  "codecId": "pg/enum@1",
+                  "dataType": "pg/enum",
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "Anrede"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "Anrede",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "email": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "istLehrperson": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nullable": false
+                },
+                "kuerzel": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "nachname": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "ort": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "plz": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "rechnungOrt": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "rechnungPlz": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "rechnungStrasse": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "signal1": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nullable": false
+                },
+                "signal2": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nullable": false
+                },
+                "status": {
+                  "codecId": "pg/enum@1",
+                  "dataType": "pg/enum",
+                  "default": {
+                    "kind": "literal",
+                    "value": "INTERESSENT"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "PersonStatus"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "PersonStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "strasse": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "telefon1": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "telefon2": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "vorname": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "whatsapp1": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nullable": false
+                },
+                "whatsapp2": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "kuerzel"
+                  ],
+                  "name": "Person_kuerzel_key",
+                  "unique": true
+                },
+                {
+                  "columns": [
+                    "nachname",
+                    "vorname"
+                  ],
+                  "name": "Person_nachname_vorname_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "status"
+                  ],
+                  "name": "Person_status_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "PersonBeziehung": {
+              "columns": {
+                "berechtigterId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "kindId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "PersonBeziehung_kindId_berechtigterId_key"
+                  },
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "kindId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "PersonBeziehung"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Person"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "PersonBeziehung_berechtigterId_idx"
+                  },
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "berechtigterId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "PersonBeziehung"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Person"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "berechtigterId"
+                  ],
+                  "name": "PersonBeziehung_berechtigterId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "kindId",
+                    "berechtigterId"
+                  ],
+                  "name": "PersonBeziehung_kindId_berechtigterId_key",
+                  "unique": true
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "PersonNotiz": {
+              "columns": {
+                "authorName": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "authorUserId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "personId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "text": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "PersonNotiz_personId_createdAt_idx"
+                  },
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "personId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "PersonNotiz"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Person"
+                  }
+                },
+                {
+                  "onDelete": "setNull",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "authorUserId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "PersonNotiz"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "personId",
+                    "createdAt"
+                  ],
+                  "name": "PersonNotiz_personId_createdAt_idx",
                   "unique": false
                 }
               ],
@@ -3329,6 +4543,11 @@
                   "dataType": "pg/text",
                   "nullable": true
                 },
+                "personId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
                 "roles": {
                   "codecId": "pg/enum@1",
                   "dataType": "pg/enum",
@@ -3359,7 +4578,29 @@
                   }
                 }
               },
-              "foreignKeys": [],
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "User_personId_key"
+                  },
+                  "onDelete": "setNull",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "personId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Person"
+                  }
+                }
+              ],
               "indexes": [
                 {
                   "columns": [
@@ -3374,6 +4615,13 @@
                   ],
                   "name": "User_isActive_idx",
                   "unique": false
+                },
+                {
+                  "columns": [
+                    "personId"
+                  ],
+                  "name": "User_personId_key",
+                  "unique": true
                 }
               ],
               "primaryKey": {
@@ -3385,6 +4633,14 @@
             }
           },
           "valueSet": {
+            "Anrede": {
+              "kind": "valueSet",
+              "values": [
+                "HERR",
+                "FRAU",
+                "DIVERS"
+              ]
+            },
             "AuthEventKind": {
               "kind": "valueSet",
               "values": [
@@ -3397,6 +4653,14 @@
               "values": [
                 "FIRMA",
                 "OEFFENTLICHE_EINRICHTUNG"
+              ]
+            },
+            "PersonStatus": {
+              "kind": "valueSet",
+              "values": [
+                "INTERESSENT",
+                "AKTIV",
+                "INAKTIV"
               ]
             },
             "Role": {
@@ -3415,10 +4679,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "37c31a3a146c8192f23191f1cf3523521b82d18453a518275c2881d0bac8068b"
+    "storageHash": "1df251fb9578853b1bfad6189e5905fdae4ac3c48f4b4997690dfcd76e648dda"
   },
   "execution": {
-    "executionHash": "c9682e4f653bf1dfadd2277e228fc6397194fb9c86e169a5e48e5deaba4b179f",
+    "executionHash": "370da4c30eb6d90d8ffd28fabc08da963d461de444a578dd59c1b8a5bfffe506",
     "mutations": {
       "defaults": [
         {
@@ -3516,6 +4780,17 @@
             "kind": "generator"
           },
           "ref": {
+            "entry": "Lehrqualifikation",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
             "entry": "Lektionsdauer",
             "field": "id",
             "namespace": "public"
@@ -3580,6 +4855,54 @@
           },
           "ref": {
             "entry": "PasswordResetToken",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Person",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Person",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "PersonBeziehung",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "PersonNotiz",
             "field": "id",
             "namespace": "public"
           }

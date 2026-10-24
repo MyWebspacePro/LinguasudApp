@@ -18,6 +18,7 @@ import { RoleBadge } from "@/components/RoleBadge";
 import { UserEditForm } from "@/components/users/UserEditForm";
 import { UserPasswordPanel } from "@/components/users/UserPasswordPanel";
 import { UserActiveToggle, UserSessionsRevoke } from "@/components/users/UserAdminActions";
+import { PersonLinkPanel } from "@/components/users/PersonLinkPanel";
 
 export const metadata: Metadata = {
   title: "Benutzerdetail",
@@ -44,10 +45,23 @@ async function UserDetailContent({ params }: { params: Promise<{ id: string }> }
     redirect("/dashboard");
   }
 
-  const user = await db.orm.public.User.where({ id }).first();
+  const user = await db.orm.public.User.where({ id }).include("person").first();
   if (!user) {
     notFound();
   }
+
+  // Kandidaten für die Konto↔Person-Verknüpfung (Modul 3): Personen der Kartei,
+  // die noch kein Konto haben — ohne die bereits verknüpfte Person.
+  const personCandidates = await db.orm.public.Person
+    .include("user")
+    .orderBy([(p) => p.nachname.asc(), (p) => p.vorname.asc()])
+    .all();
+  const linkCandidates = personCandidates
+    .filter((p) => !p.user && p.id !== user.personId)
+    .map((p) => ({
+      id: p.id,
+      label: p.email ? `${p.nachname} ${p.vorname} (${p.email})` : `${p.nachname} ${p.vorname}`,
+    }));
 
   const targetRoles = user.roles as Role[];
   const editable = canEditUser(actorRoles, targetRoles);
@@ -136,6 +150,26 @@ async function UserDetailContent({ params }: { params: Promise<{ id: string }> }
           {editable && (
             <>
               <section className="card p-5">
+                <h2 className="mb-1 text-sm font-semibold text-slate-800">Person der Kartei</h2>
+                <p className="mb-3 text-xs text-slate-600">
+                  Jedes Konto gehört zu einer Person der Personenverwaltung (Modul 3).
+                </p>
+                <PersonLinkPanel
+                  userId={user.id}
+                  canEdit={true}
+                  candidates={linkCandidates}
+                  person={
+                    user.person
+                      ? {
+                          id: user.person.id,
+                          label: `${user.person.vorname} ${user.person.nachname}`,
+                        }
+                      : null
+                  }
+                />
+              </section>
+
+              <section className="card p-5">
                 <h2 className="mb-1 text-sm font-semibold text-slate-800">Passwort</h2>
                 <p className="mb-4 text-xs text-slate-600">
                   {user.passwordHash
@@ -160,6 +194,25 @@ async function UserDetailContent({ params }: { params: Promise<{ id: string }> }
                 <UserSessionsRevoke userId={user.id} />
               </section>
             </>
+          )}
+
+          {!editable && (
+            <section className="card p-5">
+              <h2 className="mb-3 text-sm font-semibold text-slate-800">Person der Kartei</h2>
+              <PersonLinkPanel
+                userId={user.id}
+                canEdit={false}
+                candidates={[]}
+                person={
+                  user.person
+                    ? {
+                        id: user.person.id,
+                        label: `${user.person.vorname} ${user.person.nachname}`,
+                      }
+                    : null
+                }
+              />
+            </section>
           )}
 
           {!editable && hasRole(actorRoles, "CHEF") && (

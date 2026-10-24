@@ -37,6 +37,7 @@ export const AUTH_EVENT_RETENTION_MS = 24 * 60 * 60 * 1000;
 export const PROTECTED_PATH_PREFIXES = [
   "/dashboard",
   "/benutzer",
+  "/personen",
   "/audit",
   "/portal",
   "/passwort-aendern",

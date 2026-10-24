@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import type { Role } from "@/lib/db";
 import { requireStaff } from "@/lib/auth/session";
-import { canViewAuditLog, canViewStammdaten, canViewUsers, hasRole } from "@/lib/auth/permissions";
+import { canViewAuditLog, canViewPersonen, canViewStammdaten, canViewUsers, hasRole } from "@/lib/auth/permissions";
 import { logoutAction } from "@/lib/auth/actions";
 import { NavLinks, type NavItem } from "@/components/NavLinks";
 import { RoleBadge } from "@/components/RoleBadge";
@@ -31,6 +31,9 @@ async function VerwaltungGate({ children }: { children: ReactNode }) {
   const roles = user.roles as Role[];
 
   const navItems: NavItem[] = [{ href: "/dashboard", label: "Übersicht" }];
+  if (canViewPersonen(roles)) {
+    navItems.push({ href: "/personen", label: "Personen" });
+  }
   if (canViewUsers(roles)) {
     navItems.push({ href: "/benutzer", label: "Benutzer" });
   }

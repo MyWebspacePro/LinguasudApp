@@ -404,6 +404,14 @@ const ENTITY_OPS: Record<StammdatenEntity, EntityOps> = {
     setArchived: (id, archived) =>
       db.orm.public.Sprache.where({ id }).update({ archivedAt: archived ? toDbTime(new Date()) : null }),
     remove: async (id) => {
+      const quals = await db.orm.public.Lehrqualifikation
+        .where({ spracheId: id })
+        .aggregate((a) => ({ n: a.count() }));
+      if (quals.n > 0) {
+        throw new Error(
+          "Diese Sprache ist in Lehrpersonen-Qualifikationen erfasst — zuerst diese entfernen (oder die Sprache archivieren).",
+        );
+      }
       // Nutzung durch Kurse kommt mit Modul 4; dann hier blocken.
       await db.orm.public.Sprache.where({ id }).delete();
     },
@@ -414,6 +422,14 @@ const ENTITY_OPS: Record<StammdatenEntity, EntityOps> = {
     setArchived: (id, archived) =>
       db.orm.public.Niveau.where({ id }).update({ archivedAt: archived ? toDbTime(new Date()) : null }),
     remove: async (id) => {
+      const quals = await db.orm.public.Lehrqualifikation
+        .where({ niveauId: id })
+        .aggregate((a) => ({ n: a.count() }));
+      if (quals.n > 0) {
+        throw new Error(
+          "Dieses Niveau ist in Lehrpersonen-Qualifikationen erfasst — zuerst diese entfernen (oder das Niveau archivieren).",
+        );
+      }
       await db.orm.public.Niveau.where({ id }).delete();
     },
   },

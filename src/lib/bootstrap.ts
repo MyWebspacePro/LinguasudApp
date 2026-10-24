@@ -48,6 +48,16 @@ export async function bootstrapAdmin(): Promise<void> {
       return;
     }
 
+    // Konto und Person der Kartei (Modul 3) zusammen anlegen; Anrede unbekannt
+    // → divers (lässt sich in der Personenverwaltung jederzeit korrigieren).
+    const person = await db.orm.public.Person.create({
+      status: "AKTIV",
+      anrede: "DIVERS",
+      vorname: firstName,
+      nachname: lastName,
+      email,
+      istLehrperson: false,
+    });
     const user = await db.orm.public.User.create({
       email,
       firstName,
@@ -56,6 +66,7 @@ export async function bootstrapAdmin(): Promise<void> {
       passwordHash: await hashPassword(password),
       isActive: true,
       mustChangePassword: true,
+      personId: person.id,
     });
     await db.orm.public.AuditLog.create({
       actorUserId: user.id,
@@ -64,7 +75,7 @@ export async function bootstrapAdmin(): Promise<void> {
       entity: "user",
       entityId: user.id,
       summary: `Erstes Admin-Konto eingerichtet: ${firstName} ${lastName} (${email})`,
-      details: { roles: ["ADMIN"], bootstrap: true },
+      details: { roles: ["ADMIN"], bootstrap: true, personId: person.id },
     });
 
     console.log(
