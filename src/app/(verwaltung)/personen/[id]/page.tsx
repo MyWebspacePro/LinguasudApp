@@ -45,7 +45,7 @@ async function PersonDetailContent({ params }: { params: Promise<{ id: string }>
 
   // Bezugsdaten: Notizen, Familien-Verknüpfungen, Qualifikationen sowie die
   // Stammlisten für Auswahlfelder/Labels (Mapping serverseitig per ID).
-  const [notizen, elternLinks, kinderLinks, qualifikationen, sprachen, niveaus, allePersonen] =
+  const [notizen, elternLinks, kinderLinks, qualifikationen, sprachen, niveaus, allePersonen, honorarSaetze, honorarAbrechnungen] =
     await Promise.all([
       db.orm.public.PersonNotiz.where({ personId: id }).orderBy((n) => n.createdAt.desc()).all(),
       db.orm.public.PersonBeziehung.where({ kindId: id }).all(),
@@ -60,6 +60,8 @@ async function PersonDetailContent({ params }: { params: Promise<{ id: string }>
         .orderBy([(p) => p.nachname.asc(), (p) => p.vorname.asc()])
         .select("id", "vorname", "nachname", "email")
         .all(),
+      db.orm.public.HonorarSatz.where({ lehrpersonId: id }).all(),
+      db.orm.public.HonorarAbrechnung.where({ lehrpersonId: id }).all(),
     ]);
 
   const personById = new Map(allePersonen.map((p) => [p.id, p]));
@@ -107,14 +109,22 @@ async function PersonDetailContent({ params }: { params: Promise<{ id: string }>
     }))
     .sort((a, b) => a.label.localeCompare(b.label, "de-CH"));
 
-  const deletable = !person.user && elternLinks.length === 0 && kinderLinks.length === 0 && qualifikationen.length === 0;
+  const deletable =
+    !person.user &&
+    elternLinks.length === 0 &&
+    kinderLinks.length === 0 &&
+    qualifikationen.length === 0 &&
+    honorarSaetze.length === 0 &&
+    honorarAbrechnungen.length === 0;
   const blockHint = person.user
     ? "Verknüpftes Konto: zuerst die Verknüpfung in der Benutzerverwaltung lösen."
     : elternLinks.length + kinderLinks.length > 0
       ? "Familien-Verknüpfungen bestehen — zuerst lösen."
       : qualifikationen.length > 0
         ? "Qualifikationen bestehen — zuerst entfernen."
-        : null;
+        : honorarSaetze.length + honorarAbrechnungen.length > 0
+          ? "Honorar-Daten (Sätze/Monats-Abrechnungen) bleiben historisch erhalten — Status «inaktiv» setzen."
+          : null;
 
   // Kurs-Historie (Modul 4/5): alle Anmeldungen der Person, neueste zuerst.
   const historieAnmeldungen = await db.orm.public.Anmeldung
