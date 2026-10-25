@@ -9,15 +9,17 @@ export function SubmitButton({
   className = "btn-primary",
   pendingText,
   title,
+  disabled,
 }: {
   children: ReactNode;
   className?: string;
   pendingText?: string;
   title?: string;
+  disabled?: boolean;
 }) {
   const { pending } = useFormStatus();
   return (
-    <button type="submit" className={className} disabled={pending} title={title}>
+    <button type="submit" className={className} disabled={pending || disabled} title={title}>
       {pending ? (pendingText ?? "Bitte warten …") : children}
     </button>
   );

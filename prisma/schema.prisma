@@ -43,6 +43,8 @@ model User {
   passwordResetTokens PasswordResetToken[]
   auditLogsAsActor    AuditLog[]
   personNotizen       PersonNotiz[]
+  guthabenJournale    GuthabenJournal[]
+  zahlungenAlsErfasser Zahlung[]
 
   @@index([isActive])
 }
@@ -176,6 +178,10 @@ model Raum {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
 
+  /// Kurse, die diesen Raum als Standard-Raum führen.
+  kurseAlsStandard Kurs[]   @relation("KurseStandardRaum")
+  lektionen        Lektion[]
+
   @@unique([etageId, name])
 }
 
@@ -190,6 +196,7 @@ model Sprache {
   updatedAt  DateTime  @updatedAt
 
   qualifikationen Lehrqualifikation[]
+  kurse           Kurs[] // Sprache dieses Kurses
 }
 
 /// Niveaustufen (A1 … C2), Sortierung frei definierbar.
@@ -204,6 +211,8 @@ model Niveau {
   updatedAt  DateTime  @updatedAt
 
   qualifikationen Lehrqualifikation[]
+  kurse           Kurs[] // aktuelles Niveau dieser Kurse
+  verlauf         KursNiveauVerlauf[] // Niveau-Abschnitte im Verlauf
 }
 
 /// Kursarten: Einzel, 2er, 3er, 4er, 6er, Online, Firmenkurs — beliebig erweiterbar.
@@ -221,6 +230,7 @@ model Kursart {
   updatedAt       DateTime  @updatedAt
 
   preise          Preis[]
+  kurse           Kurs[]
 }
 
 /// Lektionsdauern in Minuten (45, 60, 90, …).
@@ -254,6 +264,7 @@ model Tarifstufe {
   updatedAt         DateTime  @updatedAt
 
   preise            Preis[]
+  anmeldungen       Anmeldung[]
 }
 
 /// Preisliste: Betrag je Kursart × Lektionsdauer × Tarifstufe — jederzeit anpassbar.
@@ -288,6 +299,11 @@ model Kostentraeger {
   archivedAt    DateTime?
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
+
+  kurse         Kurs[]
+  anmeldungen   Anmeldung[]
+  // Modul 9 — Rechnungen an Firma / öffentliche Einrichtung.
+  rechnungen    Rechnung[]
 
   @@index([name])
   @@index([active])
@@ -354,6 +370,17 @@ model Person {
   elternLinks     PersonBeziehung[] @relation("Kind") // diese Person ist das Kind
   kinderLinks     PersonBeziehung[] @relation("Erziehungsberechtigte") // diese Person ist Elternteil
   qualifikationen Lehrqualifikation[]
+  // Modul 8 — Dienst- & Urlaubsplanung (nur Personen mit BUERO/ADMIN/CHEF-Konto).
+  bueroDienste          BueroDienst[]
+  bueroAbweichungen     BueroAbweichung[]
+  bueroAbwesenheiten    BueroAbwesenheit[]
+  bueroUrlaubskontingente BueroUrlaubskontingent[]
+  kurseAlsLehrperson Kurs[]            @relation("KurseAlsLehrperson")
+  lektionenAlsLehrperson Lektion[]     @relation("LektionenAlsLehrperson")
+  anmeldungen     Anmeldung[]
+  anmeldungenAlsRechnungsempfaenger Anmeldung[] @relation("AnmeldungRechnungsempfaenger")
+  // Modul 9 — Rechnungen an diese Person (privat / Eltern als Empfänger).
+  rechnungen      Rechnung[] @relation("RechnungenAlsPerson")
 
   @@index([status])
   @@index([nachname, vorname])
@@ -400,4 +427,524 @@ model Lehrqualifikation {
   niveau    Niveau  @relation(fields: [niveauId], references: [id], onDelete: Cascade)
 
   @@unique([personId, spracheId, niveauId])
+}
+
+// ————————————————————————————————————————————————————————————————
+// Modul 4 — Kurse
+// Fortlaufende Kurse ohne Start-/Enddatum (Teilnehmende buchen 14/15-
+// Lektionen-Pakete, Modul 5). Automatischer Kurscode aus Sprache/Niveau/
+// Kursart/Lehrpersonen-Kürzel + Serial (z.B. DE-B2-6ER-SMIT01-01).
+// ————————————————————————————————————————————————————————————————
+
+/// Lebenszyklus eines fortlaufenden Kurses laut Pflichtenheft.
+enum KursStatus {
+  GEPLANT
+  AKTIV
+  PAUSIERT
+  ABGESCHLOSSEN
+  ABGESAGT
+}
+
+model Kurs {
+  id     String     @id @default(cuid())
+  /// Automatischer Kurscode, z.B. DE-B2-6ER-SMIT01-01; Niveau-Wechsel passen ihn an.
+  code   String     @unique
+  status KursStatus @default(GEPLANT)
+
+  spracheId String
+  sprache   Sprache @relation(fields: [spracheId], references: [id], onDelete: Restrict)
+  /// Aktuelles Niveau (Spiegel des Niveau-Verlaufs).
+  niveauId  String
+  niveau    Niveau  @relation(fields: [niveauId], references: [id], onDelete: Restrict)
+  kursartId String
+  kursart   Kursart @relation(fields: [kursartId], references: [id], onDelete: Restrict)
+  /// Lehrperson (Person mit istLehrperson); während des Kurses wechselbar.
+  lehrpersonId String?
+  lehrperson   Person? @relation("KurseAlsLehrperson", fields: [lehrpersonId], references: [id], onDelete: SetNull)
+
+  /// Wöchentlicher Fixtermin für die rollierende Generierung (Modul 6): 1=Mo … 6=Sa.
+  wochentag Int?
+  /// Startzeit "HH:mm" (Lokalzeit Europe/Zurich).
+  startZeit String?
+  dauerMinuten Int?
+
+  /// Kursort: intern mit Standort-Raum, oder extern («Kursort extern» — Firmenkurs vor
+  /// Ort im Unternehmen, erscheint nicht im Raumplaner).
+  standardRaumId String?
+  standardRaum   Raum?   @relation("KurseStandardRaum", fields: [standardRaumId], references: [id], onDelete: SetNull)
+  extern         Boolean @default(false)
+  externOrt      String?
+
+  /// Teilnehmende-Obergrenze; null = Üblicher Wert der Kursart gilt.
+  maxParticipants Int?
+  /// Firmenbezug (Rechnungshinweis für Modul 9); null = kein Kostenträger am Kurs.
+  kostentraegerId String?
+  kostentraeger   Kostentraeger? @relation(fields: [kostentraegerId], references: [id], onDelete: SetNull)
+
+  notizen   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  niveauVerlauf    KursNiveauVerlauf[]
+  unterbrechungen  KursUnterbrechung[]
+  anmeldungen      Anmeldung[]
+  lektionen        Lektion[]
+
+  @@index([status])
+  @@index([lehrpersonId])
+  @@index([spracheId, niveauId])
+}
+
+/// Niveau-Abschnitt: der Kurs durchläuft Niveaus als Zeiträume. Ein Wechsel
+/// (meist von der Lehrperson gemeldet) beendet den laufenden Abschnitt,
+/// eröffnet den nächsten und passt den Kurscode an.
+model KursNiveauVerlauf {
+  id      String @id @default(cuid())
+  kursId  String
+  kurs    Kurs   @relation(fields: [kursId], references: [id], onDelete: Cascade)
+  niveauId String
+  niveau  Niveau @relation(fields: [niveauId], references: [id], onDelete: Restrict)
+  /// Abschnittsbeginn (Datum, UTC-Mitternacht des Lokal-Tags).
+  von     DateTime
+  /// Abschnittsende (null = laufender Abschnitt); wird beim Wechsel gesetzt.
+  bis     DateTime?
+  /// true, wenn die Lehrperson den Wechsel gemeldet hat (Auslöser Kursbestätigung, Modul 10).
+  gemeldetVonLehrperson Boolean @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([kursId, von])
+}
+
+/// Unterbrechung eines Kurses (Zeitraum, inklusive): im Planer ausgegraut
+/// sichtbar, der Slot bleibt für andere Kurse überbuchbar.
+model KursUnterbrechung {
+  id      String @id @default(cuid())
+  kursId  String
+  kurs    Kurs   @relation(fields: [kursId], references: [id], onDelete: Cascade)
+  von     DateTime
+  bis     DateTime
+  grund   String?
+  /// true, wenn die Lehrperson die Unterbrechung gemeldet hat.
+  gemeldetVonLehrperson Boolean @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([kursId, von])
+}
+
+// ————————————————————————————————————————————————————————————————
+// Modul 5 — Anmeldungen
+// Drei Billing-Typen, Probelektionen, Tarif/Paketgrösse/Preis übersteuerbar,
+// Lektionsguthaben als Konto mit Journal, Paketende-Automatik, Fehlzeiten.
+// ————————————————————————————————————————————————————————————————
+
+enum BillingTyp {
+  PRIVAT
+  FIRMA
+  OEFFENTLICHE_EINRICHTUNG
+}
+
+/// Anmeldung-Lebenszyklus: Probe wandelt sich bei fester Anmeldung zu aktiv.
+enum AnmeldungStatus {
+  PROBE
+  AKTIV
+  BEENDET
+}
+
+/// Entscheid der Teilnehmenden am Paketende (Automatik nach 12./13. Lektion).
+enum PaketEntscheid {
+  OFFEN
+  VERLAENGERT
+  BEENDET
+}
+
+model Anmeldung {
+  id       String          @id @default(cuid())
+  kursId   String
+  kurs     Kurs            @relation(fields: [kursId], references: [id], onDelete: Cascade)
+  personId String
+  person   Person          @relation(fields: [personId], references: [id], onDelete: Restrict)
+  status   AnmeldungStatus @default(PROBE)
+
+  /// Rechnungsweg laut Pflichtenheft: privat selbstzahlend, Firma bzw.
+  /// öffentliche Einrichtung über den Kostenträger.
+  billingTyp      BillingTyp @default(PRIVAT)
+  kostentraegerId String?
+  kostentraeger   Kostentraeger? @relation(fields: [kostentraegerId], references: [id], onDelete: SetNull)
+  /// Abweichender Rechnungsempfänger (z.B. Eltern eines Kindes, Modul 9).
+  rechnungsempfaengerId String?
+  rechnungsempfaenger   Person?  @relation("AnmeldungRechnungsempfaenger", fields: [rechnungsempfaengerId], references: [id], onDelete: SetNull)
+
+  /// Angewandte Tarifstufe; tarifUebersteuert = Büro übersteuert die
+  /// automatische Tageszeit-Ableitung.
+  tarifstufeId String
+  tarifstufe   Tarifstufe @relation(fields: [tarifstufeId], references: [id], onDelete: Restrict)
+  tarifUebersteuert Boolean @default(false)
+  /// Paketgrösse in Lektionen (Standard 14/15 aus der Tarifstufe, übersteuerbar).
+  paketGroesse Int
+  paketGroesseUebersteuert Boolean @default(false)
+  /// Paketpreis CHF (Preisliste Kursart×Dauer×Stufe, übersteuerbar).
+  preisChf Decimal @db.Decimal(8, 2)
+  preisUebersteuert Boolean @default(false)
+  /// Dokumentierte Abweichung vom Preislistenpreis (Pflicht bei Übersteuerung).
+  preisAbweichungGrund String?
+
+  /// Laufendes Paket seit (UTC-Instant); Lektionen werden über das Journal gezählt.
+  paketStartAt DateTime @default(now())
+  /// Zustand der Paketende-Automatik.
+  paketEntscheid       PaketEntscheid @default(OFFEN)
+  paketEndeGemeldetAt  DateTime?
+
+  notizen   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  journal GuthabenJournal[]
+  anwesenheiten Anwesenheit[]
+  // Modul 9 — Rechnungen, die aus Paket-Verlängerungen dieser Anmeldung ausgelöst wurden.
+  rechnungen Rechnung[]
+
+  @@index([kursId, status])
+  @@index([personId])
+  @@index([status, paketEntscheid])
+}
+
+/// Journal-Art des Lektionsguthabens.
+enum JournalArt {
+  /// Paketaufladung (+Paketgrösse).
+  AUFLADUNG
+  /// Durchgeführte Lektion (−1).
+  VERBRAUCH
+  /// Unentschuldigte Fehlzeit (−1).
+  FEHLZEIT_UNENTSCHULDIGT
+  /// Entschuldigte Fehlzeit (−0, Dokumentationseintrag).
+  FEHLZEIT_ENTSCHULDIGT
+  /// Manuelle Korrektur durchs Büro (±n).
+  KORREKTUR
+}
+
+/// Lektionsguthaben als Konto: der Stand ist die Summe der Journal-Deltas.
+/// Verbrauchsbuchungen kommen mit Modul 7 (Anwesenheit); hier liegen auch die
+/// manuellen Büro-Korrekturen und die Paket-Aufladungen.
+model GuthabenJournal {
+  id          String     @id @default(cuid())
+  anmeldungId String
+  anmeldung   Anmeldung  @relation(fields: [anmeldungId], references: [id], onDelete: Cascade)
+  art         JournalArt
+  /// +n (Aufladung), −1 (Verbrauch/unentschuldigt), 0 (entschuldigt), ±n (Korrektur).
+  delta       Int
+  datum       DateTime   @default(now())
+  /// Verknüpfte Lektion (Verbrauch/Fehlzeit), sobald Modul 7 die Anwesenheit abschliesst.
+  lektionId   String?
+  lektion     Lektion?   @relation(fields: [lektionId], references: [id], onDelete: SetNull)
+  bemerkung   String?
+  /// Erfasst durch (Büro); Name als Snapshot.
+  actorUserId String?
+  actorUser   User?      @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+  actorName   String
+  createdAt   DateTime   @default(now())
+
+  @@index([anmeldungId, datum])
+}
+
+// ————————————————————————————————————————————————————————————————
+// Modul 6 — Lektionsgenerierung & Raumplaner
+// Rollierende Generierung 2 Wochen im Voraus (nächtlicher Job); Planer
+// zeigt Standort → Etage → Räume, Verschieben/Fixieren nur durchs Büro,
+// keine harte Konfliktblockade.
+// ————————————————————————————————————————————————————————————————
+
+enum LektionStatus {
+  /// Automatisch generiert, wartet auf Fixierung durchs Büro.
+  PROVISORISCH
+  /// Vom Büro fixiert (Zeit/Raum bindend; bei Änderung werden Teilnehmende informiert).
+  FIXIERT
+  ABGESAGT
+  /// Anwesenheit vollständig erfasst und abgeschlossen — Guthaben gebucht
+  /// (Modul 7); nur diese Lektionen zählen später für Honorare (Modul 11).
+  DURCHGEFUEHRT
+}
+
+model Lektion {
+  id     String @id @default(cuid())
+  kursId String
+  kurs   Kurs   @relation(fields: [kursId], references: [id], onDelete: Cascade)
+  /// Lehrperson zum Termin (Snapshot; unabhängig von späteren Kurswechseln).
+  lehrpersonId String?
+  lehrperson   Person? @relation("LektionenAlsLehrperson", fields: [lehrpersonId], references: [id], onDelete: SetNull)
+  /// Termin (UTC-Instant, Konvertierung via src/lib/zeit.ts).
+  startAt      DateTime
+  dauerMinuten Int
+  /// Raum; null = Online ohne Schulungsraum (externer Firmenkurs erscheint gar nicht im Planer).
+  raumId String?
+  raum   Raum?   @relation(fields: [raumId], references: [id], onDelete: SetNull)
+  status LektionStatus @default(PROVISORISCH)
+  /// "GENERIERT" (nächtlicher Job) oder "MANUELL" (Büro).
+  quelle String @default("GENERIERT")
+  notiz  String?
+  fixiertAt DateTime?
+  /// Zeitpunkt des Anwesenheits-Abschlusses (Status DURCHGEFUEHRT, Modul 7).
+  abgeschlossenAt DateTime?
+  /// Erinnerung an die Lehrperson wegen offener Anwesenheit versendet (Modul 7, nächster Tag).
+  anwesenheitErinnertAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  journal GuthabenJournal[]
+  anwesenheiten Anwesenheit[]
+
+  @@index([kursId, startAt])
+  @@index([startAt])
+}
+
+// ————————————————————————————————————————————————————————————————
+// Modul 7 — Anwesenheitskontrolle
+// Erfassung direkt nach der Lektion (Lehrperson 24 h, danach Büro),
+// Abschluss erst bei vollständiger Erfassung → bucht das Guthaben-
+// Journal (anwesend −1, unentschuldigt −1, entschuldigt −0; Probe
+// ohne Abbuchung), danach Paketende-Automatik prüfen. Büro korrigiert
+// nachträglich (Journal-Eintrag wird angepasst, alles im Audit-Log).
+// ————————————————————————————————————————————————————————————————
+
+/// Anwesenheit einer Anmeldung in einer Lektion. Abwesend ohne Büro-
+/// Entscheid gilt bis zur Korrektur als unentschuldigt (−1).
+enum AnwesenheitStatus {
+  ANWESEND
+  ABWESEND_ENTSCHULDIGT
+  ABWESEND_UNENTSCHULDIGT
+}
+
+model Anwesenheit {
+  id          String            @id @default(cuid())
+  lektionId   String
+  lektion     Lektion           @relation(fields: [lektionId], references: [id], onDelete: Cascade)
+  anmeldungId String
+  anmeldung   Anmeldung         @relation(fields: [anmeldungId], references: [id], onDelete: Cascade)
+  status      AnwesenheitStatus
+  bemerkung   String?
+  /// Name des/der Erfassenden als Snapshot (Lehrperson oder Büro).
+  erfasstVonName String
+  /// true, wenn die Lehrperson erfasst hat (Büro-Korrekturen überschreiben).
+  vonLehrperson Boolean @default(false)
+  erfasstAt   DateTime @default(now())
+  /// Letzte Korrektur durchs Büro (Journal-Eintrag wurde angepasst).
+  korrigiertAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([lektionId, anmeldungId])
+  @@index([anmeldungId])
+}
+
+// ————————————————————————————————————————————————————————————————
+// Modul 8 — Dienst- & Urlaubsplanung Büro
+// Nur Personen mit BUERO/ADMIN/CHEF-Konto (Lehrpersonen organisieren sich
+// selbst): wiederkehrendes Pensum (beliebig viele Blöcke pro Wochentag,
+// mehrere Personen parallel), Tages-Abweichungen, Abwesenheiten
+// (Urlaub/Krankheit/sonstige) und ein anpassbares Urlaubs-Jahreskontingent
+// (Default 20 Tage; alle im Stundenlohn, kein Genehmigungs-Workflow).
+// ————————————————————————————————————————————————————————————————
+
+/// Wiederkehrender Dienst-Block im Büro-Wochenplan (= Pensum): beliebig
+/// viele Blöcke pro Wochentag, z.B. 45 Min vor + nach Unterricht.
+model BueroDienst {
+  id        String   @id @default(cuid())
+  personId  String
+  person    Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
+  /// 1 = Montag … 7 = Sonntag (ISO-8601, wie src/lib/zeit.ts).
+  wochentag Int
+  /// "HH:mm" (Lokalzeit Europe/Zurich).
+  startZeit String
+  endZeit   String
+  notiz     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([personId, wochentag])
+}
+
+/// Abweichung vom Pensum an einem konkreten Kalendertag: ARBEITSZEIT ersetzt
+/// die Pensum-Blöcke des Tages durch eine eigene Zeit; FREI ist dienstfrei
+/// ohne Abwesenheits-Art (z.B. Kompensation — zählt nicht aufs Urlaubs-Kontingent).
+enum BueroAbweichungArt {
+  ARBEITSZEIT
+  FREI
+}
+
+model BueroAbweichung {
+  id        String            @id @default(cuid())
+  personId  String
+  person    Person            @relation(fields: [personId], references: [id], onDelete: Cascade)
+  /// Kalendertag (UTC-Mitternacht des Lokal-Tags Europe/Zurich).
+  datum     DateTime
+  art       BueroAbweichungArt
+  /// Bei ARBEITSZEIT: "HH:mm" (Start < Ende); bei FREI null.
+  startZeit String?
+  endZeit   String?
+  notiz     String?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  /// Pro Tag und Person genau eine Abweichung (Ansicht ist dann eindeutig).
+  @@unique([personId, datum])
+  @@index([datum])
+}
+
+/// Abwesenheits-Arten laut Pflichtenheft: Urlaub (zählt aufs Kontingent),
+/// Krankheit, sonstige.
+enum BueroAbwesenheitArt {
+  URLAUB
+  KRANKHEIT
+  SONSTIGE
+}
+
+model BueroAbwesenheit {
+  id        String             @id @default(cuid())
+  personId  String
+  person    Person             @relation(fields: [personId], references: [id], onDelete: Cascade)
+  art       BueroAbwesenheitArt
+  /// Von/Bis inklusive (UTC-Mitternacht des Lokal-Tags, Muster dbDatum()).
+  von       DateTime
+  bis       DateTime
+  bemerkung String?
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  @@index([personId, von])
+  @@index([von, bis])
+}
+
+/// Anpassbares Urlaubs-Jahreskontingent (Tage) pro Person; ohne Eintrag gilt
+/// der Default (BUERO_URLAUB_DEFAULT_TAGE, 20). Genutzte Tage zählt die pure
+/// Logik in src/lib/bueroplan/logik.ts aus den URLAUB-Abwesenheiten.
+model BueroUrlaubskontingent {
+  id       String @id @default(cuid())
+  personId String
+  person   Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+  jahr     Int
+  tage     Int
+
+  @@unique([personId, jahr])
+}
+
+// ————————————————————————————————————————————————————————————————
+// Modul 9 — Rechnungen (Schweizer QR-Rechnung)
+// Empfänger: Person (auch Eltern als abweichender Empfänger) oder Kostenträger
+// (Firma / öffentliche Einrichtung). Mehrere Positionen, MwSt-Feld,
+// Teilzahlungen, Mahn-Stufen. Status-Laufbahn: Entwurf → versendet →
+// (teilbezahlt) → bezahlt → storniert; «überfällig» ist abgeleitet
+// (versendet/teilbezahlt und Fälligkeit verstrichen) und wird nicht gespeichert.
+// ————————————————————————————————————————————————————————————————
+
+/// Rechnungs-Lebenszyklus laut Pflichtenheft.
+enum RechnungStatus {
+  ENTWURF
+  VERSENDET
+  TEILBEZAHLT
+  BEZAHLT
+  STORNIERT
+}
+
+model Rechnung {
+  id     String         @id @default(cuid())
+  /// Fortlaufende Rechnungsnummer "RE-2026-0123" (Zähler in SystemSetting).
+  nummer String         @unique
+  status RechnungStatus @default(ENTWURF)
+
+  /// Empfänger: entweder Person (privat, inkl. Eltern als abweichender
+  /// Empfänger) oder Kostenträger (Firma / öffentliche Einrichtung).
+  personId        String?
+  person          Person?        @relation("RechnungenAlsPerson", fields: [personId], references: [id], onDelete: Restrict)
+  kostentraegerId String?
+  kostentraeger   Kostentraeger? @relation(fields: [kostentraegerId], references: [id], onDelete: Restrict)
+  /// Ursprung: Paket-Anmeldung, deren Verlängerung die Rechnung auslöste.
+  anmeldungId String?
+  anmeldung   Anmeldung? @relation(fields: [anmeldungId], references: [id], onDelete: SetNull)
+
+  /// Empfänger-Adresse als Snapshot (Person mit abweichender
+  /// Rechnungsadresse: rechnungStrasse/rechnungPlz/rechnungOrt).
+  empfaengerName    String
+  empfaengerStrasse String
+  empfaengerPlz     String
+  empfaengerOrt     String
+  empfaengerLand    String  @default("CH")
+  empfaengerEmail   String?
+
+  /// Positionen exklusive MwSt; mwstSatzProzent null = MwSt-frei («falls relevant»).
+  betragChf       Decimal @db.Decimal(10, 2)
+  mwstSatzProzent Decimal? @db.Decimal(5, 2)
+  totalChf        Decimal @db.Decimal(10, 2)
+
+  /// Rechnungsdatum; Fälligkeit = UTC-Mitternacht des Lokal-Tags (Muster dbDatum()).
+  rechnungsdatum DateTime
+  faelligAm      DateTime
+  versendetAt    DateTime?
+  storniertAt    DateTime?
+  storniertGrund String?
+
+  /// Höchste versendete Mahn-Stufe (0 = keine; 1 = freundliche Erinnerung,
+  /// 2 = Mahnung). Der Mahn-Job versendet jede Stufe genau einmal.
+  mahnStufe    Int       @default(0)
+  letzteMahnAt DateTime?
+
+  /// 27-stellige QR-Referenznummer (mod-10-rekursiv geprüft) für den QR-Zahlteil.
+  referenzNr String @unique
+  notiz      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  positionen RechnungsPosition[]
+  zahlungen  Zahlung[]
+  mahnungen  Mahnung[]
+
+  @@index([status, faelligAm])
+  @@index([personId])
+  @@index([kostentraegerId])
+}
+
+/// Rechnungs-Position (Paket, Lehrmittel, Registration …); Beträge exklusive MwSt.
+model RechnungsPosition {
+  id         String   @id @default(cuid())
+  rechnungId String
+  rechnung   Rechnung @relation(fields: [rechnungId], references: [id], onDelete: Cascade)
+  text       String
+  menge      Int      @default(1)
+  einzelpreisChf Decimal @db.Decimal(10, 2)
+  reihenfolge Int     @default(0)
+  createdAt  DateTime @default(now())
+
+  @@index([rechnungId])
+}
+
+/// Teil- oder Vollzahlung zu einer Rechnung; der Restbetrag ergibt sich
+/// aus total − Summe Zahlungen (pure Logik, src/lib/rechnungen/logik.ts).
+model Zahlung {
+  id         String   @id @default(cuid())
+  rechnungId String
+  rechnung   Rechnung @relation(fields: [rechnungId], references: [id], onDelete: Cascade)
+  betragChf  Decimal  @db.Decimal(10, 2)
+  /// Eingangsdatum (UTC-Instant; Anzeige als Datum).
+  datum      DateTime @default(now())
+  bemerkung  String?
+  actorUserId String?
+  actorUser   User?   @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+  actorName   String
+  createdAt  DateTime @default(now())
+
+  @@index([rechnungId])
+}
+
+/// Versendete Mahnung (Stufe 1 = freundliche Erinnerung, Stufe 2 = Mahnung).
+model Mahnung {
+  id         String   @id @default(cuid())
+  rechnungId String
+  rechnung   Rechnung @relation(fields: [rechnungId], references: [id], onDelete: Cascade)
+  stufe      Int
+  versendetAt DateTime @default(now())
+  email      String
+  /// Versand-Ergebnis: null = geliefert, sonst Grund (z.B. Dev-Log).
+  fehler     String?
+  createdAt  DateTime @default(now())
+
+  @@index([rechnungId])
 }

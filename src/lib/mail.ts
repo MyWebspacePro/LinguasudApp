@@ -8,11 +8,18 @@ import "server-only";
 import nodemailer, { type Transporter } from "nodemailer";
 import { getEnv, isMailConfigured } from "@/lib/env";
 
+export interface MailAnhang {
+  filename: string;
+  content: Buffer;
+}
+
 export interface MailInput {
   to: string;
   subject: string;
   text: string;
   html: string;
+  /** Z.B. Rechnungs-PDF (Modul 9). */
+  attachments?: MailAnhang[];
 }
 
 export interface MailResult {
@@ -65,6 +72,7 @@ export async function sendMail(input: MailInput): Promise<MailResult> {
       subject: input.subject,
       text: input.text,
       html: input.html,
+      attachments: input.attachments,
     });
     return { delivered: true, devLogged: false };
   } catch (error) {

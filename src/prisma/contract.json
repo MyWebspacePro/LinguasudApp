@@ -4,16 +4,56 @@
   "target": "postgres",
   "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
   "roots": {
+    "Anmeldung": {
+      "model": "Anmeldung",
+      "namespace": "public"
+    },
+    "Anwesenheit": {
+      "model": "Anwesenheit",
+      "namespace": "public"
+    },
     "AuditLog": {
       "model": "AuditLog",
+      "namespace": "public"
+    },
+    "BueroAbweichung": {
+      "model": "BueroAbweichung",
+      "namespace": "public"
+    },
+    "BueroAbwesenheit": {
+      "model": "BueroAbwesenheit",
+      "namespace": "public"
+    },
+    "BueroDienst": {
+      "model": "BueroDienst",
+      "namespace": "public"
+    },
+    "BueroUrlaubskontingent": {
+      "model": "BueroUrlaubskontingent",
       "namespace": "public"
     },
     "Etage": {
       "model": "Etage",
       "namespace": "public"
     },
+    "GuthabenJournal": {
+      "model": "GuthabenJournal",
+      "namespace": "public"
+    },
     "Kostentraeger": {
       "model": "Kostentraeger",
+      "namespace": "public"
+    },
+    "Kurs": {
+      "model": "Kurs",
+      "namespace": "public"
+    },
+    "KursNiveauVerlauf": {
+      "model": "KursNiveauVerlauf",
+      "namespace": "public"
+    },
+    "KursUnterbrechung": {
+      "model": "KursUnterbrechung",
       "namespace": "public"
     },
     "Kursart": {
@@ -24,12 +64,20 @@
       "model": "Lehrqualifikation",
       "namespace": "public"
     },
+    "Lektion": {
+      "model": "Lektion",
+      "namespace": "public"
+    },
     "Lektionsdauer": {
       "model": "Lektionsdauer",
       "namespace": "public"
     },
     "LoginAttempt": {
       "model": "LoginAttempt",
+      "namespace": "public"
+    },
+    "Mahnung": {
+      "model": "Mahnung",
       "namespace": "public"
     },
     "Niveau": {
@@ -60,6 +108,14 @@
       "model": "Raum",
       "namespace": "public"
     },
+    "Rechnung": {
+      "model": "Rechnung",
+      "namespace": "public"
+    },
+    "RechnungsPosition": {
+      "model": "RechnungsPosition",
+      "namespace": "public"
+    },
     "Session": {
       "model": "Session",
       "namespace": "public"
@@ -83,12 +139,547 @@
     "User": {
       "model": "User",
       "namespace": "public"
+    },
+    "Zahlung": {
+      "model": "Zahlung",
+      "namespace": "public"
     }
   },
   "domain": {
     "namespaces": {
       "public": {
         "models": {
+          "Anmeldung": {
+            "fields": {
+              "billingTyp": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "BillingTyp"
+                  }
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "kostentraegerId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "kursId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "notizen": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "paketEndeGemeldetAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "paketEntscheid": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "PaketEntscheid"
+                  }
+                }
+              },
+              "paketGroesse": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "paketGroesseUebersteuert": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "paketStartAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "personId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "preisAbweichungGrund": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "preisChf": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 8,
+                    "scale": 2
+                  }
+                }
+              },
+              "preisUebersteuert": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "rechnungsempfaengerId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "AnmeldungStatus"
+                  }
+                }
+              },
+              "tarifUebersteuert": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "tarifstufeId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              }
+            },
+            "relations": {
+              "anwesenheiten": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "anmeldungId"
+                  ]
+                },
+                "to": {
+                  "model": "Anwesenheit",
+                  "namespace": "public"
+                }
+              },
+              "journal": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "anmeldungId"
+                  ]
+                },
+                "to": {
+                  "model": "GuthabenJournal",
+                  "namespace": "public"
+                }
+              },
+              "kostentraeger": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "kostentraegerId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Kostentraeger",
+                  "namespace": "public"
+                }
+              },
+              "kurs": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "kursId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Kurs",
+                  "namespace": "public"
+                }
+              },
+              "person": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "personId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Person",
+                  "namespace": "public"
+                }
+              },
+              "rechnungen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "anmeldungId"
+                  ]
+                },
+                "to": {
+                  "model": "Rechnung",
+                  "namespace": "public"
+                }
+              },
+              "rechnungsempfaenger": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "rechnungsempfaengerId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Person",
+                  "namespace": "public"
+                }
+              },
+              "tarifstufe": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "tarifstufeId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Tarifstufe",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "billingTyp": {
+                  "column": "billingTyp"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "kostentraegerId": {
+                  "column": "kostentraegerId"
+                },
+                "kursId": {
+                  "column": "kursId"
+                },
+                "notizen": {
+                  "column": "notizen"
+                },
+                "paketEndeGemeldetAt": {
+                  "column": "paketEndeGemeldetAt"
+                },
+                "paketEntscheid": {
+                  "column": "paketEntscheid"
+                },
+                "paketGroesse": {
+                  "column": "paketGroesse"
+                },
+                "paketGroesseUebersteuert": {
+                  "column": "paketGroesseUebersteuert"
+                },
+                "paketStartAt": {
+                  "column": "paketStartAt"
+                },
+                "personId": {
+                  "column": "personId"
+                },
+                "preisAbweichungGrund": {
+                  "column": "preisAbweichungGrund"
+                },
+                "preisChf": {
+                  "column": "preisChf"
+                },
+                "preisUebersteuert": {
+                  "column": "preisUebersteuert"
+                },
+                "rechnungsempfaengerId": {
+                  "column": "rechnungsempfaengerId"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "tarifUebersteuert": {
+                  "column": "tarifUebersteuert"
+                },
+                "tarifstufeId": {
+                  "column": "tarifstufeId"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Anmeldung"
+            }
+          },
+          "Anwesenheit": {
+            "fields": {
+              "anmeldungId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "bemerkung": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "erfasstAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "erfasstVonName": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "korrigiertAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "lektionId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "AnwesenheitStatus"
+                  }
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "vonLehrperson": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "anmeldung": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "anmeldungId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Anmeldung",
+                  "namespace": "public"
+                }
+              },
+              "lektion": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "lektionId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Lektion",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "anmeldungId": {
+                  "column": "anmeldungId"
+                },
+                "bemerkung": {
+                  "column": "bemerkung"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "erfasstAt": {
+                  "column": "erfasstAt"
+                },
+                "erfasstVonName": {
+                  "column": "erfasstVonName"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "korrigiertAt": {
+                  "column": "korrigiertAt"
+                },
+                "lektionId": {
+                  "column": "lektionId"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                },
+                "vonLehrperson": {
+                  "column": "vonLehrperson"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Anwesenheit"
+            }
+          },
           "AuditLog": {
             "fields": {
               "action": {
@@ -230,6 +821,441 @@
               "table": "AuditLog"
             }
           },
+          "BueroAbweichung": {
+            "fields": {
+              "art": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "BueroAbweichungArt"
+                  }
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "datum": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "endZeit": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "notiz": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "personId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "startZeit": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              }
+            },
+            "relations": {
+              "person": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "personId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Person",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "art": {
+                  "column": "art"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "datum": {
+                  "column": "datum"
+                },
+                "endZeit": {
+                  "column": "endZeit"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "notiz": {
+                  "column": "notiz"
+                },
+                "personId": {
+                  "column": "personId"
+                },
+                "startZeit": {
+                  "column": "startZeit"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "BueroAbweichung"
+            }
+          },
+          "BueroAbwesenheit": {
+            "fields": {
+              "art": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "BueroAbwesenheitArt"
+                  }
+                }
+              },
+              "bemerkung": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "bis": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "personId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "von": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              }
+            },
+            "relations": {
+              "person": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "personId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Person",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "art": {
+                  "column": "art"
+                },
+                "bemerkung": {
+                  "column": "bemerkung"
+                },
+                "bis": {
+                  "column": "bis"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "personId": {
+                  "column": "personId"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                },
+                "von": {
+                  "column": "von"
+                }
+              },
+              "namespaceId": "public",
+              "table": "BueroAbwesenheit"
+            }
+          },
+          "BueroDienst": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "endZeit": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "notiz": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "personId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "startZeit": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "wochentag": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "person": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "personId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Person",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "endZeit": {
+                  "column": "endZeit"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "notiz": {
+                  "column": "notiz"
+                },
+                "personId": {
+                  "column": "personId"
+                },
+                "startZeit": {
+                  "column": "startZeit"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                },
+                "wochentag": {
+                  "column": "wochentag"
+                }
+              },
+              "namespaceId": "public",
+              "table": "BueroDienst"
+            }
+          },
+          "BueroUrlaubskontingent": {
+            "fields": {
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "jahr": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "personId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "tage": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "person": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "personId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Person",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "id": {
+                  "column": "id"
+                },
+                "jahr": {
+                  "column": "jahr"
+                },
+                "personId": {
+                  "column": "personId"
+                },
+                "tage": {
+                  "column": "tage"
+                }
+              },
+              "namespaceId": "public",
+              "table": "BueroUrlaubskontingent"
+            }
+          },
           "Etage": {
             "fields": {
               "createdAt": {
@@ -339,6 +1365,175 @@
               "table": "Etage"
             }
           },
+          "GuthabenJournal": {
+            "fields": {
+              "actorName": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "actorUserId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "anmeldungId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "art": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "JournalArt"
+                  }
+                }
+              },
+              "bemerkung": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "datum": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "delta": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "lektionId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "actorUser": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "actorUserId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "anmeldung": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "anmeldungId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Anmeldung",
+                  "namespace": "public"
+                }
+              },
+              "lektion": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "lektionId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Lektion",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "actorName": {
+                  "column": "actorName"
+                },
+                "actorUserId": {
+                  "column": "actorUserId"
+                },
+                "anmeldungId": {
+                  "column": "anmeldungId"
+                },
+                "art": {
+                  "column": "art"
+                },
+                "bemerkung": {
+                  "column": "bemerkung"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "datum": {
+                  "column": "datum"
+                },
+                "delta": {
+                  "column": "delta"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "lektionId": {
+                  "column": "lektionId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "GuthabenJournal"
+            }
+          },
           "Kostentraeger": {
             "fields": {
               "active": {
@@ -431,7 +1626,53 @@
                 }
               }
             },
-            "relations": {},
+            "relations": {
+              "anmeldungen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "kostentraegerId"
+                  ]
+                },
+                "to": {
+                  "model": "Anmeldung",
+                  "namespace": "public"
+                }
+              },
+              "kurse": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "kostentraegerId"
+                  ]
+                },
+                "to": {
+                  "model": "Kurs",
+                  "namespace": "public"
+                }
+              },
+              "rechnungen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "kostentraegerId"
+                  ]
+                },
+                "to": {
+                  "model": "Rechnung",
+                  "namespace": "public"
+                }
+              }
+            },
             "storage": {
               "fields": {
                 "active": {
@@ -470,6 +1711,593 @@
               },
               "namespaceId": "public",
               "table": "Kostentraeger"
+            }
+          },
+          "Kurs": {
+            "fields": {
+              "code": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "dauerMinuten": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "extern": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "externOrt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "kostentraegerId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "kursartId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "lehrpersonId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "maxParticipants": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "niveauId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "notizen": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "spracheId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "standardRaumId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "startZeit": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "KursStatus"
+                  }
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "wochentag": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "anmeldungen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "kursId"
+                  ]
+                },
+                "to": {
+                  "model": "Anmeldung",
+                  "namespace": "public"
+                }
+              },
+              "kostentraeger": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "kostentraegerId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Kostentraeger",
+                  "namespace": "public"
+                }
+              },
+              "kursart": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "kursartId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Kursart",
+                  "namespace": "public"
+                }
+              },
+              "lehrperson": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "lehrpersonId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Person",
+                  "namespace": "public"
+                }
+              },
+              "lektionen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "kursId"
+                  ]
+                },
+                "to": {
+                  "model": "Lektion",
+                  "namespace": "public"
+                }
+              },
+              "niveau": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "niveauId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Niveau",
+                  "namespace": "public"
+                }
+              },
+              "niveauVerlauf": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "kursId"
+                  ]
+                },
+                "to": {
+                  "model": "KursNiveauVerlauf",
+                  "namespace": "public"
+                }
+              },
+              "sprache": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "spracheId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Sprache",
+                  "namespace": "public"
+                }
+              },
+              "standardRaum": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "standardRaumId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Raum",
+                  "namespace": "public"
+                }
+              },
+              "unterbrechungen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "kursId"
+                  ]
+                },
+                "to": {
+                  "model": "KursUnterbrechung",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "code": {
+                  "column": "code"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "dauerMinuten": {
+                  "column": "dauerMinuten"
+                },
+                "extern": {
+                  "column": "extern"
+                },
+                "externOrt": {
+                  "column": "externOrt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "kostentraegerId": {
+                  "column": "kostentraegerId"
+                },
+                "kursartId": {
+                  "column": "kursartId"
+                },
+                "lehrpersonId": {
+                  "column": "lehrpersonId"
+                },
+                "maxParticipants": {
+                  "column": "maxParticipants"
+                },
+                "niveauId": {
+                  "column": "niveauId"
+                },
+                "notizen": {
+                  "column": "notizen"
+                },
+                "spracheId": {
+                  "column": "spracheId"
+                },
+                "standardRaumId": {
+                  "column": "standardRaumId"
+                },
+                "startZeit": {
+                  "column": "startZeit"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                },
+                "wochentag": {
+                  "column": "wochentag"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Kurs"
+            }
+          },
+          "KursNiveauVerlauf": {
+            "fields": {
+              "bis": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "gemeldetVonLehrperson": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "kursId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "niveauId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "von": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              }
+            },
+            "relations": {
+              "kurs": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "kursId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Kurs",
+                  "namespace": "public"
+                }
+              },
+              "niveau": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "niveauId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Niveau",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "bis": {
+                  "column": "bis"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "gemeldetVonLehrperson": {
+                  "column": "gemeldetVonLehrperson"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "kursId": {
+                  "column": "kursId"
+                },
+                "niveauId": {
+                  "column": "niveauId"
+                },
+                "von": {
+                  "column": "von"
+                }
+              },
+              "namespaceId": "public",
+              "table": "KursNiveauVerlauf"
+            }
+          },
+          "KursUnterbrechung": {
+            "fields": {
+              "bis": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "gemeldetVonLehrperson": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "grund": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "kursId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "von": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              }
+            },
+            "relations": {
+              "kurs": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "kursId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Kurs",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "bis": {
+                  "column": "bis"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "gemeldetVonLehrperson": {
+                  "column": "gemeldetVonLehrperson"
+                },
+                "grund": {
+                  "column": "grund"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "kursId": {
+                  "column": "kursId"
+                },
+                "von": {
+                  "column": "von"
+                }
+              },
+              "namespaceId": "public",
+              "table": "KursUnterbrechung"
             }
           },
           "Kursart": {
@@ -548,6 +2376,21 @@
               }
             },
             "relations": {
+              "kurse": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "kursartId"
+                  ]
+                },
+                "to": {
+                  "model": "Kurs",
+                  "namespace": "public"
+                }
+              },
               "preise": {
                 "cardinality": "1:N",
                 "on": {
@@ -696,6 +2539,257 @@
               },
               "namespaceId": "public",
               "table": "Lehrqualifikation"
+            }
+          },
+          "Lektion": {
+            "fields": {
+              "abgeschlossenAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "anwesenheitErinnertAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "dauerMinuten": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "fixiertAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "kursId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "lehrpersonId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "notiz": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "quelle": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "raumId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "startAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "LektionStatus"
+                  }
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              }
+            },
+            "relations": {
+              "anwesenheiten": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "lektionId"
+                  ]
+                },
+                "to": {
+                  "model": "Anwesenheit",
+                  "namespace": "public"
+                }
+              },
+              "journal": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "lektionId"
+                  ]
+                },
+                "to": {
+                  "model": "GuthabenJournal",
+                  "namespace": "public"
+                }
+              },
+              "kurs": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "kursId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Kurs",
+                  "namespace": "public"
+                }
+              },
+              "lehrperson": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "lehrpersonId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Person",
+                  "namespace": "public"
+                }
+              },
+              "raum": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "raumId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Raum",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "abgeschlossenAt": {
+                  "column": "abgeschlossenAt"
+                },
+                "anwesenheitErinnertAt": {
+                  "column": "anwesenheitErinnertAt"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "dauerMinuten": {
+                  "column": "dauerMinuten"
+                },
+                "fixiertAt": {
+                  "column": "fixiertAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "kursId": {
+                  "column": "kursId"
+                },
+                "lehrpersonId": {
+                  "column": "lehrpersonId"
+                },
+                "notiz": {
+                  "column": "notiz"
+                },
+                "quelle": {
+                  "column": "quelle"
+                },
+                "raumId": {
+                  "column": "raumId"
+                },
+                "startAt": {
+                  "column": "startAt"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Lektion"
             }
           },
           "Lektionsdauer": {
@@ -871,6 +2965,110 @@
               "table": "LoginAttempt"
             }
           },
+          "Mahnung": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "email": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "fehler": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "rechnungId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "stufe": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "versendetAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              }
+            },
+            "relations": {
+              "rechnung": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "rechnungId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Rechnung",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "email": {
+                  "column": "email"
+                },
+                "fehler": {
+                  "column": "fehler"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "rechnungId": {
+                  "column": "rechnungId"
+                },
+                "stufe": {
+                  "column": "stufe"
+                },
+                "versendetAt": {
+                  "column": "versendetAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Mahnung"
+            }
+          },
           "Niveau": {
             "fields": {
               "active": {
@@ -940,6 +3138,21 @@
               }
             },
             "relations": {
+              "kurse": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "niveauId"
+                  ]
+                },
+                "to": {
+                  "model": "Kurs",
+                  "namespace": "public"
+                }
+              },
               "qualifikationen": {
                 "cardinality": "1:N",
                 "on": {
@@ -952,6 +3165,21 @@
                 },
                 "to": {
                   "model": "Lehrqualifikation",
+                  "namespace": "public"
+                }
+              },
+              "verlauf": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "niveauId"
+                  ]
+                },
+                "to": {
+                  "model": "KursNiveauVerlauf",
                   "namespace": "public"
                 }
               }
@@ -1254,6 +3482,96 @@
               }
             },
             "relations": {
+              "anmeldungen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "personId"
+                  ]
+                },
+                "to": {
+                  "model": "Anmeldung",
+                  "namespace": "public"
+                }
+              },
+              "anmeldungenAlsRechnungsempfaenger": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "rechnungsempfaengerId"
+                  ]
+                },
+                "to": {
+                  "model": "Anmeldung",
+                  "namespace": "public"
+                }
+              },
+              "bueroAbweichungen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "personId"
+                  ]
+                },
+                "to": {
+                  "model": "BueroAbweichung",
+                  "namespace": "public"
+                }
+              },
+              "bueroAbwesenheiten": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "personId"
+                  ]
+                },
+                "to": {
+                  "model": "BueroAbwesenheit",
+                  "namespace": "public"
+                }
+              },
+              "bueroDienste": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "personId"
+                  ]
+                },
+                "to": {
+                  "model": "BueroDienst",
+                  "namespace": "public"
+                }
+              },
+              "bueroUrlaubskontingente": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "personId"
+                  ]
+                },
+                "to": {
+                  "model": "BueroUrlaubskontingent",
+                  "namespace": "public"
+                }
+              },
               "elternLinks": {
                 "cardinality": "1:N",
                 "on": {
@@ -1284,6 +3602,36 @@
                   "namespace": "public"
                 }
               },
+              "kurseAlsLehrperson": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "lehrpersonId"
+                  ]
+                },
+                "to": {
+                  "model": "Kurs",
+                  "namespace": "public"
+                }
+              },
+              "lektionenAlsLehrperson": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "lehrpersonId"
+                  ]
+                },
+                "to": {
+                  "model": "Lektion",
+                  "namespace": "public"
+                }
+              },
               "notizen": {
                 "cardinality": "1:N",
                 "on": {
@@ -1311,6 +3659,21 @@
                 },
                 "to": {
                   "model": "Lehrqualifikation",
+                  "namespace": "public"
+                }
+              },
+              "rechnungen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "personId"
+                  ]
+                },
+                "to": {
+                  "model": "Rechnung",
                   "namespace": "public"
                 }
               },
@@ -1796,6 +4159,36 @@
                   "model": "Etage",
                   "namespace": "public"
                 }
+              },
+              "kurseAlsStandard": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "standardRaumId"
+                  ]
+                },
+                "to": {
+                  "model": "Kurs",
+                  "namespace": "public"
+                }
+              },
+              "lektionen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "raumId"
+                  ]
+                },
+                "to": {
+                  "model": "Lektion",
+                  "namespace": "public"
+                }
               }
             },
             "storage": {
@@ -1827,6 +4220,512 @@
               },
               "namespaceId": "public",
               "table": "Raum"
+            }
+          },
+          "Rechnung": {
+            "fields": {
+              "anmeldungId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "betragChf": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 10,
+                    "scale": 2
+                  }
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "empfaengerEmail": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "empfaengerLand": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "empfaengerName": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "empfaengerOrt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "empfaengerPlz": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "empfaengerStrasse": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "faelligAm": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "kostentraegerId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "letzteMahnAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "mahnStufe": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "mwstSatzProzent": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 5,
+                    "scale": 2
+                  }
+                }
+              },
+              "notiz": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "nummer": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "personId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "rechnungsdatum": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "referenzNr": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "RechnungStatus"
+                  }
+                }
+              },
+              "storniertAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "storniertGrund": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "totalChf": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 10,
+                    "scale": 2
+                  }
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "versendetAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              }
+            },
+            "relations": {
+              "anmeldung": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "anmeldungId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Anmeldung",
+                  "namespace": "public"
+                }
+              },
+              "kostentraeger": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "kostentraegerId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Kostentraeger",
+                  "namespace": "public"
+                }
+              },
+              "mahnungen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "rechnungId"
+                  ]
+                },
+                "to": {
+                  "model": "Mahnung",
+                  "namespace": "public"
+                }
+              },
+              "person": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "personId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Person",
+                  "namespace": "public"
+                }
+              },
+              "positionen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "rechnungId"
+                  ]
+                },
+                "to": {
+                  "model": "RechnungsPosition",
+                  "namespace": "public"
+                }
+              },
+              "zahlungen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "rechnungId"
+                  ]
+                },
+                "to": {
+                  "model": "Zahlung",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "anmeldungId": {
+                  "column": "anmeldungId"
+                },
+                "betragChf": {
+                  "column": "betragChf"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "empfaengerEmail": {
+                  "column": "empfaengerEmail"
+                },
+                "empfaengerLand": {
+                  "column": "empfaengerLand"
+                },
+                "empfaengerName": {
+                  "column": "empfaengerName"
+                },
+                "empfaengerOrt": {
+                  "column": "empfaengerOrt"
+                },
+                "empfaengerPlz": {
+                  "column": "empfaengerPlz"
+                },
+                "empfaengerStrasse": {
+                  "column": "empfaengerStrasse"
+                },
+                "faelligAm": {
+                  "column": "faelligAm"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "kostentraegerId": {
+                  "column": "kostentraegerId"
+                },
+                "letzteMahnAt": {
+                  "column": "letzteMahnAt"
+                },
+                "mahnStufe": {
+                  "column": "mahnStufe"
+                },
+                "mwstSatzProzent": {
+                  "column": "mwstSatzProzent"
+                },
+                "notiz": {
+                  "column": "notiz"
+                },
+                "nummer": {
+                  "column": "nummer"
+                },
+                "personId": {
+                  "column": "personId"
+                },
+                "rechnungsdatum": {
+                  "column": "rechnungsdatum"
+                },
+                "referenzNr": {
+                  "column": "referenzNr"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "storniertAt": {
+                  "column": "storniertAt"
+                },
+                "storniertGrund": {
+                  "column": "storniertGrund"
+                },
+                "totalChf": {
+                  "column": "totalChf"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                },
+                "versendetAt": {
+                  "column": "versendetAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Rechnung"
+            }
+          },
+          "RechnungsPosition": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "einzelpreisChf": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 10,
+                    "scale": 2
+                  }
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "menge": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "rechnungId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "reihenfolge": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "text": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "rechnung": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "rechnungId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Rechnung",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "einzelpreisChf": {
+                  "column": "einzelpreisChf"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "menge": {
+                  "column": "menge"
+                },
+                "rechnungId": {
+                  "column": "rechnungId"
+                },
+                "reihenfolge": {
+                  "column": "reihenfolge"
+                },
+                "text": {
+                  "column": "text"
+                }
+              },
+              "namespaceId": "public",
+              "table": "RechnungsPosition"
             }
           },
           "Session": {
@@ -2008,6 +4907,21 @@
               }
             },
             "relations": {
+              "kurse": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "spracheId"
+                  ]
+                },
+                "to": {
+                  "model": "Kurs",
+                  "namespace": "public"
+                }
+              },
               "qualifikationen": {
                 "cardinality": "1:N",
                 "on": {
@@ -2305,6 +5219,21 @@
               }
             },
             "relations": {
+              "anmeldungen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "tarifstufeId"
+                  ]
+                },
+                "to": {
+                  "model": "Anmeldung",
+                  "namespace": "public"
+                }
+              },
               "preise": {
                 "cardinality": "1:N",
                 "on": {
@@ -2476,6 +5405,21 @@
                   "namespace": "public"
                 }
               },
+              "guthabenJournale": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "actorUserId"
+                  ]
+                },
+                "to": {
+                  "model": "GuthabenJournal",
+                  "namespace": "public"
+                }
+              },
               "passwordResetTokens": {
                 "cardinality": "1:N",
                 "on": {
@@ -2536,6 +5480,21 @@
                   "model": "Session",
                   "namespace": "public"
                 }
+              },
+              "zahlungenAlsErfasser": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "actorUserId"
+                  ]
+                },
+                "to": {
+                  "model": "Zahlung",
+                  "namespace": "public"
+                }
               }
             },
             "storage": {
@@ -2580,6 +5539,140 @@
               "namespaceId": "public",
               "table": "User"
             }
+          },
+          "Zahlung": {
+            "fields": {
+              "actorName": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "actorUserId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "bemerkung": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "betragChf": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 10,
+                    "scale": 2
+                  }
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "datum": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "rechnungId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "actorUser": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "actorUserId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "rechnung": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "rechnungId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Rechnung",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "actorName": {
+                  "column": "actorName"
+                },
+                "actorUserId": {
+                  "column": "actorUserId"
+                },
+                "bemerkung": {
+                  "column": "bemerkung"
+                },
+                "betragChf": {
+                  "column": "betragChf"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "datum": {
+                  "column": "datum"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "rechnungId": {
+                  "column": "rechnungId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Zahlung"
+            }
           }
         }
       }
@@ -2590,6 +5683,15 @@
       "public": {
         "entries": {
           "native_enum": {
+            "AnmeldungStatus": {
+              "kind": "postgres-enum",
+              "members": [
+                "PROBE",
+                "AKTIV",
+                "BEENDET"
+              ],
+              "typeName": "AnmeldungStatus"
+            },
             "Anrede": {
               "kind": "postgres-enum",
               "members": [
@@ -2599,6 +5701,15 @@
               ],
               "typeName": "Anrede"
             },
+            "AnwesenheitStatus": {
+              "kind": "postgres-enum",
+              "members": [
+                "ANWESEND",
+                "ABWESEND_ENTSCHULDIGT",
+                "ABWESEND_UNENTSCHULDIGT"
+              ],
+              "typeName": "AnwesenheitStatus"
+            },
             "AuthEventKind": {
               "kind": "postgres-enum",
               "members": [
@@ -2606,6 +5717,43 @@
                 "PASSWORD_RESET"
               ],
               "typeName": "AuthEventKind"
+            },
+            "BillingTyp": {
+              "kind": "postgres-enum",
+              "members": [
+                "PRIVAT",
+                "FIRMA",
+                "OEFFENTLICHE_EINRICHTUNG"
+              ],
+              "typeName": "BillingTyp"
+            },
+            "BueroAbweichungArt": {
+              "kind": "postgres-enum",
+              "members": [
+                "ARBEITSZEIT",
+                "FREI"
+              ],
+              "typeName": "BueroAbweichungArt"
+            },
+            "BueroAbwesenheitArt": {
+              "kind": "postgres-enum",
+              "members": [
+                "URLAUB",
+                "KRANKHEIT",
+                "SONSTIGE"
+              ],
+              "typeName": "BueroAbwesenheitArt"
+            },
+            "JournalArt": {
+              "kind": "postgres-enum",
+              "members": [
+                "AUFLADUNG",
+                "VERBRAUCH",
+                "FEHLZEIT_UNENTSCHULDIGT",
+                "FEHLZEIT_ENTSCHULDIGT",
+                "KORREKTUR"
+              ],
+              "typeName": "JournalArt"
             },
             "KostentraegerArt": {
               "kind": "postgres-enum",
@@ -2615,6 +5763,36 @@
               ],
               "typeName": "KostentraegerArt"
             },
+            "KursStatus": {
+              "kind": "postgres-enum",
+              "members": [
+                "GEPLANT",
+                "AKTIV",
+                "PAUSIERT",
+                "ABGESCHLOSSEN",
+                "ABGESAGT"
+              ],
+              "typeName": "KursStatus"
+            },
+            "LektionStatus": {
+              "kind": "postgres-enum",
+              "members": [
+                "PROVISORISCH",
+                "FIXIERT",
+                "ABGESAGT",
+                "DURCHGEFUEHRT"
+              ],
+              "typeName": "LektionStatus"
+            },
+            "PaketEntscheid": {
+              "kind": "postgres-enum",
+              "members": [
+                "OFFEN",
+                "VERLAENGERT",
+                "BEENDET"
+              ],
+              "typeName": "PaketEntscheid"
+            },
             "PersonStatus": {
               "kind": "postgres-enum",
               "members": [
@@ -2623,6 +5801,17 @@
                 "INAKTIV"
               ],
               "typeName": "PersonStatus"
+            },
+            "RechnungStatus": {
+              "kind": "postgres-enum",
+              "members": [
+                "ENTWURF",
+                "VERSENDET",
+                "TEILBEZAHLT",
+                "BEZAHLT",
+                "STORNIERT"
+              ],
+              "typeName": "RechnungStatus"
             },
             "Role": {
               "kind": "postgres-enum",
@@ -2637,6 +5826,473 @@
             }
           },
           "table": {
+            "Anmeldung": {
+              "columns": {
+                "billingTyp": {
+                  "codecId": "pg/enum@1",
+                  "dataType": "pg/enum",
+                  "default": {
+                    "kind": "literal",
+                    "value": "PRIVAT"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "BillingTyp"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "BillingTyp",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "kostentraegerId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "kursId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "notizen": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "paketEndeGemeldetAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "paketEntscheid": {
+                  "codecId": "pg/enum@1",
+                  "dataType": "pg/enum",
+                  "default": {
+                    "kind": "literal",
+                    "value": "OFFEN"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "PaketEntscheid"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "PaketEntscheid",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "paketGroesse": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "paketGroesseUebersteuert": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nullable": false
+                },
+                "paketStartAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "personId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "preisAbweichungGrund": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "preisChf": {
+                  "codecId": "pg/numeric@1",
+                  "dataType": "pg/numeric",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 8,
+                    "scale": 2
+                  }
+                },
+                "preisUebersteuert": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nullable": false
+                },
+                "rechnungsempfaengerId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "status": {
+                  "codecId": "pg/enum@1",
+                  "dataType": "pg/enum",
+                  "default": {
+                    "kind": "literal",
+                    "value": "PROBE"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "AnmeldungStatus"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "AnmeldungStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "tarifUebersteuert": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nullable": false
+                },
+                "tarifstufeId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "Anmeldung_kursId_status_idx"
+                  },
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "kursId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Anmeldung"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kurs"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "Anmeldung_personId_idx"
+                  },
+                  "onDelete": "restrict",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "personId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Anmeldung"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Person"
+                  }
+                },
+                {
+                  "onDelete": "setNull",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "kostentraegerId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Anmeldung"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kostentraeger"
+                  }
+                },
+                {
+                  "onDelete": "setNull",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "rechnungsempfaengerId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Anmeldung"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Person"
+                  }
+                },
+                {
+                  "onDelete": "restrict",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "tarifstufeId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Anmeldung"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Tarifstufe"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "kursId",
+                    "status"
+                  ],
+                  "name": "Anmeldung_kursId_status_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "personId"
+                  ],
+                  "name": "Anmeldung_personId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "status",
+                    "paketEntscheid"
+                  ],
+                  "name": "Anmeldung_status_paketEntscheid_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "Anwesenheit": {
+              "columns": {
+                "anmeldungId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "bemerkung": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "erfasstAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "erfasstVonName": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "korrigiertAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "lektionId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "status": {
+                  "codecId": "pg/enum@1",
+                  "dataType": "pg/enum",
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "AnwesenheitStatus"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "AnwesenheitStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "vonLehrperson": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "Anwesenheit_lektionId_anmeldungId_key"
+                  },
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "lektionId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Anwesenheit"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Lektion"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "Anwesenheit_anmeldungId_idx"
+                  },
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "anmeldungId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Anwesenheit"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Anmeldung"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "anmeldungId"
+                  ],
+                  "name": "Anwesenheit_anmeldungId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "lektionId",
+                    "anmeldungId"
+                  ],
+                  "name": "Anwesenheit_lektionId_anmeldungId_key",
+                  "unique": true
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "AuditLog": {
               "columns": {
                 "action": {
@@ -2765,6 +6421,395 @@
               },
               "uniques": []
             },
+            "BueroAbweichung": {
+              "columns": {
+                "art": {
+                  "codecId": "pg/enum@1",
+                  "dataType": "pg/enum",
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "BueroAbweichungArt"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "BueroAbweichungArt",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "datum": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "endZeit": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "notiz": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "personId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "startZeit": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "BueroAbweichung_personId_datum_key"
+                  },
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "personId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "BueroAbweichung"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Person"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "datum"
+                  ],
+                  "name": "BueroAbweichung_datum_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "personId",
+                    "datum"
+                  ],
+                  "name": "BueroAbweichung_personId_datum_key",
+                  "unique": true
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "BueroAbwesenheit": {
+              "columns": {
+                "art": {
+                  "codecId": "pg/enum@1",
+                  "dataType": "pg/enum",
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "BueroAbwesenheitArt"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "BueroAbwesenheitArt",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "bemerkung": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "bis": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "personId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "von": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "BueroAbwesenheit_personId_von_idx"
+                  },
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "personId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "BueroAbwesenheit"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Person"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "personId",
+                    "von"
+                  ],
+                  "name": "BueroAbwesenheit_personId_von_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "von",
+                    "bis"
+                  ],
+                  "name": "BueroAbwesenheit_von_bis_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "BueroDienst": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "endZeit": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "notiz": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "personId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "startZeit": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "wochentag": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "BueroDienst_personId_wochentag_idx"
+                  },
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "personId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "BueroDienst"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Person"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "personId",
+                    "wochentag"
+                  ],
+                  "name": "BueroDienst_personId_wochentag_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "BueroUrlaubskontingent": {
+              "columns": {
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "jahr": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "personId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "tage": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "BueroUrlaubskontingent_personId_jahr_key"
+                  },
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "personId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "BueroUrlaubskontingent"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Person"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "personId",
+                    "jahr"
+                  ],
+                  "name": "BueroUrlaubskontingent_personId_jahr_key",
+                  "unique": true
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "Etage": {
               "columns": {
                 "createdAt": {
@@ -2843,6 +6888,158 @@
                   ],
                   "name": "Etage_standortId_name_key",
                   "unique": true
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "GuthabenJournal": {
+              "columns": {
+                "actorName": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "actorUserId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "anmeldungId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "art": {
+                  "codecId": "pg/enum@1",
+                  "dataType": "pg/enum",
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "JournalArt"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "JournalArt",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "bemerkung": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "datum": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "delta": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "lektionId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "GuthabenJournal_anmeldungId_datum_idx"
+                  },
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "anmeldungId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "GuthabenJournal"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Anmeldung"
+                  }
+                },
+                {
+                  "onDelete": "setNull",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "lektionId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "GuthabenJournal"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Lektion"
+                  }
+                },
+                {
+                  "onDelete": "setNull",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "actorUserId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "GuthabenJournal"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "anmeldungId",
+                    "datum"
+                  ],
+                  "name": "GuthabenJournal_anmeldungId_datum_idx",
+                  "unique": false
                 }
               ],
               "primaryKey": {
@@ -2957,6 +7154,488 @@
                     "name"
                   ],
                   "name": "Kostentraeger_name_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "Kurs": {
+              "columns": {
+                "code": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "dauerMinuten": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": true
+                },
+                "extern": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nullable": false
+                },
+                "externOrt": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "kostentraegerId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "kursartId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "lehrpersonId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "maxParticipants": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": true
+                },
+                "niveauId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "notizen": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "spracheId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "standardRaumId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "startZeit": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "status": {
+                  "codecId": "pg/enum@1",
+                  "dataType": "pg/enum",
+                  "default": {
+                    "kind": "literal",
+                    "value": "GEPLANT"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "KursStatus"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "KursStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "wochentag": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": true
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "Kurs_spracheId_niveauId_idx"
+                  },
+                  "onDelete": "restrict",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "spracheId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kurs"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Sprache"
+                  }
+                },
+                {
+                  "onDelete": "restrict",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "niveauId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kurs"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Niveau"
+                  }
+                },
+                {
+                  "onDelete": "restrict",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "kursartId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kurs"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kursart"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "Kurs_lehrpersonId_idx"
+                  },
+                  "onDelete": "setNull",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "lehrpersonId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kurs"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Person"
+                  }
+                },
+                {
+                  "onDelete": "setNull",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "standardRaumId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kurs"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Raum"
+                  }
+                },
+                {
+                  "onDelete": "setNull",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "kostentraegerId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kurs"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kostentraeger"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "code"
+                  ],
+                  "name": "Kurs_code_key",
+                  "unique": true
+                },
+                {
+                  "columns": [
+                    "lehrpersonId"
+                  ],
+                  "name": "Kurs_lehrpersonId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "spracheId",
+                    "niveauId"
+                  ],
+                  "name": "Kurs_spracheId_niveauId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "status"
+                  ],
+                  "name": "Kurs_status_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "KursNiveauVerlauf": {
+              "columns": {
+                "bis": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "gemeldetVonLehrperson": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "kursId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "niveauId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "von": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "KursNiveauVerlauf_kursId_von_idx"
+                  },
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "kursId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "KursNiveauVerlauf"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kurs"
+                  }
+                },
+                {
+                  "onDelete": "restrict",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "niveauId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "KursNiveauVerlauf"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Niveau"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "kursId",
+                    "von"
+                  ],
+                  "name": "KursNiveauVerlauf_kursId_von_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "KursUnterbrechung": {
+              "columns": {
+                "bis": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "gemeldetVonLehrperson": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nullable": false
+                },
+                "grund": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "kursId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "von": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "KursUnterbrechung_kursId_von_idx"
+                  },
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "kursId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "KursUnterbrechung"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kurs"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "kursId",
+                    "von"
+                  ],
+                  "name": "KursUnterbrechung_kursId_von_idx",
                   "unique": false
                 }
               ],
@@ -3157,6 +7836,201 @@
               },
               "uniques": []
             },
+            "Lektion": {
+              "columns": {
+                "abgeschlossenAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "anwesenheitErinnertAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "dauerMinuten": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "fixiertAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "kursId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "lehrpersonId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "notiz": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "quelle": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "GENERIERT"
+                  },
+                  "nullable": false
+                },
+                "raumId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "startAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "status": {
+                  "codecId": "pg/enum@1",
+                  "dataType": "pg/enum",
+                  "default": {
+                    "kind": "literal",
+                    "value": "PROVISORISCH"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "LektionStatus"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "LektionStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "Lektion_kursId_startAt_idx"
+                  },
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "kursId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Lektion"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kurs"
+                  }
+                },
+                {
+                  "onDelete": "setNull",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "lehrpersonId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Lektion"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Person"
+                  }
+                },
+                {
+                  "onDelete": "setNull",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "raumId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Lektion"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Raum"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "kursId",
+                    "startAt"
+                  ],
+                  "name": "Lektion_kursId_startAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "startAt"
+                  ],
+                  "name": "Lektion_startAt_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "Lektionsdauer": {
               "columns": {
                 "active": {
@@ -3295,6 +8169,97 @@
                     "createdAt"
                   ],
                   "name": "LoginAttempt_kind_ip_createdAt_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "Mahnung": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "email": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "fehler": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "rechnungId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "stufe": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "versendetAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "Mahnung_rechnungId_idx"
+                  },
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "rechnungId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Mahnung"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Rechnung"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "rechnungId"
+                  ],
+                  "name": "Mahnung_rechnungId_idx",
                   "unique": false
                 }
               ],
@@ -4080,6 +9045,400 @@
               },
               "uniques": []
             },
+            "Rechnung": {
+              "columns": {
+                "anmeldungId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "betragChf": {
+                  "codecId": "pg/numeric@1",
+                  "dataType": "pg/numeric",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 10,
+                    "scale": 2
+                  }
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "empfaengerEmail": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "empfaengerLand": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "CH"
+                  },
+                  "nullable": false
+                },
+                "empfaengerName": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "empfaengerOrt": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "empfaengerPlz": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "empfaengerStrasse": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "faelligAm": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "kostentraegerId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "letzteMahnAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "mahnStufe": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nullable": false
+                },
+                "mwstSatzProzent": {
+                  "codecId": "pg/numeric@1",
+                  "dataType": "pg/numeric",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 5,
+                    "scale": 2
+                  }
+                },
+                "notiz": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "nummer": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "personId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "rechnungsdatum": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "referenzNr": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "status": {
+                  "codecId": "pg/enum@1",
+                  "dataType": "pg/enum",
+                  "default": {
+                    "kind": "literal",
+                    "value": "ENTWURF"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "RechnungStatus"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "RechnungStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "storniertAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "storniertGrund": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "totalChf": {
+                  "codecId": "pg/numeric@1",
+                  "dataType": "pg/numeric",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 10,
+                    "scale": 2
+                  }
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "versendetAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "Rechnung_personId_idx"
+                  },
+                  "onDelete": "restrict",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "personId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Rechnung"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Person"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "Rechnung_kostentraegerId_idx"
+                  },
+                  "onDelete": "restrict",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "kostentraegerId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Rechnung"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kostentraeger"
+                  }
+                },
+                {
+                  "onDelete": "setNull",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "anmeldungId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Rechnung"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Anmeldung"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "kostentraegerId"
+                  ],
+                  "name": "Rechnung_kostentraegerId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "nummer"
+                  ],
+                  "name": "Rechnung_nummer_key",
+                  "unique": true
+                },
+                {
+                  "columns": [
+                    "personId"
+                  ],
+                  "name": "Rechnung_personId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "referenzNr"
+                  ],
+                  "name": "Rechnung_referenzNr_key",
+                  "unique": true
+                },
+                {
+                  "columns": [
+                    "status",
+                    "faelligAm"
+                  ],
+                  "name": "Rechnung_status_faelligAm_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "RechnungsPosition": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "einzelpreisChf": {
+                  "codecId": "pg/numeric@1",
+                  "dataType": "pg/numeric",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 10,
+                    "scale": 2
+                  }
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "menge": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "kind": "literal",
+                    "value": 1
+                  },
+                  "nullable": false
+                },
+                "rechnungId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "reihenfolge": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nullable": false
+                },
+                "text": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "RechnungsPosition_rechnungId_idx"
+                  },
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "rechnungId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "RechnungsPosition"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Rechnung"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "rechnungId"
+                  ],
+                  "name": "RechnungsPosition_rechnungId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "Session": {
               "columns": {
                 "createdAt": {
@@ -4630,15 +9989,149 @@
                 ]
               },
               "uniques": []
+            },
+            "Zahlung": {
+              "columns": {
+                "actorName": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "actorUserId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "bemerkung": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "betragChf": {
+                  "codecId": "pg/numeric@1",
+                  "dataType": "pg/numeric",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 10,
+                    "scale": 2
+                  }
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "datum": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "rechnungId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "Zahlung_rechnungId_idx"
+                  },
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "rechnungId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Zahlung"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Rechnung"
+                  }
+                },
+                {
+                  "onDelete": "setNull",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "actorUserId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Zahlung"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "rechnungId"
+                  ],
+                  "name": "Zahlung_rechnungId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
             }
           },
           "valueSet": {
+            "AnmeldungStatus": {
+              "kind": "valueSet",
+              "values": [
+                "PROBE",
+                "AKTIV",
+                "BEENDET"
+              ]
+            },
             "Anrede": {
               "kind": "valueSet",
               "values": [
                 "HERR",
                 "FRAU",
                 "DIVERS"
+              ]
+            },
+            "AnwesenheitStatus": {
+              "kind": "valueSet",
+              "values": [
+                "ANWESEND",
+                "ABWESEND_ENTSCHULDIGT",
+                "ABWESEND_UNENTSCHULDIGT"
               ]
             },
             "AuthEventKind": {
@@ -4648,11 +10141,71 @@
                 "PASSWORD_RESET"
               ]
             },
+            "BillingTyp": {
+              "kind": "valueSet",
+              "values": [
+                "PRIVAT",
+                "FIRMA",
+                "OEFFENTLICHE_EINRICHTUNG"
+              ]
+            },
+            "BueroAbweichungArt": {
+              "kind": "valueSet",
+              "values": [
+                "ARBEITSZEIT",
+                "FREI"
+              ]
+            },
+            "BueroAbwesenheitArt": {
+              "kind": "valueSet",
+              "values": [
+                "URLAUB",
+                "KRANKHEIT",
+                "SONSTIGE"
+              ]
+            },
+            "JournalArt": {
+              "kind": "valueSet",
+              "values": [
+                "AUFLADUNG",
+                "VERBRAUCH",
+                "FEHLZEIT_UNENTSCHULDIGT",
+                "FEHLZEIT_ENTSCHULDIGT",
+                "KORREKTUR"
+              ]
+            },
             "KostentraegerArt": {
               "kind": "valueSet",
               "values": [
                 "FIRMA",
                 "OEFFENTLICHE_EINRICHTUNG"
+              ]
+            },
+            "KursStatus": {
+              "kind": "valueSet",
+              "values": [
+                "GEPLANT",
+                "AKTIV",
+                "PAUSIERT",
+                "ABGESCHLOSSEN",
+                "ABGESAGT"
+              ]
+            },
+            "LektionStatus": {
+              "kind": "valueSet",
+              "values": [
+                "PROVISORISCH",
+                "FIXIERT",
+                "ABGESAGT",
+                "DURCHGEFUEHRT"
+              ]
+            },
+            "PaketEntscheid": {
+              "kind": "valueSet",
+              "values": [
+                "OFFEN",
+                "VERLAENGERT",
+                "BEENDET"
               ]
             },
             "PersonStatus": {
@@ -4661,6 +10214,16 @@
                 "INTERESSENT",
                 "AKTIV",
                 "INAKTIV"
+              ]
+            },
+            "RechnungStatus": {
+              "kind": "valueSet",
+              "values": [
+                "ENTWURF",
+                "VERSENDET",
+                "TEILBEZAHLT",
+                "BEZAHLT",
+                "STORNIERT"
               ]
             },
             "Role": {
@@ -4679,12 +10242,64 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "1df251fb9578853b1bfad6189e5905fdae4ac3c48f4b4997690dfcd76e648dda"
+    "storageHash": "d0264d130365d52f722ae2448ab014f175e5d615f180bb0b46832b441c7277d2"
   },
   "execution": {
-    "executionHash": "370da4c30eb6d90d8ffd28fabc08da963d461de444a578dd59c1b8a5bfffe506",
+    "executionHash": "61d3a846c406332478ecee200831f5345e68c0e533bdff56967fd881c03f98aa",
     "mutations": {
       "defaults": [
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Anmeldung",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Anmeldung",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Anwesenheit",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Anwesenheit",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
         {
           "onCreate": {
             "id": "cuid2",
@@ -4702,6 +10317,95 @@
             "kind": "generator"
           },
           "ref": {
+            "entry": "BueroAbweichung",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "BueroAbweichung",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "BueroAbwesenheit",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "BueroAbwesenheit",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "BueroDienst",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "BueroDienst",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "BueroUrlaubskontingent",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
             "entry": "Etage",
             "field": "id",
             "namespace": "public"
@@ -4728,6 +10432,17 @@
             "kind": "generator"
           },
           "ref": {
+            "entry": "GuthabenJournal",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
             "entry": "Kostentraeger",
             "field": "id",
             "namespace": "public"
@@ -4745,6 +10460,54 @@
           "ref": {
             "entry": "Kostentraeger",
             "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Kurs",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Kurs",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "KursNiveauVerlauf",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "KursUnterbrechung",
+            "field": "id",
             "namespace": "public"
           }
         },
@@ -4791,6 +10554,32 @@
             "kind": "generator"
           },
           "ref": {
+            "entry": "Lektion",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Lektion",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
             "entry": "Lektionsdauer",
             "field": "id",
             "namespace": "public"
@@ -4818,6 +10607,17 @@
           },
           "ref": {
             "entry": "LoginAttempt",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Mahnung",
             "field": "id",
             "namespace": "public"
           }
@@ -4950,6 +10750,43 @@
             "kind": "generator"
           },
           "ref": {
+            "entry": "Rechnung",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Rechnung",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "RechnungsPosition",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
             "entry": "Session",
             "field": "id",
             "namespace": "public"
@@ -5071,6 +10908,17 @@
           "ref": {
             "entry": "User",
             "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Zahlung",
+            "field": "id",
             "namespace": "public"
           }
         }

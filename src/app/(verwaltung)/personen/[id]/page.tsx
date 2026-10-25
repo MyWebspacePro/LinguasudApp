@@ -2,12 +2,14 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import type { Role } from "@/lib/db";
-import { db, fromDbTime } from "@/lib/db";
+import { db, fromDbTime, type Role } from "@/lib/db";
 import { requireStaff } from "@/lib/auth/session";
 import { canManagePersonen, canViewPersonen } from "@/lib/auth/permissions";
-import { ANREDE_LABELS } from "@/lib/domain";
+import { ANREDE_LABELS, BILLING_TYP_LABELS } from "@/lib/domain";
+import { guthabenStand, verbrauchtImPaket } from "@/lib/anmeldungen/paket";
 import { KuerzelBadge, PersonStatusBadge } from "@/components/personen/PersonBadges";
+import { KursStatusBadge } from "@/components/kurse/KursAktionen";
+import { AnmeldungStatusBadge } from "@/components/anmeldungen/AnmeldungBadges";
 import { PersonForm } from "@/components/personen/PersonForm";
 import { PersonNotizen } from "@/components/personen/PersonNotizen";
 import { PersonFamilie } from "@/components/personen/PersonFamilie";
@@ -113,6 +115,33 @@ async function PersonDetailContent({ params }: { params: Promise<{ id: string }>
       : qualifikationen.length > 0
         ? "Qualifikationen bestehen — zuerst entfernen."
         : null;
+
+  // Kurs-Historie (Modul 4/5): alle Anmeldungen der Person, neueste zuerst.
+  const historieAnmeldungen = await db.orm.public.Anmeldung
+    .where({ personId: id })
+    .orderBy((a) => a.createdAt.desc())
+    .include("kurs")
+    .include("kostentraeger")
+    .all();
+  const historieJournal = historieAnmeldungen.length
+    ? await db.orm.public.GuthabenJournal
+        .where((j) => j.anmeldungId.in(historieAnmeldungen.map((a) => a.id)))
+        .all()
+    : [];
+  const historiePaket = new Map(
+    historieAnmeldungen.map((a) => {
+      const eintraege = historieJournal
+        .filter((j) => j.anmeldungId === a.id)
+        .map((j) => ({ art: j.art, delta: j.delta, datum: String(j.datum) }));
+      return [
+        a.id,
+        {
+          verbraucht: verbrauchtImPaket(eintraege, String(a.paketStartAt)),
+          guthaben: guthabenStand(eintraege),
+        },
+      ];
+    }),
+  );
 
   return (
     <div className="max-w-4xl space-y-4">
@@ -247,10 +276,61 @@ async function PersonDetailContent({ params }: { params: Promise<{ id: string }>
 
       <section className="card p-5">
         <h2 className="text-sm font-semibold text-slate-800">Kurs-Historie</h2>
-        <p className="mt-2 text-sm text-slate-600">
-          Alle Kurse dieser Person — parallel und hintereinander, auch mehrsprachig, chronologisch —
-          erscheinen hier, sobald Kurse und Anmeldungen umgesetzt sind (Modul 4/5).
+        <p className="mt-0.5 text-xs text-slate-500">
+          Alle Kurse parallel und hintereinander, auch mehrsprachig — neueste zuerst.
         </p>
+        {historieAnmeldungen.length > 0 ? (
+          <div className="mt-3 overflow-x-auto">
+            <table className="w-full min-w-160 text-sm">
+              <thead className="border-b border-line">
+                <tr>
+                  <th className="th">Kurs</th>
+                  <th className="th">Anmeldung</th>
+                  <th className="th">Kursstatus</th>
+                  <th className="th">Billing</th>
+                  <th className="th">Paket</th>
+                  <th className="th">Guthaben</th>
+                  <th className="th">Seit</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-line">
+                {historieAnmeldungen.map((a) => {
+                  const paket = historiePaket.get(a.id) ?? { verbraucht: 0, guthaben: 0 };
+                  return (
+                    <tr key={a.id} className={a.status === "BEENDET" ? "text-slate-500" : ""}>
+                      <td className="td font-mono text-xs font-semibold">
+                        <Link href={`/kurse/${a.kursId}`} className="hover:text-brand-700">
+                          {a.kurs.code}
+                        </Link>
+                      </td>
+                      <td className="td">
+                        <Link href={`/anmeldungen/${a.id}`} className="hover:text-brand-700">
+                          <AnmeldungStatusBadge status={a.status} />
+                        </Link>
+                      </td>
+                      <td className="td">
+                        <KursStatusBadge status={a.kurs.status} />
+                      </td>
+                      <td className="td text-xs">
+                        {BILLING_TYP_LABELS[a.billingTyp]}
+                        {a.kostentraeger ? <span className="block text-slate-500">{a.kostentraeger.name}</span> : null}
+                      </td>
+                      <td className="td whitespace-nowrap">
+                        {paket.verbraucht}/{a.paketGroesse}
+                      </td>
+                      <td className="td">{paket.guthaben}</td>
+                      <td className="td whitespace-nowrap text-xs text-slate-500">
+                        {fromDbTime(a.createdAt).toLocaleDateString("de-CH")}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="mt-2 text-sm text-slate-600">Noch keine Kurse — die Person ist nicht angemeldet.</p>
+        )}
       </section>
     </div>
   );

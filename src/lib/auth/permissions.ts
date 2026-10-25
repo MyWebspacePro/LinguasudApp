@@ -61,6 +61,52 @@ export function canManagePersonen(roles: Role[]): boolean {
   return hasRole(roles, "ADMIN") || hasRole(roles, "CHEF") || hasRole(roles, "BUERO");
 }
 
+// ——— Module 4–6: Kurse, Anmeldungen, Planer ————————————————————————
+
+/**
+ * Kurse sehen (Modul 4): Stabsrollen voll; Lehrpersonen sehen ihre eigenen
+ * Kurse (Scoping im Query), reine Teilnehmende nicht.
+ */
+export function canViewKurse(roles: Role[]): boolean {
+  return isStaff(roles);
+}
+
+/** Kurse/Anmeldungen pflegen: Admin, Chef, Büro (Lehrpersonen nur melden). */
+export function canManageKurse(roles: Role[]): boolean {
+  return hasRole(roles, "ADMIN") || hasRole(roles, "CHEF") || hasRole(roles, "BUERO");
+}
+
+/** Anmeldungen sehen/pflegen (Modul 5): Admin, Chef, Büro. */
+export function canViewAnmeldungen(roles: Role[]): boolean {
+  return hasRole(roles, "ADMIN") || hasRole(roles, "CHEF") || hasRole(roles, "BUERO");
+}
+
+export function canManageAnmeldungen(roles: Role[]): boolean {
+  return hasRole(roles, "ADMIN") || hasRole(roles, "CHEF") || hasRole(roles, "BUERO");
+}
+
+/**
+ * Raumplaner sehen (Modul 6): Stabsrollen; Lehrpersonen lesend + melden,
+ * reine Teilnehmende nicht.
+ */
+export function canViewPlaner(roles: Role[]): boolean {
+  return isStaff(roles);
+}
+
+/** Lektionen verschieben/fixieren/absagen: nur das Büro (inkl. Admin/Chef). */
+export function canManagePlaner(roles: Role[]): boolean {
+  return hasRole(roles, "ADMIN") || hasRole(roles, "CHEF") || hasRole(roles, "BUERO");
+}
+
+/**
+ * Dienst- & Urlaubsplanung Büro (Modul 8): eigene Ansicht (nicht im
+ * Raumplaner), nur Admin/Chef/Büro — reine Lehrpersonen organisieren sich
+ * selbst, reine Teilnehmende sehen nichts.
+ */
+export function canManageBueroplan(roles: Role[]): boolean {
+  return hasRole(roles, "ADMIN") || hasRole(roles, "CHEF") || hasRole(roles, "BUERO");
+}
+
 /** Darf dieser Akteur dem Ziel diese Rollen zuweisen? */
 export function canAssignRoles(actorRoles: Role[], targetRoles: Role[]): boolean {
   if (hasRole(actorRoles, "ADMIN")) return true;

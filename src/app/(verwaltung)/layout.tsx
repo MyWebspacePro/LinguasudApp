@@ -3,7 +3,17 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import type { Role } from "@/lib/db";
 import { requireStaff } from "@/lib/auth/session";
-import { canViewAuditLog, canViewPersonen, canViewStammdaten, canViewUsers, hasRole } from "@/lib/auth/permissions";
+import {
+  canManageBueroplan,
+  canViewAnmeldungen,
+  canViewAuditLog,
+  canViewKurse,
+  canViewPersonen,
+  canViewPlaner,
+  canViewStammdaten,
+  canViewUsers,
+  hasRole,
+} from "@/lib/auth/permissions";
 import { logoutAction } from "@/lib/auth/actions";
 import { NavLinks, type NavItem } from "@/components/NavLinks";
 import { RoleBadge } from "@/components/RoleBadge";
@@ -33,6 +43,19 @@ async function VerwaltungGate({ children }: { children: ReactNode }) {
   const navItems: NavItem[] = [{ href: "/dashboard", label: "Übersicht" }];
   if (canViewPersonen(roles)) {
     navItems.push({ href: "/personen", label: "Personen" });
+  }
+  if (canViewKurse(roles)) {
+    navItems.push({ href: "/kurse", label: "Kurse" });
+  }
+  if (canViewAnmeldungen(roles)) {
+    navItems.push({ href: "/anmeldungen", label: "Anmeldungen" });
+    navItems.push({ href: "/rechnungen", label: "Rechnungen" });
+  }
+  if (canViewPlaner(roles)) {
+    navItems.push({ href: "/planer", label: "Raumplaner" });
+  }
+  if (canManageBueroplan(roles)) {
+    navItems.push({ href: "/bueroplan", label: "Büroplan" });
   }
   if (canViewUsers(roles)) {
     navItems.push({ href: "/benutzer", label: "Benutzer" });

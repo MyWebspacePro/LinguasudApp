@@ -17,6 +17,25 @@ export type PersonStatus = Models.public_Person["status"];
 /** Anrede/Geschlecht — zwingend laut Pflichtenheft. */
 export type Anrede = Models.public_Person["anrede"];
 
+/** Lebenszyklus eines fortlaufenden Kurses (Modul 4). */
+export type KursStatus = Models.public_Kurs["status"];
+/** Rechnungsweg der Anmeldung (Modul 5). */
+export type BillingTyp = Models.public_Anmeldung["billingTyp"];
+/** Anmeldung-Lebenszyklus: Probe → aktiv → beendet. */
+export type AnmeldungStatus = Models.public_Anmeldung["status"];
+/** Entscheid der Paketende-Automatik. */
+export type PaketEntscheid = Models.public_Anmeldung["paketEntscheid"];
+/** Journal-Art des Lektionsguthabens. */
+export type JournalArt = Models.public_GuthabenJournal["art"];
+/** Lektion-Status im Planer (Modul 6). */
+export type LektionStatus = Models.public_Lektion["status"];
+/** Anwesenheits-Entscheid pro Teilnehmende(r) und Lektion (Modul 7). */
+export type AnwesenheitStatus = Models.public_Anwesenheit["status"];
+/** Abweichungs-Art vom Büro-Pensum an einem konkreten Tag (Modul 8). */
+export type BueroAbweichungArt = Models.public_BueroAbweichung["art"];
+/** Abwesenheits-Art der Büropersonen (Modul 8). */
+export type BueroAbwesenheitArt = Models.public_BueroAbwesenheit["art"];
+
 /** Zeilen-Typen ohne Relationen (das, was Queries zurückgeben). */
 export type UserRow = Scalars<Models.public_User>;
 export type SessionRow = Scalars<Models.public_Session>;
@@ -25,6 +44,17 @@ export type PersonRow = Scalars<Models.public_Person>;
 export type PersonNotizRow = Scalars<Models.public_PersonNotiz>;
 export type PersonBeziehungRow = Scalars<Models.public_PersonBeziehung>;
 export type LehrqualifikationRow = Scalars<Models.public_Lehrqualifikation>;
+export type KursRow = Scalars<Models.public_Kurs>;
+export type KursNiveauVerlaufRow = Scalars<Models.public_KursNiveauVerlauf>;
+export type KursUnterbrechungRow = Scalars<Models.public_KursUnterbrechung>;
+export type AnmeldungRow = Scalars<Models.public_Anmeldung>;
+export type GuthabenJournalRow = Scalars<Models.public_GuthabenJournal>;
+export type LektionRow = Scalars<Models.public_Lektion>;
+export type AnwesenheitRow = Scalars<Models.public_Anwesenheit>;
+export type BueroDienstRow = Scalars<Models.public_BueroDienst>;
+export type BueroAbweichungRow = Scalars<Models.public_BueroAbweichung>;
+export type BueroAbwesenheitRow = Scalars<Models.public_BueroAbwesenheit>;
+export type BueroUrlaubskontingentRow = Scalars<Models.public_BueroUrlaubskontingent>;
 
 /** Anrede-Bezeichnungen für Formulare und Anzeigen. */
 export const ANREDE_LABELS: Record<Anrede, string> = {
@@ -45,6 +75,61 @@ export const PERSON_STATUS_LABELS: Record<PersonStatus, string> = {
 
 /** Gültige Status-Werte in Laufbahn-Reihenfolge. */
 export const PERSON_STATUS_WERTE: readonly PersonStatus[] = ["INTERESSENT", "AKTIV", "INAKTIV"];
+
+/** Kursstatus-Bezeichnungen (Modul 4). */
+export const KURS_STATUS_LABELS: Record<KursStatus, string> = {
+  GEPLANT: "geplant",
+  AKTIV: "aktiv",
+  PAUSIERT: "pausiert",
+  ABGESCHLOSSEN: "abgeschlossen",
+  ABGESAGT: "abgesagt",
+};
+
+/** Gültige Kursstatus-Werte in Lebenszyklus-Reihenfolge. */
+export const KURS_STATUS_WERTE: readonly KursStatus[] = [
+  "GEPLANT",
+  "AKTIV",
+  "PAUSIERT",
+  "ABGESCHLOSSEN",
+  "ABGESAGT",
+];
+
+/** Billing-Typ-Bezeichnungen (Modul 5). */
+export const BILLING_TYP_LABELS: Record<BillingTyp, string> = {
+  PRIVAT: "privat",
+  FIRMA: "Firma",
+  OEFFENTLICHE_EINRICHTUNG: "öffentliche Einrichtung",
+};
+
+/** Gültige Billing-Typ-Werte. */
+export const BILLING_TYP_WERTE: readonly BillingTyp[] = ["PRIVAT", "FIRMA", "OEFFENTLICHE_EINRICHTUNG"];
+
+/** Anmeldung-Status-Bezeichnungen (Modul 5). */
+export const ANMELDUNG_STATUS_LABELS: Record<AnmeldungStatus, string> = {
+  PROBE: "Probe",
+  AKTIV: "aktiv",
+  BEENDET: "beendet",
+};
+
+/** Gültige Anmeldung-Status-Werte. */
+export const ANMELDUNG_STATUS_WERTE: readonly AnmeldungStatus[] = ["PROBE", "AKTIV", "BEENDET"];
+
+/** Journal-Art-Bezeichnungen (Modul 5). */
+export const JOURNAL_ART_LABELS: Record<JournalArt, string> = {
+  AUFLADUNG: "Paket-Aufladung",
+  VERBRAUCH: "Lektions-Verbrauch",
+  FEHLZEIT_UNENTSCHULDIGT: "Fehlzeit (unentschuldigt)",
+  FEHLZEIT_ENTSCHULDIGT: "Fehlzeit (entschuldigt)",
+  KORREKTUR: "Korrektur",
+};
+
+/** Lektion-Status-Bezeichnungen (Modul 6). */
+export const LEKTION_STATUS_LABELS: Record<LektionStatus, string> = {
+  PROVISORISCH: "provisorisch",
+  FIXIERT: "fixiert",
+  ABGESAGT: "abgesagt",
+  DURCHGEFUEHRT: "durchgeführt",
+};
 
 /**
  * List-Felder sind im Contract konservativ als (Element | null)[] | null

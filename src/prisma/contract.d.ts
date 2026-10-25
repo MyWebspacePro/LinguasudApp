@@ -23,9 +23,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'1df251fb9578853b1bfad6189e5905fdae4ac3c48f4b4997690dfcd76e648dda'>;
+  StorageHashBase<'d0264d130365d52f722ae2448ab014f175e5d615f180bb0b46832b441c7277d2'>;
 export type ExecutionHash =
-  ExecutionHashBase<'370da4c30eb6d90d8ffd28fabc08da963d461de444a578dd59c1b8a5bfffe506'>;
+  ExecutionHashBase<'61d3a846c406332478ecee200831f5345e68c0e533bdff56967fd881c03f98aa'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -241,10 +241,70 @@ type ParameterizedOutputTypeFunctions = PgParameterizedOutputTypes;
 type FieldTypeOverrides = {
   readonly public: {
     readonly models: {
+      readonly Anmeldung: {
+        readonly billingTyp: {
+          readonly output: 'PRIVAT' | 'FIRMA' | 'OEFFENTLICHE_EINRICHTUNG';
+          readonly input: 'PRIVAT' | 'FIRMA' | 'OEFFENTLICHE_EINRICHTUNG';
+        };
+        readonly paketEntscheid: {
+          readonly output: 'OFFEN' | 'VERLAENGERT' | 'BEENDET';
+          readonly input: 'OFFEN' | 'VERLAENGERT' | 'BEENDET';
+        };
+        readonly status: {
+          readonly output: 'PROBE' | 'AKTIV' | 'BEENDET';
+          readonly input: 'PROBE' | 'AKTIV' | 'BEENDET';
+        };
+      };
+      readonly Anwesenheit: {
+        readonly status: {
+          readonly output: 'ANWESEND' | 'ABWESEND_ENTSCHULDIGT' | 'ABWESEND_UNENTSCHULDIGT';
+          readonly input: 'ANWESEND' | 'ABWESEND_ENTSCHULDIGT' | 'ABWESEND_UNENTSCHULDIGT';
+        };
+      };
+      readonly BueroAbweichung: {
+        readonly art: {
+          readonly output: 'ARBEITSZEIT' | 'FREI';
+          readonly input: 'ARBEITSZEIT' | 'FREI';
+        };
+      };
+      readonly BueroAbwesenheit: {
+        readonly art: {
+          readonly output: 'URLAUB' | 'KRANKHEIT' | 'SONSTIGE';
+          readonly input: 'URLAUB' | 'KRANKHEIT' | 'SONSTIGE';
+        };
+      };
+      readonly GuthabenJournal: {
+        readonly art: {
+          readonly output:
+            | 'AUFLADUNG'
+            | 'VERBRAUCH'
+            | 'FEHLZEIT_UNENTSCHULDIGT'
+            | 'FEHLZEIT_ENTSCHULDIGT'
+            | 'KORREKTUR';
+          readonly input:
+            | 'AUFLADUNG'
+            | 'VERBRAUCH'
+            | 'FEHLZEIT_UNENTSCHULDIGT'
+            | 'FEHLZEIT_ENTSCHULDIGT'
+            | 'KORREKTUR';
+        };
+      };
       readonly Kostentraeger: {
         readonly art: {
           readonly output: 'FIRMA' | 'OEFFENTLICHE_EINRICHTUNG';
           readonly input: 'FIRMA' | 'OEFFENTLICHE_EINRICHTUNG';
+        };
+      };
+      readonly Kurs: {
+        readonly status: {
+          readonly output: 'GEPLANT' | 'AKTIV' | 'PAUSIERT' | 'ABGESCHLOSSEN' | 'ABGESAGT';
+          readonly input: 'GEPLANT' | 'AKTIV' | 'PAUSIERT' | 'ABGESCHLOSSEN' | 'ABGESAGT';
+        };
+      };
+      readonly Lektion: {
+        readonly status: {
+          readonly output: 'PROVISORISCH' | 'FIXIERT' | 'ABGESAGT' | 'DURCHGEFUEHRT';
+          readonly input: 'PROVISORISCH' | 'FIXIERT' | 'ABGESAGT' | 'DURCHGEFUEHRT';
         };
       };
       readonly LoginAttempt: {
@@ -261,6 +321,12 @@ type FieldTypeOverrides = {
         readonly status: {
           readonly output: 'INTERESSENT' | 'AKTIV' | 'INAKTIV';
           readonly input: 'INTERESSENT' | 'AKTIV' | 'INAKTIV';
+        };
+      };
+      readonly Rechnung: {
+        readonly status: {
+          readonly output: 'ENTWURF' | 'VERSENDET' | 'TEILBEZAHLT' | 'BEZAHLT' | 'STORNIERT';
+          readonly input: 'ENTWURF' | 'VERSENDET' | 'TEILBEZAHLT' | 'BEZAHLT' | 'STORNIERT';
         };
       };
       readonly User: {
@@ -288,10 +354,70 @@ export type FieldInputTypes = FieldTypesFromDomain<
 >;
 type ColumnTypeOverrides = {
   readonly public: {
+    readonly Anmeldung: {
+      readonly billingTyp: {
+        readonly output: 'PRIVAT' | 'FIRMA' | 'OEFFENTLICHE_EINRICHTUNG';
+        readonly input: 'PRIVAT' | 'FIRMA' | 'OEFFENTLICHE_EINRICHTUNG';
+      };
+      readonly paketEntscheid: {
+        readonly output: 'OFFEN' | 'VERLAENGERT' | 'BEENDET';
+        readonly input: 'OFFEN' | 'VERLAENGERT' | 'BEENDET';
+      };
+      readonly status: {
+        readonly output: 'PROBE' | 'AKTIV' | 'BEENDET';
+        readonly input: 'PROBE' | 'AKTIV' | 'BEENDET';
+      };
+    };
+    readonly Anwesenheit: {
+      readonly status: {
+        readonly output: 'ANWESEND' | 'ABWESEND_ENTSCHULDIGT' | 'ABWESEND_UNENTSCHULDIGT';
+        readonly input: 'ANWESEND' | 'ABWESEND_ENTSCHULDIGT' | 'ABWESEND_UNENTSCHULDIGT';
+      };
+    };
+    readonly BueroAbweichung: {
+      readonly art: {
+        readonly output: 'ARBEITSZEIT' | 'FREI';
+        readonly input: 'ARBEITSZEIT' | 'FREI';
+      };
+    };
+    readonly BueroAbwesenheit: {
+      readonly art: {
+        readonly output: 'URLAUB' | 'KRANKHEIT' | 'SONSTIGE';
+        readonly input: 'URLAUB' | 'KRANKHEIT' | 'SONSTIGE';
+      };
+    };
+    readonly GuthabenJournal: {
+      readonly art: {
+        readonly output:
+          | 'AUFLADUNG'
+          | 'VERBRAUCH'
+          | 'FEHLZEIT_UNENTSCHULDIGT'
+          | 'FEHLZEIT_ENTSCHULDIGT'
+          | 'KORREKTUR';
+        readonly input:
+          | 'AUFLADUNG'
+          | 'VERBRAUCH'
+          | 'FEHLZEIT_UNENTSCHULDIGT'
+          | 'FEHLZEIT_ENTSCHULDIGT'
+          | 'KORREKTUR';
+      };
+    };
     readonly Kostentraeger: {
       readonly art: {
         readonly output: 'FIRMA' | 'OEFFENTLICHE_EINRICHTUNG';
         readonly input: 'FIRMA' | 'OEFFENTLICHE_EINRICHTUNG';
+      };
+    };
+    readonly Kurs: {
+      readonly status: {
+        readonly output: 'GEPLANT' | 'AKTIV' | 'PAUSIERT' | 'ABGESCHLOSSEN' | 'ABGESAGT';
+        readonly input: 'GEPLANT' | 'AKTIV' | 'PAUSIERT' | 'ABGESCHLOSSEN' | 'ABGESAGT';
+      };
+    };
+    readonly Lektion: {
+      readonly status: {
+        readonly output: 'PROVISORISCH' | 'FIXIERT' | 'ABGESAGT' | 'DURCHGEFUEHRT';
+        readonly input: 'PROVISORISCH' | 'FIXIERT' | 'ABGESAGT' | 'DURCHGEFUEHRT';
       };
     };
     readonly LoginAttempt: {
@@ -308,6 +434,12 @@ type ColumnTypeOverrides = {
       readonly status: {
         readonly output: 'INTERESSENT' | 'AKTIV' | 'INAKTIV';
         readonly input: 'INTERESSENT' | 'AKTIV' | 'INAKTIV';
+      };
+    };
+    readonly Rechnung: {
+      readonly status: {
+        readonly output: 'ENTWURF' | 'VERSENDET' | 'TEILBEZAHLT' | 'BEZAHLT' | 'STORNIERT';
+        readonly input: 'ENTWURF' | 'VERSENDET' | 'TEILBEZAHLT' | 'BEZAHLT' | 'STORNIERT';
       };
     };
     readonly User: {
@@ -334,6 +466,61 @@ export type StorageColumnInputTypes = ColumnTypesFromStorage<
 >;
 
 export namespace Models {
+  export type public_Anmeldung = {
+    billingTyp: FieldOutputTypes['public']['Anmeldung']['billingTyp'];
+    createdAt: FieldOutputTypes['public']['Anmeldung']['createdAt'];
+    id: FieldOutputTypes['public']['Anmeldung']['id'];
+    kostentraegerId: FieldOutputTypes['public']['Anmeldung']['kostentraegerId'];
+    kursId: FieldOutputTypes['public']['Anmeldung']['kursId'];
+    notizen: FieldOutputTypes['public']['Anmeldung']['notizen'];
+    paketEndeGemeldetAt: FieldOutputTypes['public']['Anmeldung']['paketEndeGemeldetAt'];
+    paketEntscheid: FieldOutputTypes['public']['Anmeldung']['paketEntscheid'];
+    paketGroesse: FieldOutputTypes['public']['Anmeldung']['paketGroesse'];
+    paketGroesseUebersteuert: FieldOutputTypes['public']['Anmeldung']['paketGroesseUebersteuert'];
+    paketStartAt: FieldOutputTypes['public']['Anmeldung']['paketStartAt'];
+    personId: FieldOutputTypes['public']['Anmeldung']['personId'];
+    preisAbweichungGrund: FieldOutputTypes['public']['Anmeldung']['preisAbweichungGrund'];
+    preisChf: FieldOutputTypes['public']['Anmeldung']['preisChf'];
+    preisUebersteuert: FieldOutputTypes['public']['Anmeldung']['preisUebersteuert'];
+    rechnungsempfaengerId: FieldOutputTypes['public']['Anmeldung']['rechnungsempfaengerId'];
+    status: FieldOutputTypes['public']['Anmeldung']['status'];
+    tarifUebersteuert: FieldOutputTypes['public']['Anmeldung']['tarifUebersteuert'];
+    tarifstufeId: FieldOutputTypes['public']['Anmeldung']['tarifstufeId'];
+    updatedAt: FieldOutputTypes['public']['Anmeldung']['updatedAt'];
+    anwesenheiten: public_Anwesenheit[];
+    journal: public_GuthabenJournal[];
+    kostentraeger: public_Kostentraeger | null;
+    kurs: public_Kurs;
+    person: public_Person;
+    rechnungen: public_Rechnung[];
+    rechnungsempfaenger: public_Person | null;
+    tarifstufe: public_Tarifstufe;
+    readonly [RelationKeys]?:
+      | 'anwesenheiten'
+      | 'journal'
+      | 'kostentraeger'
+      | 'kurs'
+      | 'person'
+      | 'rechnungen'
+      | 'rechnungsempfaenger'
+      | 'tarifstufe';
+  };
+  export type public_Anwesenheit = {
+    anmeldungId: FieldOutputTypes['public']['Anwesenheit']['anmeldungId'];
+    bemerkung: FieldOutputTypes['public']['Anwesenheit']['bemerkung'];
+    createdAt: FieldOutputTypes['public']['Anwesenheit']['createdAt'];
+    erfasstAt: FieldOutputTypes['public']['Anwesenheit']['erfasstAt'];
+    erfasstVonName: FieldOutputTypes['public']['Anwesenheit']['erfasstVonName'];
+    id: FieldOutputTypes['public']['Anwesenheit']['id'];
+    korrigiertAt: FieldOutputTypes['public']['Anwesenheit']['korrigiertAt'];
+    lektionId: FieldOutputTypes['public']['Anwesenheit']['lektionId'];
+    status: FieldOutputTypes['public']['Anwesenheit']['status'];
+    updatedAt: FieldOutputTypes['public']['Anwesenheit']['updatedAt'];
+    vonLehrperson: FieldOutputTypes['public']['Anwesenheit']['vonLehrperson'];
+    anmeldung: public_Anmeldung;
+    lektion: public_Lektion;
+    readonly [RelationKeys]?: 'anmeldung' | 'lektion';
+  };
   export type public_AuditLog = {
     action: FieldOutputTypes['public']['AuditLog']['action'];
     actorEmail: FieldOutputTypes['public']['AuditLog']['actorEmail'];
@@ -349,6 +536,51 @@ export namespace Models {
     actor: public_User | null;
     readonly [RelationKeys]?: 'actor';
   };
+  export type public_BueroAbweichung = {
+    art: FieldOutputTypes['public']['BueroAbweichung']['art'];
+    createdAt: FieldOutputTypes['public']['BueroAbweichung']['createdAt'];
+    datum: FieldOutputTypes['public']['BueroAbweichung']['datum'];
+    endZeit: FieldOutputTypes['public']['BueroAbweichung']['endZeit'];
+    id: FieldOutputTypes['public']['BueroAbweichung']['id'];
+    notiz: FieldOutputTypes['public']['BueroAbweichung']['notiz'];
+    personId: FieldOutputTypes['public']['BueroAbweichung']['personId'];
+    startZeit: FieldOutputTypes['public']['BueroAbweichung']['startZeit'];
+    updatedAt: FieldOutputTypes['public']['BueroAbweichung']['updatedAt'];
+    person: public_Person;
+    readonly [RelationKeys]?: 'person';
+  };
+  export type public_BueroAbwesenheit = {
+    art: FieldOutputTypes['public']['BueroAbwesenheit']['art'];
+    bemerkung: FieldOutputTypes['public']['BueroAbwesenheit']['bemerkung'];
+    bis: FieldOutputTypes['public']['BueroAbwesenheit']['bis'];
+    createdAt: FieldOutputTypes['public']['BueroAbwesenheit']['createdAt'];
+    id: FieldOutputTypes['public']['BueroAbwesenheit']['id'];
+    personId: FieldOutputTypes['public']['BueroAbwesenheit']['personId'];
+    updatedAt: FieldOutputTypes['public']['BueroAbwesenheit']['updatedAt'];
+    von: FieldOutputTypes['public']['BueroAbwesenheit']['von'];
+    person: public_Person;
+    readonly [RelationKeys]?: 'person';
+  };
+  export type public_BueroDienst = {
+    createdAt: FieldOutputTypes['public']['BueroDienst']['createdAt'];
+    endZeit: FieldOutputTypes['public']['BueroDienst']['endZeit'];
+    id: FieldOutputTypes['public']['BueroDienst']['id'];
+    notiz: FieldOutputTypes['public']['BueroDienst']['notiz'];
+    personId: FieldOutputTypes['public']['BueroDienst']['personId'];
+    startZeit: FieldOutputTypes['public']['BueroDienst']['startZeit'];
+    updatedAt: FieldOutputTypes['public']['BueroDienst']['updatedAt'];
+    wochentag: FieldOutputTypes['public']['BueroDienst']['wochentag'];
+    person: public_Person;
+    readonly [RelationKeys]?: 'person';
+  };
+  export type public_BueroUrlaubskontingent = {
+    id: FieldOutputTypes['public']['BueroUrlaubskontingent']['id'];
+    jahr: FieldOutputTypes['public']['BueroUrlaubskontingent']['jahr'];
+    personId: FieldOutputTypes['public']['BueroUrlaubskontingent']['personId'];
+    tage: FieldOutputTypes['public']['BueroUrlaubskontingent']['tage'];
+    person: public_Person;
+    readonly [RelationKeys]?: 'person';
+  };
   export type public_Etage = {
     createdAt: FieldOutputTypes['public']['Etage']['createdAt'];
     id: FieldOutputTypes['public']['Etage']['id'];
@@ -359,6 +591,22 @@ export namespace Models {
     raeume: public_Raum[];
     standort: public_Standort;
     readonly [RelationKeys]?: 'raeume' | 'standort';
+  };
+  export type public_GuthabenJournal = {
+    actorName: FieldOutputTypes['public']['GuthabenJournal']['actorName'];
+    actorUserId: FieldOutputTypes['public']['GuthabenJournal']['actorUserId'];
+    anmeldungId: FieldOutputTypes['public']['GuthabenJournal']['anmeldungId'];
+    art: FieldOutputTypes['public']['GuthabenJournal']['art'];
+    bemerkung: FieldOutputTypes['public']['GuthabenJournal']['bemerkung'];
+    createdAt: FieldOutputTypes['public']['GuthabenJournal']['createdAt'];
+    datum: FieldOutputTypes['public']['GuthabenJournal']['datum'];
+    delta: FieldOutputTypes['public']['GuthabenJournal']['delta'];
+    id: FieldOutputTypes['public']['GuthabenJournal']['id'];
+    lektionId: FieldOutputTypes['public']['GuthabenJournal']['lektionId'];
+    actorUser: public_User | null;
+    anmeldung: public_Anmeldung;
+    lektion: public_Lektion | null;
+    readonly [RelationKeys]?: 'actorUser' | 'anmeldung' | 'lektion';
   };
   export type public_Kostentraeger = {
     active: FieldOutputTypes['public']['Kostentraeger']['active'];
@@ -372,7 +620,74 @@ export namespace Models {
     plz: FieldOutputTypes['public']['Kostentraeger']['plz'];
     strasse: FieldOutputTypes['public']['Kostentraeger']['strasse'];
     updatedAt: FieldOutputTypes['public']['Kostentraeger']['updatedAt'];
-    readonly [RelationKeys]?: never;
+    anmeldungen: public_Anmeldung[];
+    kurse: public_Kurs[];
+    rechnungen: public_Rechnung[];
+    readonly [RelationKeys]?: 'anmeldungen' | 'kurse' | 'rechnungen';
+  };
+  export type public_Kurs = {
+    code: FieldOutputTypes['public']['Kurs']['code'];
+    createdAt: FieldOutputTypes['public']['Kurs']['createdAt'];
+    dauerMinuten: FieldOutputTypes['public']['Kurs']['dauerMinuten'];
+    extern: FieldOutputTypes['public']['Kurs']['extern'];
+    externOrt: FieldOutputTypes['public']['Kurs']['externOrt'];
+    id: FieldOutputTypes['public']['Kurs']['id'];
+    kostentraegerId: FieldOutputTypes['public']['Kurs']['kostentraegerId'];
+    kursartId: FieldOutputTypes['public']['Kurs']['kursartId'];
+    lehrpersonId: FieldOutputTypes['public']['Kurs']['lehrpersonId'];
+    maxParticipants: FieldOutputTypes['public']['Kurs']['maxParticipants'];
+    niveauId: FieldOutputTypes['public']['Kurs']['niveauId'];
+    notizen: FieldOutputTypes['public']['Kurs']['notizen'];
+    spracheId: FieldOutputTypes['public']['Kurs']['spracheId'];
+    standardRaumId: FieldOutputTypes['public']['Kurs']['standardRaumId'];
+    startZeit: FieldOutputTypes['public']['Kurs']['startZeit'];
+    status: FieldOutputTypes['public']['Kurs']['status'];
+    updatedAt: FieldOutputTypes['public']['Kurs']['updatedAt'];
+    wochentag: FieldOutputTypes['public']['Kurs']['wochentag'];
+    anmeldungen: public_Anmeldung[];
+    kostentraeger: public_Kostentraeger | null;
+    kursart: public_Kursart;
+    lehrperson: public_Person | null;
+    lektionen: public_Lektion[];
+    niveau: public_Niveau;
+    niveauVerlauf: public_KursNiveauVerlauf[];
+    sprache: public_Sprache;
+    standardRaum: public_Raum | null;
+    unterbrechungen: public_KursUnterbrechung[];
+    readonly [RelationKeys]?:
+      | 'anmeldungen'
+      | 'kostentraeger'
+      | 'kursart'
+      | 'lehrperson'
+      | 'lektionen'
+      | 'niveau'
+      | 'niveauVerlauf'
+      | 'sprache'
+      | 'standardRaum'
+      | 'unterbrechungen';
+  };
+  export type public_KursNiveauVerlauf = {
+    bis: FieldOutputTypes['public']['KursNiveauVerlauf']['bis'];
+    createdAt: FieldOutputTypes['public']['KursNiveauVerlauf']['createdAt'];
+    gemeldetVonLehrperson: FieldOutputTypes['public']['KursNiveauVerlauf']['gemeldetVonLehrperson'];
+    id: FieldOutputTypes['public']['KursNiveauVerlauf']['id'];
+    kursId: FieldOutputTypes['public']['KursNiveauVerlauf']['kursId'];
+    niveauId: FieldOutputTypes['public']['KursNiveauVerlauf']['niveauId'];
+    von: FieldOutputTypes['public']['KursNiveauVerlauf']['von'];
+    kurs: public_Kurs;
+    niveau: public_Niveau;
+    readonly [RelationKeys]?: 'kurs' | 'niveau';
+  };
+  export type public_KursUnterbrechung = {
+    bis: FieldOutputTypes['public']['KursUnterbrechung']['bis'];
+    createdAt: FieldOutputTypes['public']['KursUnterbrechung']['createdAt'];
+    gemeldetVonLehrperson: FieldOutputTypes['public']['KursUnterbrechung']['gemeldetVonLehrperson'];
+    grund: FieldOutputTypes['public']['KursUnterbrechung']['grund'];
+    id: FieldOutputTypes['public']['KursUnterbrechung']['id'];
+    kursId: FieldOutputTypes['public']['KursUnterbrechung']['kursId'];
+    von: FieldOutputTypes['public']['KursUnterbrechung']['von'];
+    kurs: public_Kurs;
+    readonly [RelationKeys]?: 'kurs';
   };
   export type public_Kursart = {
     active: FieldOutputTypes['public']['Kursart']['active'];
@@ -384,8 +699,9 @@ export namespace Models {
     requiresRoom: FieldOutputTypes['public']['Kursart']['requiresRoom'];
     sortOrder: FieldOutputTypes['public']['Kursart']['sortOrder'];
     updatedAt: FieldOutputTypes['public']['Kursart']['updatedAt'];
+    kurse: public_Kurs[];
     preise: public_Preis[];
-    readonly [RelationKeys]?: 'preise';
+    readonly [RelationKeys]?: 'kurse' | 'preise';
   };
   export type public_Lehrqualifikation = {
     id: FieldOutputTypes['public']['Lehrqualifikation']['id'];
@@ -396,6 +712,28 @@ export namespace Models {
     person: public_Person;
     sprache: public_Sprache;
     readonly [RelationKeys]?: 'niveau' | 'person' | 'sprache';
+  };
+  export type public_Lektion = {
+    abgeschlossenAt: FieldOutputTypes['public']['Lektion']['abgeschlossenAt'];
+    anwesenheitErinnertAt: FieldOutputTypes['public']['Lektion']['anwesenheitErinnertAt'];
+    createdAt: FieldOutputTypes['public']['Lektion']['createdAt'];
+    dauerMinuten: FieldOutputTypes['public']['Lektion']['dauerMinuten'];
+    fixiertAt: FieldOutputTypes['public']['Lektion']['fixiertAt'];
+    id: FieldOutputTypes['public']['Lektion']['id'];
+    kursId: FieldOutputTypes['public']['Lektion']['kursId'];
+    lehrpersonId: FieldOutputTypes['public']['Lektion']['lehrpersonId'];
+    notiz: FieldOutputTypes['public']['Lektion']['notiz'];
+    quelle: FieldOutputTypes['public']['Lektion']['quelle'];
+    raumId: FieldOutputTypes['public']['Lektion']['raumId'];
+    startAt: FieldOutputTypes['public']['Lektion']['startAt'];
+    status: FieldOutputTypes['public']['Lektion']['status'];
+    updatedAt: FieldOutputTypes['public']['Lektion']['updatedAt'];
+    anwesenheiten: public_Anwesenheit[];
+    journal: public_GuthabenJournal[];
+    kurs: public_Kurs;
+    lehrperson: public_Person | null;
+    raum: public_Raum | null;
+    readonly [RelationKeys]?: 'anwesenheiten' | 'journal' | 'kurs' | 'lehrperson' | 'raum';
   };
   export type public_Lektionsdauer = {
     active: FieldOutputTypes['public']['Lektionsdauer']['active'];
@@ -416,6 +754,17 @@ export namespace Models {
     success: FieldOutputTypes['public']['LoginAttempt']['success'];
     readonly [RelationKeys]?: never;
   };
+  export type public_Mahnung = {
+    createdAt: FieldOutputTypes['public']['Mahnung']['createdAt'];
+    email: FieldOutputTypes['public']['Mahnung']['email'];
+    fehler: FieldOutputTypes['public']['Mahnung']['fehler'];
+    id: FieldOutputTypes['public']['Mahnung']['id'];
+    rechnungId: FieldOutputTypes['public']['Mahnung']['rechnungId'];
+    stufe: FieldOutputTypes['public']['Mahnung']['stufe'];
+    versendetAt: FieldOutputTypes['public']['Mahnung']['versendetAt'];
+    rechnung: public_Rechnung;
+    readonly [RelationKeys]?: 'rechnung';
+  };
   export type public_Niveau = {
     active: FieldOutputTypes['public']['Niveau']['active'];
     archivedAt: FieldOutputTypes['public']['Niveau']['archivedAt'];
@@ -425,8 +774,10 @@ export namespace Models {
     name: FieldOutputTypes['public']['Niveau']['name'];
     sortOrder: FieldOutputTypes['public']['Niveau']['sortOrder'];
     updatedAt: FieldOutputTypes['public']['Niveau']['updatedAt'];
+    kurse: public_Kurs[];
     qualifikationen: public_Lehrqualifikation[];
-    readonly [RelationKeys]?: 'qualifikationen';
+    verlauf: public_KursNiveauVerlauf[];
+    readonly [RelationKeys]?: 'kurse' | 'qualifikationen' | 'verlauf';
   };
   export type public_PasswordResetToken = {
     createdAt: FieldOutputTypes['public']['PasswordResetToken']['createdAt'];
@@ -461,13 +812,35 @@ export namespace Models {
     vorname: FieldOutputTypes['public']['Person']['vorname'];
     whatsapp1: FieldOutputTypes['public']['Person']['whatsapp1'];
     whatsapp2: FieldOutputTypes['public']['Person']['whatsapp2'];
+    anmeldungen: public_Anmeldung[];
+    anmeldungenAlsRechnungsempfaenger: public_Anmeldung[];
+    bueroAbweichungen: public_BueroAbweichung[];
+    bueroAbwesenheiten: public_BueroAbwesenheit[];
+    bueroDienste: public_BueroDienst[];
+    bueroUrlaubskontingente: public_BueroUrlaubskontingent[];
     elternLinks: public_PersonBeziehung[];
     kinderLinks: public_PersonBeziehung[];
+    kurseAlsLehrperson: public_Kurs[];
+    lektionenAlsLehrperson: public_Lektion[];
     notizen: public_PersonNotiz[];
     qualifikationen: public_Lehrqualifikation[];
+    rechnungen: public_Rechnung[];
     user: public_User | null;
     readonly [RelationKeys]?:
-      'elternLinks' | 'kinderLinks' | 'notizen' | 'qualifikationen' | 'user';
+      | 'anmeldungen'
+      | 'anmeldungenAlsRechnungsempfaenger'
+      | 'bueroAbweichungen'
+      | 'bueroAbwesenheiten'
+      | 'bueroDienste'
+      | 'bueroUrlaubskontingente'
+      | 'elternLinks'
+      | 'kinderLinks'
+      | 'kurseAlsLehrperson'
+      | 'lektionenAlsLehrperson'
+      | 'notizen'
+      | 'qualifikationen'
+      | 'rechnungen'
+      | 'user';
   };
   export type public_PersonBeziehung = {
     berechtigterId: FieldOutputTypes['public']['PersonBeziehung']['berechtigterId'];
@@ -510,7 +883,56 @@ export namespace Models {
     seats: FieldOutputTypes['public']['Raum']['seats'];
     updatedAt: FieldOutputTypes['public']['Raum']['updatedAt'];
     etage: public_Etage;
-    readonly [RelationKeys]?: 'etage';
+    kurseAlsStandard: public_Kurs[];
+    lektionen: public_Lektion[];
+    readonly [RelationKeys]?: 'etage' | 'kurseAlsStandard' | 'lektionen';
+  };
+  export type public_Rechnung = {
+    anmeldungId: FieldOutputTypes['public']['Rechnung']['anmeldungId'];
+    betragChf: FieldOutputTypes['public']['Rechnung']['betragChf'];
+    createdAt: FieldOutputTypes['public']['Rechnung']['createdAt'];
+    empfaengerEmail: FieldOutputTypes['public']['Rechnung']['empfaengerEmail'];
+    empfaengerLand: FieldOutputTypes['public']['Rechnung']['empfaengerLand'];
+    empfaengerName: FieldOutputTypes['public']['Rechnung']['empfaengerName'];
+    empfaengerOrt: FieldOutputTypes['public']['Rechnung']['empfaengerOrt'];
+    empfaengerPlz: FieldOutputTypes['public']['Rechnung']['empfaengerPlz'];
+    empfaengerStrasse: FieldOutputTypes['public']['Rechnung']['empfaengerStrasse'];
+    faelligAm: FieldOutputTypes['public']['Rechnung']['faelligAm'];
+    id: FieldOutputTypes['public']['Rechnung']['id'];
+    kostentraegerId: FieldOutputTypes['public']['Rechnung']['kostentraegerId'];
+    letzteMahnAt: FieldOutputTypes['public']['Rechnung']['letzteMahnAt'];
+    mahnStufe: FieldOutputTypes['public']['Rechnung']['mahnStufe'];
+    mwstSatzProzent: FieldOutputTypes['public']['Rechnung']['mwstSatzProzent'];
+    notiz: FieldOutputTypes['public']['Rechnung']['notiz'];
+    nummer: FieldOutputTypes['public']['Rechnung']['nummer'];
+    personId: FieldOutputTypes['public']['Rechnung']['personId'];
+    rechnungsdatum: FieldOutputTypes['public']['Rechnung']['rechnungsdatum'];
+    referenzNr: FieldOutputTypes['public']['Rechnung']['referenzNr'];
+    status: FieldOutputTypes['public']['Rechnung']['status'];
+    storniertAt: FieldOutputTypes['public']['Rechnung']['storniertAt'];
+    storniertGrund: FieldOutputTypes['public']['Rechnung']['storniertGrund'];
+    totalChf: FieldOutputTypes['public']['Rechnung']['totalChf'];
+    updatedAt: FieldOutputTypes['public']['Rechnung']['updatedAt'];
+    versendetAt: FieldOutputTypes['public']['Rechnung']['versendetAt'];
+    anmeldung: public_Anmeldung | null;
+    kostentraeger: public_Kostentraeger | null;
+    mahnungen: public_Mahnung[];
+    person: public_Person | null;
+    positionen: public_RechnungsPosition[];
+    zahlungen: public_Zahlung[];
+    readonly [RelationKeys]?:
+      'anmeldung' | 'kostentraeger' | 'mahnungen' | 'person' | 'positionen' | 'zahlungen';
+  };
+  export type public_RechnungsPosition = {
+    createdAt: FieldOutputTypes['public']['RechnungsPosition']['createdAt'];
+    einzelpreisChf: FieldOutputTypes['public']['RechnungsPosition']['einzelpreisChf'];
+    id: FieldOutputTypes['public']['RechnungsPosition']['id'];
+    menge: FieldOutputTypes['public']['RechnungsPosition']['menge'];
+    rechnungId: FieldOutputTypes['public']['RechnungsPosition']['rechnungId'];
+    reihenfolge: FieldOutputTypes['public']['RechnungsPosition']['reihenfolge'];
+    text: FieldOutputTypes['public']['RechnungsPosition']['text'];
+    rechnung: public_Rechnung;
+    readonly [RelationKeys]?: 'rechnung';
   };
   export type public_Session = {
     createdAt: FieldOutputTypes['public']['Session']['createdAt'];
@@ -532,8 +954,9 @@ export namespace Models {
     id: FieldOutputTypes['public']['Sprache']['id'];
     name: FieldOutputTypes['public']['Sprache']['name'];
     updatedAt: FieldOutputTypes['public']['Sprache']['updatedAt'];
+    kurse: public_Kurs[];
     qualifikationen: public_Lehrqualifikation[];
-    readonly [RelationKeys]?: 'qualifikationen';
+    readonly [RelationKeys]?: 'kurse' | 'qualifikationen';
   };
   export type public_Standort = {
     active: FieldOutputTypes['public']['Standort']['active'];
@@ -565,8 +988,9 @@ export namespace Models {
     middayTo: FieldOutputTypes['public']['Tarifstufe']['middayTo'];
     name: FieldOutputTypes['public']['Tarifstufe']['name'];
     updatedAt: FieldOutputTypes['public']['Tarifstufe']['updatedAt'];
+    anmeldungen: public_Anmeldung[];
     preise: public_Preis[];
-    readonly [RelationKeys]?: 'preise';
+    readonly [RelationKeys]?: 'anmeldungen' | 'preise';
   };
   export type public_User = {
     createdAt: FieldOutputTypes['public']['User']['createdAt'];
@@ -582,24 +1006,57 @@ export namespace Models {
     roles: FieldOutputTypes['public']['User']['roles'];
     updatedAt: FieldOutputTypes['public']['User']['updatedAt'];
     auditLogsAsActor: public_AuditLog[];
+    guthabenJournale: public_GuthabenJournal[];
     passwordResetTokens: public_PasswordResetToken[];
     person: public_Person | null;
     personNotizen: public_PersonNotiz[];
     sessions: public_Session[];
+    zahlungenAlsErfasser: public_Zahlung[];
     readonly [RelationKeys]?:
-      'auditLogsAsActor' | 'passwordResetTokens' | 'person' | 'personNotizen' | 'sessions';
+      | 'auditLogsAsActor'
+      | 'guthabenJournale'
+      | 'passwordResetTokens'
+      | 'person'
+      | 'personNotizen'
+      | 'sessions'
+      | 'zahlungenAlsErfasser';
+  };
+  export type public_Zahlung = {
+    actorName: FieldOutputTypes['public']['Zahlung']['actorName'];
+    actorUserId: FieldOutputTypes['public']['Zahlung']['actorUserId'];
+    bemerkung: FieldOutputTypes['public']['Zahlung']['bemerkung'];
+    betragChf: FieldOutputTypes['public']['Zahlung']['betragChf'];
+    createdAt: FieldOutputTypes['public']['Zahlung']['createdAt'];
+    datum: FieldOutputTypes['public']['Zahlung']['datum'];
+    id: FieldOutputTypes['public']['Zahlung']['id'];
+    rechnungId: FieldOutputTypes['public']['Zahlung']['rechnungId'];
+    actorUser: public_User | null;
+    rechnung: public_Rechnung;
+    readonly [RelationKeys]?: 'actorUser' | 'rechnung';
   };
 }
 
 export declare const models: {
   public: {
+    Anmeldung: Models.public_Anmeldung;
+    Anwesenheit: Models.public_Anwesenheit;
     AuditLog: Models.public_AuditLog;
+    BueroAbweichung: Models.public_BueroAbweichung;
+    BueroAbwesenheit: Models.public_BueroAbwesenheit;
+    BueroDienst: Models.public_BueroDienst;
+    BueroUrlaubskontingent: Models.public_BueroUrlaubskontingent;
     Etage: Models.public_Etage;
+    GuthabenJournal: Models.public_GuthabenJournal;
     Kostentraeger: Models.public_Kostentraeger;
+    Kurs: Models.public_Kurs;
+    KursNiveauVerlauf: Models.public_KursNiveauVerlauf;
+    KursUnterbrechung: Models.public_KursUnterbrechung;
     Kursart: Models.public_Kursart;
     Lehrqualifikation: Models.public_Lehrqualifikation;
+    Lektion: Models.public_Lektion;
     Lektionsdauer: Models.public_Lektionsdauer;
     LoginAttempt: Models.public_LoginAttempt;
+    Mahnung: Models.public_Mahnung;
     Niveau: Models.public_Niveau;
     PasswordResetToken: Models.public_PasswordResetToken;
     Person: Models.public_Person;
@@ -607,12 +1064,15 @@ export declare const models: {
     PersonNotiz: Models.public_PersonNotiz;
     Preis: Models.public_Preis;
     Raum: Models.public_Raum;
+    Rechnung: Models.public_Rechnung;
+    RechnungsPosition: Models.public_RechnungsPosition;
     Session: Models.public_Session;
     Sprache: Models.public_Sprache;
     Standort: Models.public_Standort;
     SystemSetting: Models.public_SystemSetting;
     Tarifstufe: Models.public_Tarifstufe;
     User: Models.public_User;
+    Zahlung: Models.public_Zahlung;
   };
 };
 
@@ -634,6 +1094,366 @@ type ContractBase = Omit<
         readonly kind: 'postgres-schema';
         readonly entries: {
           readonly table: {
+            readonly Anmeldung: {
+              columns: {
+                readonly billingTyp: {
+                  readonly dataType: 'pg/enum';
+                  readonly codecId: 'pg/enum@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/enum@1', 'PRIVAT'>;
+                  };
+                  readonly typeParams: { readonly typeName: 'BillingTyp' };
+                  readonly many: false;
+                };
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly kostentraegerId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly kursId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly notizen: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly paketEndeGemeldetAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly paketEntscheid: {
+                  readonly dataType: 'pg/enum';
+                  readonly codecId: 'pg/enum@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/enum@1', 'OFFEN'>;
+                  };
+                  readonly typeParams: { readonly typeName: 'PaketEntscheid' };
+                  readonly many: false;
+                };
+                readonly paketGroesse: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly paketGroesseUebersteuert: {
+                  readonly dataType: 'pg/bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                  readonly many: false;
+                };
+                readonly paketStartAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly personId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly preisAbweichungGrund: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly preisChf: {
+                  readonly dataType: 'pg/numeric';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 8; readonly scale: 2 };
+                  readonly many: false;
+                };
+                readonly preisUebersteuert: {
+                  readonly dataType: 'pg/bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                  readonly many: false;
+                };
+                readonly rechnungsempfaengerId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly status: {
+                  readonly dataType: 'pg/enum';
+                  readonly codecId: 'pg/enum@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/enum@1', 'PROBE'>;
+                  };
+                  readonly typeParams: { readonly typeName: 'AnmeldungStatus' };
+                  readonly many: false;
+                };
+                readonly tarifUebersteuert: {
+                  readonly dataType: 'pg/bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                  readonly many: false;
+                };
+                readonly tarifstufeId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly updatedAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'Anmeldung_kursId_status_idx';
+                  readonly columns: readonly ['kursId', 'status'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'Anmeldung_personId_idx';
+                  readonly columns: readonly ['personId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'Anmeldung_status_paketEntscheid_idx';
+                  readonly columns: readonly ['status', 'paketEntscheid'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Anmeldung';
+                    readonly columns: readonly ['kursId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Kurs';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Anmeldung';
+                    readonly columns: readonly ['personId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Person';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Anmeldung';
+                    readonly columns: readonly ['kostentraegerId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Kostentraeger';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Anmeldung';
+                    readonly columns: readonly ['rechnungsempfaengerId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Person';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Anmeldung';
+                    readonly columns: readonly ['tarifstufeId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Tarifstufe';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
+            readonly Anwesenheit: {
+              columns: {
+                readonly anmeldungId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly bemerkung: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly erfasstAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly erfasstVonName: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly korrigiertAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly lektionId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly status: {
+                  readonly dataType: 'pg/enum';
+                  readonly codecId: 'pg/enum@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly typeName: 'AnwesenheitStatus' };
+                  readonly many: false;
+                };
+                readonly updatedAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly vonLehrperson: {
+                  readonly dataType: 'pg/bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'Anwesenheit_anmeldungId_idx';
+                  readonly columns: readonly ['anmeldungId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'Anwesenheit_lektionId_anmeldungId_key';
+                  readonly columns: readonly ['lektionId', 'anmeldungId'];
+                  readonly unique: true;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Anwesenheit';
+                    readonly columns: readonly ['lektionId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Lektion';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Anwesenheit';
+                    readonly columns: readonly ['anmeldungId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Anmeldung';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
             readonly AuditLog: {
               columns: {
                 readonly action: {
@@ -744,6 +1564,312 @@ type ContractBase = Omit<
                 },
               ];
             };
+            readonly BueroAbweichung: {
+              columns: {
+                readonly art: {
+                  readonly dataType: 'pg/enum';
+                  readonly codecId: 'pg/enum@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly typeName: 'BueroAbweichungArt' };
+                  readonly many: false;
+                };
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly datum: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly endZeit: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly notiz: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly personId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly startZeit: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly updatedAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'BueroAbweichung_datum_idx';
+                  readonly columns: readonly ['datum'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'BueroAbweichung_personId_datum_key';
+                  readonly columns: readonly ['personId', 'datum'];
+                  readonly unique: true;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'BueroAbweichung';
+                    readonly columns: readonly ['personId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Person';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
+            readonly BueroAbwesenheit: {
+              columns: {
+                readonly art: {
+                  readonly dataType: 'pg/enum';
+                  readonly codecId: 'pg/enum@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly typeName: 'BueroAbwesenheitArt' };
+                  readonly many: false;
+                };
+                readonly bemerkung: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly bis: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly personId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly updatedAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly von: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'BueroAbwesenheit_personId_von_idx';
+                  readonly columns: readonly ['personId', 'von'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'BueroAbwesenheit_von_bis_idx';
+                  readonly columns: readonly ['von', 'bis'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'BueroAbwesenheit';
+                    readonly columns: readonly ['personId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Person';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
+            readonly BueroDienst: {
+              columns: {
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly endZeit: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly notiz: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly personId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly startZeit: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly updatedAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly wochentag: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'BueroDienst_personId_wochentag_idx';
+                  readonly columns: readonly ['personId', 'wochentag'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'BueroDienst';
+                    readonly columns: readonly ['personId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Person';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
+            readonly BueroUrlaubskontingent: {
+              columns: {
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly jahr: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly personId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly tage: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'BueroUrlaubskontingent_personId_jahr_key';
+                  readonly columns: readonly ['personId', 'jahr'];
+                  readonly unique: true;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'BueroUrlaubskontingent';
+                    readonly columns: readonly ['personId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Person';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
             readonly Etage: {
               columns: {
                 readonly createdAt: {
@@ -809,6 +1935,122 @@ type ContractBase = Omit<
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'Standort';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
+            readonly GuthabenJournal: {
+              columns: {
+                readonly actorName: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly actorUserId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly anmeldungId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly art: {
+                  readonly dataType: 'pg/enum';
+                  readonly codecId: 'pg/enum@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly typeName: 'JournalArt' };
+                  readonly many: false;
+                };
+                readonly bemerkung: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly datum: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly delta: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly lektionId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'GuthabenJournal_anmeldungId_datum_idx';
+                  readonly columns: readonly ['anmeldungId', 'datum'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'GuthabenJournal';
+                    readonly columns: readonly ['anmeldungId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Anmeldung';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'GuthabenJournal';
+                    readonly columns: readonly ['lektionId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Lektion';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'GuthabenJournal';
+                    readonly columns: readonly ['actorUserId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'User';
                     readonly columns: readonly ['id'];
                   };
                 },
@@ -913,6 +2155,228 @@ type ContractBase = Omit<
               ];
               foreignKeys: readonly [];
             };
+            readonly Kurs: {
+              columns: {
+                readonly code: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly dauerMinuten: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly extern: {
+                  readonly dataType: 'pg/bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                  readonly many: false;
+                };
+                readonly externOrt: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly kostentraegerId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly kursartId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly lehrpersonId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly maxParticipants: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly niveauId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly notizen: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly spracheId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly standardRaumId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly startZeit: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly status: {
+                  readonly dataType: 'pg/enum';
+                  readonly codecId: 'pg/enum@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/enum@1', 'GEPLANT'>;
+                  };
+                  readonly typeParams: { readonly typeName: 'KursStatus' };
+                  readonly many: false;
+                };
+                readonly updatedAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly wochentag: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'Kurs_code_key';
+                  readonly columns: readonly ['code'];
+                  readonly unique: true;
+                },
+                {
+                  readonly name: 'Kurs_lehrpersonId_idx';
+                  readonly columns: readonly ['lehrpersonId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'Kurs_spracheId_niveauId_idx';
+                  readonly columns: readonly ['spracheId', 'niveauId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'Kurs_status_idx';
+                  readonly columns: readonly ['status'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Kurs';
+                    readonly columns: readonly ['spracheId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Sprache';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Kurs';
+                    readonly columns: readonly ['niveauId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Niveau';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Kurs';
+                    readonly columns: readonly ['kursartId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Kursart';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Kurs';
+                    readonly columns: readonly ['lehrpersonId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Person';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Kurs';
+                    readonly columns: readonly ['standardRaumId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Raum';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Kurs';
+                    readonly columns: readonly ['kostentraegerId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Kostentraeger';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
             readonly Kursart: {
               columns: {
                 readonly active: {
@@ -997,6 +2461,172 @@ type ContractBase = Omit<
               ];
               foreignKeys: readonly [];
             };
+            readonly KursNiveauVerlauf: {
+              columns: {
+                readonly bis: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly gemeldetVonLehrperson: {
+                  readonly dataType: 'pg/bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly kursId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly niveauId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly von: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'KursNiveauVerlauf_kursId_von_idx';
+                  readonly columns: readonly ['kursId', 'von'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'KursNiveauVerlauf';
+                    readonly columns: readonly ['kursId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Kurs';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'KursNiveauVerlauf';
+                    readonly columns: readonly ['niveauId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Niveau';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
+            readonly KursUnterbrechung: {
+              columns: {
+                readonly bis: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly gemeldetVonLehrperson: {
+                  readonly dataType: 'pg/bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                  readonly many: false;
+                };
+                readonly grund: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly kursId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly von: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'KursUnterbrechung_kursId_von_idx';
+                  readonly columns: readonly ['kursId', 'von'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'KursUnterbrechung';
+                    readonly columns: readonly ['kursId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Kurs';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
             readonly Lehrqualifikation: {
               columns: {
                 readonly id: {
@@ -1067,6 +2697,162 @@ type ContractBase = Omit<
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'Niveau';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
+            readonly Lektion: {
+              columns: {
+                readonly abgeschlossenAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly anwesenheitErinnertAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly dauerMinuten: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly fixiertAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly kursId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly lehrpersonId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly notiz: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly quelle: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/text@1', 'GENERIERT'>;
+                  };
+                  readonly many: false;
+                };
+                readonly raumId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly startAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly status: {
+                  readonly dataType: 'pg/enum';
+                  readonly codecId: 'pg/enum@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/enum@1', 'PROVISORISCH'>;
+                  };
+                  readonly typeParams: { readonly typeName: 'LektionStatus' };
+                  readonly many: false;
+                };
+                readonly updatedAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'Lektion_kursId_startAt_idx';
+                  readonly columns: readonly ['kursId', 'startAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'Lektion_startAt_idx';
+                  readonly columns: readonly ['startAt'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Lektion';
+                    readonly columns: readonly ['kursId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Kurs';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Lektion';
+                    readonly columns: readonly ['lehrpersonId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Person';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Lektion';
+                    readonly columns: readonly ['raumId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Raum';
                     readonly columns: readonly ['id'];
                   };
                 },
@@ -1191,6 +2977,79 @@ type ContractBase = Omit<
                 },
               ];
               foreignKeys: readonly [];
+            };
+            readonly Mahnung: {
+              columns: {
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly email: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly fehler: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly rechnungId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly stufe: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly versendetAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'Mahnung_rechnungId_idx';
+                  readonly columns: readonly ['rechnungId'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Mahnung';
+                    readonly columns: readonly ['rechnungId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Rechnung';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
             };
             readonly Niveau: {
               columns: {
@@ -1835,6 +3694,337 @@ type ContractBase = Omit<
                 },
               ];
             };
+            readonly Rechnung: {
+              columns: {
+                readonly anmeldungId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly betragChf: {
+                  readonly dataType: 'pg/numeric';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 10; readonly scale: 2 };
+                  readonly many: false;
+                };
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly empfaengerEmail: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly empfaengerLand: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/text@1', 'CH'>;
+                  };
+                  readonly many: false;
+                };
+                readonly empfaengerName: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly empfaengerOrt: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly empfaengerPlz: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly empfaengerStrasse: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly faelligAm: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly kostentraegerId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly letzteMahnAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly mahnStufe: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/int4@1', 0>;
+                  };
+                  readonly many: false;
+                };
+                readonly mwstSatzProzent: {
+                  readonly dataType: 'pg/numeric';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly precision: 5; readonly scale: 2 };
+                  readonly many: false;
+                };
+                readonly notiz: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly nummer: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly personId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly rechnungsdatum: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly referenzNr: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly status: {
+                  readonly dataType: 'pg/enum';
+                  readonly codecId: 'pg/enum@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/enum@1', 'ENTWURF'>;
+                  };
+                  readonly typeParams: { readonly typeName: 'RechnungStatus' };
+                  readonly many: false;
+                };
+                readonly storniertAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly storniertGrund: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly totalChf: {
+                  readonly dataType: 'pg/numeric';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 10; readonly scale: 2 };
+                  readonly many: false;
+                };
+                readonly updatedAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly versendetAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'Rechnung_kostentraegerId_idx';
+                  readonly columns: readonly ['kostentraegerId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'Rechnung_nummer_key';
+                  readonly columns: readonly ['nummer'];
+                  readonly unique: true;
+                },
+                {
+                  readonly name: 'Rechnung_personId_idx';
+                  readonly columns: readonly ['personId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'Rechnung_referenzNr_key';
+                  readonly columns: readonly ['referenzNr'];
+                  readonly unique: true;
+                },
+                {
+                  readonly name: 'Rechnung_status_faelligAm_idx';
+                  readonly columns: readonly ['status', 'faelligAm'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Rechnung';
+                    readonly columns: readonly ['personId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Person';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Rechnung';
+                    readonly columns: readonly ['kostentraegerId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Kostentraeger';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Rechnung';
+                    readonly columns: readonly ['anmeldungId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Anmeldung';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
+            readonly RechnungsPosition: {
+              columns: {
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly einzelpreisChf: {
+                  readonly dataType: 'pg/numeric';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 10; readonly scale: 2 };
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly menge: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/int4@1', 1>;
+                  };
+                  readonly many: false;
+                };
+                readonly rechnungId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly reihenfolge: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/int4@1', 0>;
+                  };
+                  readonly many: false;
+                };
+                readonly text: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'RechnungsPosition_rechnungId_idx';
+                  readonly columns: readonly ['rechnungId'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'RechnungsPosition';
+                    readonly columns: readonly ['rechnungId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Rechnung';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
             readonly Session: {
               columns: {
                 readonly createdAt: {
@@ -2310,23 +4500,177 @@ type ContractBase = Omit<
                 },
               ];
             };
+            readonly Zahlung: {
+              columns: {
+                readonly actorName: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly actorUserId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly bemerkung: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly betragChf: {
+                  readonly dataType: 'pg/numeric';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 10; readonly scale: 2 };
+                  readonly many: false;
+                };
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly datum: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly rechnungId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'Zahlung_rechnungId_idx';
+                  readonly columns: readonly ['rechnungId'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Zahlung';
+                    readonly columns: readonly ['rechnungId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Rechnung';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Zahlung';
+                    readonly columns: readonly ['actorUserId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'User';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
           };
           readonly valueSet: {
+            readonly AnmeldungStatus: {
+              readonly kind: 'valueSet';
+              readonly values: readonly ['PROBE', 'AKTIV', 'BEENDET'];
+            };
             readonly Anrede: {
               readonly kind: 'valueSet';
               readonly values: readonly ['HERR', 'FRAU', 'DIVERS'];
+            };
+            readonly AnwesenheitStatus: {
+              readonly kind: 'valueSet';
+              readonly values: readonly [
+                'ANWESEND',
+                'ABWESEND_ENTSCHULDIGT',
+                'ABWESEND_UNENTSCHULDIGT',
+              ];
             };
             readonly AuthEventKind: {
               readonly kind: 'valueSet';
               readonly values: readonly ['LOGIN', 'PASSWORD_RESET'];
             };
+            readonly BillingTyp: {
+              readonly kind: 'valueSet';
+              readonly values: readonly ['PRIVAT', 'FIRMA', 'OEFFENTLICHE_EINRICHTUNG'];
+            };
+            readonly BueroAbweichungArt: {
+              readonly kind: 'valueSet';
+              readonly values: readonly ['ARBEITSZEIT', 'FREI'];
+            };
+            readonly BueroAbwesenheitArt: {
+              readonly kind: 'valueSet';
+              readonly values: readonly ['URLAUB', 'KRANKHEIT', 'SONSTIGE'];
+            };
+            readonly JournalArt: {
+              readonly kind: 'valueSet';
+              readonly values: readonly [
+                'AUFLADUNG',
+                'VERBRAUCH',
+                'FEHLZEIT_UNENTSCHULDIGT',
+                'FEHLZEIT_ENTSCHULDIGT',
+                'KORREKTUR',
+              ];
+            };
             readonly KostentraegerArt: {
               readonly kind: 'valueSet';
               readonly values: readonly ['FIRMA', 'OEFFENTLICHE_EINRICHTUNG'];
             };
+            readonly KursStatus: {
+              readonly kind: 'valueSet';
+              readonly values: readonly [
+                'GEPLANT',
+                'AKTIV',
+                'PAUSIERT',
+                'ABGESCHLOSSEN',
+                'ABGESAGT',
+              ];
+            };
+            readonly LektionStatus: {
+              readonly kind: 'valueSet';
+              readonly values: readonly ['PROVISORISCH', 'FIXIERT', 'ABGESAGT', 'DURCHGEFUEHRT'];
+            };
+            readonly PaketEntscheid: {
+              readonly kind: 'valueSet';
+              readonly values: readonly ['OFFEN', 'VERLAENGERT', 'BEENDET'];
+            };
             readonly PersonStatus: {
               readonly kind: 'valueSet';
               readonly values: readonly ['INTERESSENT', 'AKTIV', 'INAKTIV'];
+            };
+            readonly RechnungStatus: {
+              readonly kind: 'valueSet';
+              readonly values: readonly [
+                'ENTWURF',
+                'VERSENDET',
+                'TEILBEZAHLT',
+                'BEZAHLT',
+                'STORNIERT',
+              ];
             };
             readonly Role: {
               readonly kind: 'valueSet';
@@ -2343,17 +4687,52 @@ type ContractBase = Omit<
   readonly target: 'postgres';
   readonly targetFamily: 'sql';
   readonly roots: {
+    readonly Anmeldung: { readonly namespace: 'public' & NamespaceId; readonly model: 'Anmeldung' };
+    readonly Anwesenheit: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'Anwesenheit';
+    };
     readonly AuditLog: { readonly namespace: 'public' & NamespaceId; readonly model: 'AuditLog' };
+    readonly BueroAbweichung: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'BueroAbweichung';
+    };
+    readonly BueroAbwesenheit: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'BueroAbwesenheit';
+    };
+    readonly BueroDienst: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'BueroDienst';
+    };
+    readonly BueroUrlaubskontingent: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'BueroUrlaubskontingent';
+    };
     readonly Etage: { readonly namespace: 'public' & NamespaceId; readonly model: 'Etage' };
+    readonly GuthabenJournal: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'GuthabenJournal';
+    };
     readonly Kostentraeger: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'Kostentraeger';
+    };
+    readonly Kurs: { readonly namespace: 'public' & NamespaceId; readonly model: 'Kurs' };
+    readonly KursNiveauVerlauf: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'KursNiveauVerlauf';
+    };
+    readonly KursUnterbrechung: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'KursUnterbrechung';
     };
     readonly Kursart: { readonly namespace: 'public' & NamespaceId; readonly model: 'Kursart' };
     readonly Lehrqualifikation: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'Lehrqualifikation';
     };
+    readonly Lektion: { readonly namespace: 'public' & NamespaceId; readonly model: 'Lektion' };
     readonly Lektionsdauer: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'Lektionsdauer';
@@ -2362,6 +4741,7 @@ type ContractBase = Omit<
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'LoginAttempt';
     };
+    readonly Mahnung: { readonly namespace: 'public' & NamespaceId; readonly model: 'Mahnung' };
     readonly Niveau: { readonly namespace: 'public' & NamespaceId; readonly model: 'Niveau' };
     readonly PasswordResetToken: {
       readonly namespace: 'public' & NamespaceId;
@@ -2378,6 +4758,11 @@ type ContractBase = Omit<
     };
     readonly Preis: { readonly namespace: 'public' & NamespaceId; readonly model: 'Preis' };
     readonly Raum: { readonly namespace: 'public' & NamespaceId; readonly model: 'Raum' };
+    readonly Rechnung: { readonly namespace: 'public' & NamespaceId; readonly model: 'Rechnung' };
+    readonly RechnungsPosition: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'RechnungsPosition';
+    };
     readonly Session: { readonly namespace: 'public' & NamespaceId; readonly model: 'Session' };
     readonly Sprache: { readonly namespace: 'public' & NamespaceId; readonly model: 'Sprache' };
     readonly Standort: { readonly namespace: 'public' & NamespaceId; readonly model: 'Standort' };
@@ -2390,11 +4775,357 @@ type ContractBase = Omit<
       readonly model: 'Tarifstufe';
     };
     readonly User: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
+    readonly Zahlung: { readonly namespace: 'public' & NamespaceId; readonly model: 'Zahlung' };
   };
   readonly domain: {
     readonly namespaces: {
       readonly public: {
         readonly models: {
+          readonly Anmeldung: {
+            readonly fields: {
+              readonly billingTyp: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/enum@1';
+                  readonly typeParams: { readonly typeName: 'BillingTyp' };
+                };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly kostentraegerId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly kursId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly notizen: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly paketEndeGemeldetAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly paketEntscheid: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/enum@1';
+                  readonly typeParams: { readonly typeName: 'PaketEntscheid' };
+                };
+              };
+              readonly paketGroesse: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly paketGroesseUebersteuert: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly paketStartAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly personId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly preisAbweichungGrund: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly preisChf: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly typeParams: { readonly precision: 8; readonly scale: 2 };
+                };
+              };
+              readonly preisUebersteuert: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly rechnungsempfaengerId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly status: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/enum@1';
+                  readonly typeParams: { readonly typeName: 'AnmeldungStatus' };
+                };
+              };
+              readonly tarifUebersteuert: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly tarifstufeId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+            };
+            readonly relations: {
+              readonly anwesenheiten: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Anwesenheit';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['anmeldungId'];
+                };
+              };
+              readonly journal: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'GuthabenJournal';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['anmeldungId'];
+                };
+              };
+              readonly kostentraeger: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Kostentraeger';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['kostentraegerId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly kurs: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Kurs' };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['kursId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly person: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Person';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['personId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly rechnungen: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Rechnung';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['anmeldungId'];
+                };
+              };
+              readonly rechnungsempfaenger: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Person';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['rechnungsempfaengerId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly tarifstufe: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Tarifstufe';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['tarifstufeId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'Anmeldung';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly billingTyp: { readonly column: 'billingTyp' };
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly id: { readonly column: 'id' };
+                readonly kostentraegerId: { readonly column: 'kostentraegerId' };
+                readonly kursId: { readonly column: 'kursId' };
+                readonly notizen: { readonly column: 'notizen' };
+                readonly paketEndeGemeldetAt: { readonly column: 'paketEndeGemeldetAt' };
+                readonly paketEntscheid: { readonly column: 'paketEntscheid' };
+                readonly paketGroesse: { readonly column: 'paketGroesse' };
+                readonly paketGroesseUebersteuert: { readonly column: 'paketGroesseUebersteuert' };
+                readonly paketStartAt: { readonly column: 'paketStartAt' };
+                readonly personId: { readonly column: 'personId' };
+                readonly preisAbweichungGrund: { readonly column: 'preisAbweichungGrund' };
+                readonly preisChf: { readonly column: 'preisChf' };
+                readonly preisUebersteuert: { readonly column: 'preisUebersteuert' };
+                readonly rechnungsempfaengerId: { readonly column: 'rechnungsempfaengerId' };
+                readonly status: { readonly column: 'status' };
+                readonly tarifUebersteuert: { readonly column: 'tarifUebersteuert' };
+                readonly tarifstufeId: { readonly column: 'tarifstufeId' };
+                readonly updatedAt: { readonly column: 'updatedAt' };
+              };
+            };
+          };
+          readonly Anwesenheit: {
+            readonly fields: {
+              readonly anmeldungId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly bemerkung: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly erfasstAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly erfasstVonName: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly korrigiertAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly lektionId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly status: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/enum@1';
+                  readonly typeParams: { readonly typeName: 'AnwesenheitStatus' };
+                };
+              };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly vonLehrperson: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+            };
+            readonly relations: {
+              readonly anmeldung: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Anmeldung';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['anmeldungId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly lektion: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Lektion';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['lektionId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'Anwesenheit';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly anmeldungId: { readonly column: 'anmeldungId' };
+                readonly bemerkung: { readonly column: 'bemerkung' };
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly erfasstAt: { readonly column: 'erfasstAt' };
+                readonly erfasstVonName: { readonly column: 'erfasstVonName' };
+                readonly id: { readonly column: 'id' };
+                readonly korrigiertAt: { readonly column: 'korrigiertAt' };
+                readonly lektionId: { readonly column: 'lektionId' };
+                readonly status: { readonly column: 'status' };
+                readonly updatedAt: { readonly column: 'updatedAt' };
+                readonly vonLehrperson: { readonly column: 'vonLehrperson' };
+              };
+            };
+          };
           readonly AuditLog: {
             readonly fields: {
               readonly action: {
@@ -2475,6 +5206,291 @@ type ContractBase = Omit<
               };
             };
           };
+          readonly BueroAbweichung: {
+            readonly fields: {
+              readonly art: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/enum@1';
+                  readonly typeParams: { readonly typeName: 'BueroAbweichungArt' };
+                };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly datum: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly endZeit: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly notiz: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly personId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly startZeit: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+            };
+            readonly relations: {
+              readonly person: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Person';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['personId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'BueroAbweichung';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly art: { readonly column: 'art' };
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly datum: { readonly column: 'datum' };
+                readonly endZeit: { readonly column: 'endZeit' };
+                readonly id: { readonly column: 'id' };
+                readonly notiz: { readonly column: 'notiz' };
+                readonly personId: { readonly column: 'personId' };
+                readonly startZeit: { readonly column: 'startZeit' };
+                readonly updatedAt: { readonly column: 'updatedAt' };
+              };
+            };
+          };
+          readonly BueroAbwesenheit: {
+            readonly fields: {
+              readonly art: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/enum@1';
+                  readonly typeParams: { readonly typeName: 'BueroAbwesenheitArt' };
+                };
+              };
+              readonly bemerkung: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly bis: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly personId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly von: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+            };
+            readonly relations: {
+              readonly person: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Person';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['personId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'BueroAbwesenheit';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly art: { readonly column: 'art' };
+                readonly bemerkung: { readonly column: 'bemerkung' };
+                readonly bis: { readonly column: 'bis' };
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly id: { readonly column: 'id' };
+                readonly personId: { readonly column: 'personId' };
+                readonly updatedAt: { readonly column: 'updatedAt' };
+                readonly von: { readonly column: 'von' };
+              };
+            };
+          };
+          readonly BueroDienst: {
+            readonly fields: {
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly endZeit: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly notiz: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly personId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly startZeit: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly wochentag: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+            };
+            readonly relations: {
+              readonly person: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Person';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['personId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'BueroDienst';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly endZeit: { readonly column: 'endZeit' };
+                readonly id: { readonly column: 'id' };
+                readonly notiz: { readonly column: 'notiz' };
+                readonly personId: { readonly column: 'personId' };
+                readonly startZeit: { readonly column: 'startZeit' };
+                readonly updatedAt: { readonly column: 'updatedAt' };
+                readonly wochentag: { readonly column: 'wochentag' };
+              };
+            };
+          };
+          readonly BueroUrlaubskontingent: {
+            readonly fields: {
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly jahr: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly personId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly tage: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+            };
+            readonly relations: {
+              readonly person: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Person';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['personId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'BueroUrlaubskontingent';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly id: { readonly column: 'id' };
+                readonly jahr: { readonly column: 'jahr' };
+                readonly personId: { readonly column: 'personId' };
+                readonly tage: { readonly column: 'tage' };
+              };
+            };
+          };
           readonly Etage: {
             readonly fields: {
               readonly createdAt: {
@@ -2545,6 +5561,113 @@ type ContractBase = Omit<
               };
             };
           };
+          readonly GuthabenJournal: {
+            readonly fields: {
+              readonly actorName: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly actorUserId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly anmeldungId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly art: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/enum@1';
+                  readonly typeParams: { readonly typeName: 'JournalArt' };
+                };
+              };
+              readonly bemerkung: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly datum: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly delta: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly lektionId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+            };
+            readonly relations: {
+              readonly actorUser: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['actorUserId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly anmeldung: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Anmeldung';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['anmeldungId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly lektion: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Lektion';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['lektionId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'GuthabenJournal';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly actorName: { readonly column: 'actorName' };
+                readonly actorUserId: { readonly column: 'actorUserId' };
+                readonly anmeldungId: { readonly column: 'anmeldungId' };
+                readonly art: { readonly column: 'art' };
+                readonly bemerkung: { readonly column: 'bemerkung' };
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly datum: { readonly column: 'datum' };
+                readonly delta: { readonly column: 'delta' };
+                readonly id: { readonly column: 'id' };
+                readonly lektionId: { readonly column: 'lektionId' };
+              };
+            };
+          };
           readonly Kostentraeger: {
             readonly fields: {
               readonly active: {
@@ -2608,7 +5731,38 @@ type ContractBase = Omit<
                 };
               };
             };
-            readonly relations: Record<string, never>;
+            readonly relations: {
+              readonly anmeldungen: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Anmeldung';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['kostentraegerId'];
+                };
+              };
+              readonly kurse: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Kurs' };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['kostentraegerId'];
+                };
+              };
+              readonly rechnungen: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Rechnung';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['kostentraegerId'];
+                };
+              };
+            };
             readonly storage: {
               readonly table: 'Kostentraeger';
               readonly namespaceId: 'public';
@@ -2624,6 +5778,233 @@ type ContractBase = Omit<
                 readonly plz: { readonly column: 'plz' };
                 readonly strasse: { readonly column: 'strasse' };
                 readonly updatedAt: { readonly column: 'updatedAt' };
+              };
+            };
+          };
+          readonly Kurs: {
+            readonly fields: {
+              readonly code: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly dauerMinuten: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly extern: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly externOrt: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly kostentraegerId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly kursartId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly lehrpersonId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly maxParticipants: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly niveauId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly notizen: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly spracheId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly standardRaumId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly startZeit: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly status: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/enum@1';
+                  readonly typeParams: { readonly typeName: 'KursStatus' };
+                };
+              };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly wochentag: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+            };
+            readonly relations: {
+              readonly anmeldungen: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Anmeldung';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['kursId'];
+                };
+              };
+              readonly kostentraeger: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Kostentraeger';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['kostentraegerId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly kursart: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Kursart';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['kursartId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly lehrperson: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Person';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['lehrpersonId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly lektionen: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Lektion';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['kursId'];
+                };
+              };
+              readonly niveau: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Niveau';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['niveauId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly niveauVerlauf: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'KursNiveauVerlauf';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['kursId'];
+                };
+              };
+              readonly sprache: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Sprache';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['spracheId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly standardRaum: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Raum' };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['standardRaumId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly unterbrechungen: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'KursUnterbrechung';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['kursId'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'Kurs';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly code: { readonly column: 'code' };
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly dauerMinuten: { readonly column: 'dauerMinuten' };
+                readonly extern: { readonly column: 'extern' };
+                readonly externOrt: { readonly column: 'externOrt' };
+                readonly id: { readonly column: 'id' };
+                readonly kostentraegerId: { readonly column: 'kostentraegerId' };
+                readonly kursartId: { readonly column: 'kursartId' };
+                readonly lehrpersonId: { readonly column: 'lehrpersonId' };
+                readonly maxParticipants: { readonly column: 'maxParticipants' };
+                readonly niveauId: { readonly column: 'niveauId' };
+                readonly notizen: { readonly column: 'notizen' };
+                readonly spracheId: { readonly column: 'spracheId' };
+                readonly standardRaumId: { readonly column: 'standardRaumId' };
+                readonly startZeit: { readonly column: 'startZeit' };
+                readonly status: { readonly column: 'status' };
+                readonly updatedAt: { readonly column: 'updatedAt' };
+                readonly wochentag: { readonly column: 'wochentag' };
               };
             };
           };
@@ -2679,6 +6060,14 @@ type ContractBase = Omit<
               };
             };
             readonly relations: {
+              readonly kurse: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Kurs' };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['kursartId'];
+                };
+              };
               readonly preise: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -2704,6 +6093,154 @@ type ContractBase = Omit<
                 readonly requiresRoom: { readonly column: 'requiresRoom' };
                 readonly sortOrder: { readonly column: 'sortOrder' };
                 readonly updatedAt: { readonly column: 'updatedAt' };
+              };
+            };
+          };
+          readonly KursNiveauVerlauf: {
+            readonly fields: {
+              readonly bis: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly gemeldetVonLehrperson: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly kursId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly niveauId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly von: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+            };
+            readonly relations: {
+              readonly kurs: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Kurs' };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['kursId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly niveau: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Niveau';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['niveauId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'KursNiveauVerlauf';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly bis: { readonly column: 'bis' };
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly gemeldetVonLehrperson: { readonly column: 'gemeldetVonLehrperson' };
+                readonly id: { readonly column: 'id' };
+                readonly kursId: { readonly column: 'kursId' };
+                readonly niveauId: { readonly column: 'niveauId' };
+                readonly von: { readonly column: 'von' };
+              };
+            };
+          };
+          readonly KursUnterbrechung: {
+            readonly fields: {
+              readonly bis: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly gemeldetVonLehrperson: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly grund: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly kursId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly von: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+            };
+            readonly relations: {
+              readonly kurs: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Kurs' };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['kursId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'KursUnterbrechung';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly bis: { readonly column: 'bis' };
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly gemeldetVonLehrperson: { readonly column: 'gemeldetVonLehrperson' };
+                readonly grund: { readonly column: 'grund' };
+                readonly id: { readonly column: 'id' };
+                readonly kursId: { readonly column: 'kursId' };
+                readonly von: { readonly column: 'von' };
               };
             };
           };
@@ -2772,6 +6309,168 @@ type ContractBase = Omit<
                 readonly niveauId: { readonly column: 'niveauId' };
                 readonly personId: { readonly column: 'personId' };
                 readonly spracheId: { readonly column: 'spracheId' };
+              };
+            };
+          };
+          readonly Lektion: {
+            readonly fields: {
+              readonly abgeschlossenAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly anwesenheitErinnertAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly dauerMinuten: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly fixiertAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly kursId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly lehrpersonId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly notiz: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly quelle: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly raumId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly startAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly status: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/enum@1';
+                  readonly typeParams: { readonly typeName: 'LektionStatus' };
+                };
+              };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+            };
+            readonly relations: {
+              readonly anwesenheiten: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Anwesenheit';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['lektionId'];
+                };
+              };
+              readonly journal: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'GuthabenJournal';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['lektionId'];
+                };
+              };
+              readonly kurs: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Kurs' };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['kursId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly lehrperson: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Person';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['lehrpersonId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly raum: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Raum' };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['raumId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'Lektion';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly abgeschlossenAt: { readonly column: 'abgeschlossenAt' };
+                readonly anwesenheitErinnertAt: { readonly column: 'anwesenheitErinnertAt' };
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly dauerMinuten: { readonly column: 'dauerMinuten' };
+                readonly fixiertAt: { readonly column: 'fixiertAt' };
+                readonly id: { readonly column: 'id' };
+                readonly kursId: { readonly column: 'kursId' };
+                readonly lehrpersonId: { readonly column: 'lehrpersonId' };
+                readonly notiz: { readonly column: 'notiz' };
+                readonly quelle: { readonly column: 'quelle' };
+                readonly raumId: { readonly column: 'raumId' };
+                readonly startAt: { readonly column: 'startAt' };
+                readonly status: { readonly column: 'status' };
+                readonly updatedAt: { readonly column: 'updatedAt' };
               };
             };
           };
@@ -2889,6 +6588,73 @@ type ContractBase = Omit<
               };
             };
           };
+          readonly Mahnung: {
+            readonly fields: {
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly email: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly fehler: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly rechnungId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly stufe: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly versendetAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+            };
+            readonly relations: {
+              readonly rechnung: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Rechnung';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['rechnungId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'Mahnung';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly email: { readonly column: 'email' };
+                readonly fehler: { readonly column: 'fehler' };
+                readonly id: { readonly column: 'id' };
+                readonly rechnungId: { readonly column: 'rechnungId' };
+                readonly stufe: { readonly column: 'stufe' };
+                readonly versendetAt: { readonly column: 'versendetAt' };
+              };
+            };
+          };
           readonly Niveau: {
             readonly fields: {
               readonly active: {
@@ -2937,10 +6703,29 @@ type ContractBase = Omit<
               };
             };
             readonly relations: {
+              readonly kurse: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Kurs' };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['niveauId'];
+                };
+              };
               readonly qualifikationen: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
                   readonly model: 'Lehrqualifikation';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['niveauId'];
+                };
+              };
+              readonly verlauf: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'KursNiveauVerlauf';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {
@@ -3135,6 +6920,72 @@ type ContractBase = Omit<
               };
             };
             readonly relations: {
+              readonly anmeldungen: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Anmeldung';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['personId'];
+                };
+              };
+              readonly anmeldungenAlsRechnungsempfaenger: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Anmeldung';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['rechnungsempfaengerId'];
+                };
+              };
+              readonly bueroAbweichungen: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'BueroAbweichung';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['personId'];
+                };
+              };
+              readonly bueroAbwesenheiten: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'BueroAbwesenheit';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['personId'];
+                };
+              };
+              readonly bueroDienste: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'BueroDienst';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['personId'];
+                };
+              };
+              readonly bueroUrlaubskontingente: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'BueroUrlaubskontingent';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['personId'];
+                };
+              };
               readonly elternLinks: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -3157,6 +7008,25 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['berechtigterId'];
                 };
               };
+              readonly kurseAlsLehrperson: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Kurs' };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['lehrpersonId'];
+                };
+              };
+              readonly lektionenAlsLehrperson: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Lektion';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['lehrpersonId'];
+                };
+              };
               readonly notizen: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -3172,6 +7042,17 @@ type ContractBase = Omit<
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
                   readonly model: 'Lehrqualifikation';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['personId'];
+                };
+              };
+              readonly rechnungen: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Rechnung';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {
@@ -3482,6 +7363,25 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['id'];
                 };
               };
+              readonly kurseAlsStandard: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Kurs' };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['standardRaumId'];
+                };
+              };
+              readonly lektionen: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Lektion';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['raumId'];
+                };
+              };
             };
             readonly storage: {
               readonly table: 'Raum';
@@ -3495,6 +7395,328 @@ type ContractBase = Omit<
                 readonly name: { readonly column: 'name' };
                 readonly seats: { readonly column: 'seats' };
                 readonly updatedAt: { readonly column: 'updatedAt' };
+              };
+            };
+          };
+          readonly Rechnung: {
+            readonly fields: {
+              readonly anmeldungId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly betragChf: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly typeParams: { readonly precision: 10; readonly scale: 2 };
+                };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly empfaengerEmail: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly empfaengerLand: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly empfaengerName: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly empfaengerOrt: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly empfaengerPlz: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly empfaengerStrasse: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly faelligAm: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly kostentraegerId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly letzteMahnAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly mahnStufe: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly mwstSatzProzent: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly typeParams: { readonly precision: 5; readonly scale: 2 };
+                };
+              };
+              readonly notiz: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly nummer: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly personId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly rechnungsdatum: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly referenzNr: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly status: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/enum@1';
+                  readonly typeParams: { readonly typeName: 'RechnungStatus' };
+                };
+              };
+              readonly storniertAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly storniertGrund: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly totalChf: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly typeParams: { readonly precision: 10; readonly scale: 2 };
+                };
+              };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly versendetAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+            };
+            readonly relations: {
+              readonly anmeldung: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Anmeldung';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['anmeldungId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly kostentraeger: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Kostentraeger';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['kostentraegerId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly mahnungen: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Mahnung';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['rechnungId'];
+                };
+              };
+              readonly person: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Person';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['personId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly positionen: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'RechnungsPosition';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['rechnungId'];
+                };
+              };
+              readonly zahlungen: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Zahlung';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['rechnungId'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'Rechnung';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly anmeldungId: { readonly column: 'anmeldungId' };
+                readonly betragChf: { readonly column: 'betragChf' };
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly empfaengerEmail: { readonly column: 'empfaengerEmail' };
+                readonly empfaengerLand: { readonly column: 'empfaengerLand' };
+                readonly empfaengerName: { readonly column: 'empfaengerName' };
+                readonly empfaengerOrt: { readonly column: 'empfaengerOrt' };
+                readonly empfaengerPlz: { readonly column: 'empfaengerPlz' };
+                readonly empfaengerStrasse: { readonly column: 'empfaengerStrasse' };
+                readonly faelligAm: { readonly column: 'faelligAm' };
+                readonly id: { readonly column: 'id' };
+                readonly kostentraegerId: { readonly column: 'kostentraegerId' };
+                readonly letzteMahnAt: { readonly column: 'letzteMahnAt' };
+                readonly mahnStufe: { readonly column: 'mahnStufe' };
+                readonly mwstSatzProzent: { readonly column: 'mwstSatzProzent' };
+                readonly notiz: { readonly column: 'notiz' };
+                readonly nummer: { readonly column: 'nummer' };
+                readonly personId: { readonly column: 'personId' };
+                readonly rechnungsdatum: { readonly column: 'rechnungsdatum' };
+                readonly referenzNr: { readonly column: 'referenzNr' };
+                readonly status: { readonly column: 'status' };
+                readonly storniertAt: { readonly column: 'storniertAt' };
+                readonly storniertGrund: { readonly column: 'storniertGrund' };
+                readonly totalChf: { readonly column: 'totalChf' };
+                readonly updatedAt: { readonly column: 'updatedAt' };
+                readonly versendetAt: { readonly column: 'versendetAt' };
+              };
+            };
+          };
+          readonly RechnungsPosition: {
+            readonly fields: {
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly einzelpreisChf: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly typeParams: { readonly precision: 10; readonly scale: 2 };
+                };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly menge: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly rechnungId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly reihenfolge: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly text: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+            };
+            readonly relations: {
+              readonly rechnung: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Rechnung';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['rechnungId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'RechnungsPosition';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly einzelpreisChf: { readonly column: 'einzelpreisChf' };
+                readonly id: { readonly column: 'id' };
+                readonly menge: { readonly column: 'menge' };
+                readonly rechnungId: { readonly column: 'rechnungId' };
+                readonly reihenfolge: { readonly column: 'reihenfolge' };
+                readonly text: { readonly column: 'text' };
               };
             };
           };
@@ -3615,6 +7837,14 @@ type ContractBase = Omit<
               };
             };
             readonly relations: {
+              readonly kurse: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Kurs' };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['spracheId'];
+                };
+              };
               readonly qualifikationen: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -3807,6 +8037,17 @@ type ContractBase = Omit<
               };
             };
             readonly relations: {
+              readonly anmeldungen: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Anmeldung';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['tarifstufeId'];
+                };
+              };
               readonly preise: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -3916,6 +8157,17 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['actorUserId'];
                 };
               };
+              readonly guthabenJournale: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'GuthabenJournal';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['actorUserId'];
+                };
+              };
               readonly passwordResetTokens: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -3961,6 +8213,17 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['userId'];
                 };
               };
+              readonly zahlungenAlsErfasser: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Zahlung';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['actorUserId'];
+                };
+              };
             };
             readonly storage: {
               readonly table: 'User';
@@ -3978,6 +8241,91 @@ type ContractBase = Omit<
                 readonly personId: { readonly column: 'personId' };
                 readonly roles: { readonly column: 'roles' };
                 readonly updatedAt: { readonly column: 'updatedAt' };
+              };
+            };
+          };
+          readonly Zahlung: {
+            readonly fields: {
+              readonly actorName: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly actorUserId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly bemerkung: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly betragChf: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly typeParams: { readonly precision: 10; readonly scale: 2 };
+                };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly datum: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly rechnungId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+            };
+            readonly relations: {
+              readonly actorUser: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['actorUserId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly rechnung: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Rechnung';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['rechnungId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'Zahlung';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly actorName: { readonly column: 'actorName' };
+                readonly actorUserId: { readonly column: 'actorUserId' };
+                readonly bemerkung: { readonly column: 'bemerkung' };
+                readonly betragChf: { readonly column: 'betragChf' };
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly datum: { readonly column: 'datum' };
+                readonly id: { readonly column: 'id' };
+                readonly rechnungId: { readonly column: 'rechnungId' };
               };
             };
           };
@@ -4020,6 +8368,40 @@ type ContractBase = Omit<
         {
           readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
           readonly ref: {
+            readonly entry: 'Anmeldung';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly onUpdate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'Anmeldung';
+            readonly field: 'updatedAt';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'Anwesenheit';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly onUpdate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'Anwesenheit';
+            readonly field: 'updatedAt';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
+          readonly ref: {
             readonly entry: 'AuditLog';
             readonly field: 'id';
             readonly namespace: 'public';
@@ -4028,6 +8410,65 @@ type ContractBase = Omit<
         {
           readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
           readonly ref: {
+            readonly entry: 'BueroAbweichung';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly onUpdate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'BueroAbweichung';
+            readonly field: 'updatedAt';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'BueroAbwesenheit';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly onUpdate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'BueroAbwesenheit';
+            readonly field: 'updatedAt';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'BueroDienst';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly onUpdate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'BueroDienst';
+            readonly field: 'updatedAt';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'BueroUrlaubskontingent';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
+          readonly ref: {
             readonly entry: 'Etage';
             readonly field: 'id';
             readonly namespace: 'public';
@@ -4045,6 +8486,14 @@ type ContractBase = Omit<
         {
           readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
           readonly ref: {
+            readonly entry: 'GuthabenJournal';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
+          readonly ref: {
             readonly entry: 'Kostentraeger';
             readonly field: 'id';
             readonly namespace: 'public';
@@ -4056,6 +8505,39 @@ type ContractBase = Omit<
           readonly ref: {
             readonly entry: 'Kostentraeger';
             readonly field: 'updatedAt';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'Kurs';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly onUpdate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'Kurs';
+            readonly field: 'updatedAt';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'KursNiveauVerlauf';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'KursUnterbrechung';
+            readonly field: 'id';
             readonly namespace: 'public';
           };
         },
@@ -4087,6 +8569,23 @@ type ContractBase = Omit<
         {
           readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
           readonly ref: {
+            readonly entry: 'Lektion';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly onUpdate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'Lektion';
+            readonly field: 'updatedAt';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
+          readonly ref: {
             readonly entry: 'Lektionsdauer';
             readonly field: 'id';
             readonly namespace: 'public';
@@ -4105,6 +8604,14 @@ type ContractBase = Omit<
           readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
           readonly ref: {
             readonly entry: 'LoginAttempt';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'Mahnung';
             readonly field: 'id';
             readonly namespace: 'public';
           };
@@ -4195,6 +8702,31 @@ type ContractBase = Omit<
         {
           readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
           readonly ref: {
+            readonly entry: 'Rechnung';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly onUpdate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'Rechnung';
+            readonly field: 'updatedAt';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'RechnungsPosition';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
+          readonly ref: {
             readonly entry: 'Session';
             readonly field: 'id';
             readonly namespace: 'public';
@@ -4274,6 +8806,14 @@ type ContractBase = Omit<
           readonly ref: {
             readonly entry: 'User';
             readonly field: 'updatedAt';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'Zahlung';
+            readonly field: 'id';
             readonly namespace: 'public';
           };
         },

@@ -1,10 +1,20 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import type { Role } from "@/lib/db";
-import { db, fromDbTime } from "@/lib/db";
+import { db, fromDbTime, toDbTime, type Role } from "@/lib/db";
 import { requireStaff } from "@/lib/auth/session";
-import { canViewAuditLog, canViewPersonen, canViewUsers, hasRole } from "@/lib/auth/permissions";
+import {
+  canManageBueroplan,
+  canViewAuditLog,
+  canViewAnmeldungen,
+  canViewKurse,
+  canViewPersonen,
+  canViewPlaner,
+  canViewUsers,
+  hasRole,
+} from "@/lib/auth/permissions";
+import { zonedTimeToUtc, addDays, dateKeyOf, heuteDateKey, formatDatumKurz, timeFromMinutes, utcToZoned, weekdayOfDateKey } from "@/lib/zeit";
+import { istUeberfaellig, type RechnungStatus } from "@/lib/rechnungen/logik";
 import { RoleBadge } from "@/components/RoleBadge";
 
 export const metadata: Metadata = {
@@ -23,7 +33,7 @@ export default function DashboardPage() {
 async function DashboardContent() {
   const { user } = await requireStaff();
   const roles = user.roles as Role[];
-  const [userCount, personCount, recentLogins] = await Promise.all([
+  const [userCount, personCount, recentLogins, kursCount, anmeldungAktivCount, lektionenHeute, rechnungsZaehler] = await Promise.all([
     canViewUsers(roles)
       ? db.orm.public.User.aggregate((a) => ({ n: a.count() })).then((r) => r.n)
       : Promise.resolve(null),
@@ -37,7 +47,39 @@ async function DashboardContent() {
           .limit(5)
           .all()
       : Promise.resolve(null),
+    canViewKurse(roles)
+      ? db.orm.public.Kurs.where({ status: "AKTIV" }).aggregate((a) => ({ n: a.count() })).then((r) => r.n)
+      : Promise.resolve(null),
+    canViewKurse(roles)
+      ? db.orm.public.Anmeldung.where({ status: "AKTIV" }).aggregate((a) => ({ n: a.count() })).then((r) => r.n)
+      : Promise.resolve(null),
+    canViewPlaner(roles) && weekdayOfDateKey(heuteDateKey()) !== 7
+      ? (async () => {
+          const start = zonedTimeToUtc(heuteDateKey(), "00:00");
+          const ende = zonedTimeToUtc(addDays(heuteDateKey(), 1), "00:00");
+          const rows = await db.orm.public.Lektion
+            .where((l) => l.startAt.gte(toDbTime(start)))
+            .where((l) => l.startAt.lt(toDbTime(ende)))
+            .include("kurs")
+            .all();
+          return rows.filter((l) => !l.kurs.extern && l.status !== "ABGESAGT").length;
+        })()
+      : Promise.resolve(null),
+    canViewAnmeldungen(roles)
+      ? (async () => {
+          const offen = await db.orm.public.Rechnung
+            .where((r) => r.status.in(["VERSENDET", "TEILBEZAHLT"]))
+            .all();
+          const heute = heuteDateKey();
+          const ueberfaellig = offen.filter(
+            (r) => istUeberfaellig(r.status as RechnungStatus, String(r.faelligAm).slice(0, 10), heute),
+          ).length;
+          return { offen: offen.length, ueberfaellig };
+        })()
+      : Promise.resolve(null),
   ]);
+  const offeneRechnungen = rechnungsZaehler?.offen ?? 0;
+  const ueberfaelligeRechnungen = rechnungsZaehler?.ueberfaellig ?? 0;
 
   return (
     <div className="space-y-5">
@@ -53,6 +95,52 @@ async function DashboardContent() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {canViewKurse(roles) && (
+          <div className="card p-5">
+            <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">Kurse</p>
+            <p className="mt-1 text-2xl font-semibold text-slate-900">{kursCount}</p>
+            <p className="mt-1 text-sm text-slate-600">
+              aktive fortlaufende Kurse ·{" "}
+              <Link href="/kurse" className="font-medium text-brand-700 hover:text-brand-800">
+                Kursliste
+              </Link>
+              {hasRole(roles, "ADMIN") || hasRole(roles, "BUERO") || hasRole(roles, "CHEF") ? (
+                <>
+                  {" · "}
+                  <Link href="/kurse/neu" className="font-medium text-brand-700 hover:text-brand-800">
+                    Neuer Kurs
+                  </Link>
+                </>
+              ) : null}
+            </p>
+          </div>
+        )}
+
+        {canViewKurse(roles) && (
+          <div className="card p-5">
+            <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">Anmeldungen</p>
+            <p className="mt-1 text-2xl font-semibold text-slate-900">{anmeldungAktivCount}</p>
+            <p className="mt-1 text-sm text-slate-600">
+              aktive Pakete (Guthaben-Konto) ·{" "}
+              <Link href="/anmeldungen" className="font-medium text-brand-700 hover:text-brand-800">
+                Anmeldungen
+              </Link>
+            </p>
+          </div>
+        )}
+
+        {canViewPlaner(roles) && (
+          <div className="card p-5">
+            <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">Lektionen heute</p>
+            <p className="mt-1 text-2xl font-semibold text-slate-900">{lektionenHeute}</p>
+            <p className="mt-1 text-sm text-slate-600">
+              <Link href="/planer" className="font-medium text-brand-700 hover:text-brand-800">
+                Raumplaner öffnen →
+              </Link>
+            </p>
+          </div>
+        )}
+
         {canViewPersonen(roles) && (
           <div className="card p-5">
             <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
@@ -71,6 +159,33 @@ async function DashboardContent() {
                   </Link>
                 </>
               ) : null}
+            </p>
+          </div>
+        )}
+
+        {canManageBueroplan(roles) && (
+          <div className="card p-5">
+            <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">Büroplanung</p>
+            <p className="mt-1 text-sm text-slate-600">
+              Dienst-Pensen, Abweichungen, Urlaub &amp; Krankheit der Büropersonen.
+            </p>
+            <p className="mt-2 text-sm">
+              <Link href="/bueroplan" className="font-medium text-brand-700 hover:text-brand-800">
+                Büroplan öffnen →
+              </Link>
+            </p>
+          </div>
+        )}
+
+        {canViewAnmeldungen(roles) && (
+          <div className="card p-5">
+            <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">Rechnungen</p>
+            <p className="mt-1 text-2xl font-semibold text-slate-900">{offeneRechnungen}</p>
+            <p className="mt-1 text-sm text-slate-600">
+              offen (versendet / teilbezahlt), {ueberfaelligeRechnungen} überfällig ·{" "}
+              <Link href="/rechnungen" className="font-medium text-brand-700 hover:text-brand-800">
+                Rechnungsliste
+              </Link>
             </p>
           </div>
         )}
@@ -126,12 +241,93 @@ async function DashboardContent() {
       <div className="card p-5">
         <h2 className="text-sm font-semibold text-slate-800">Nächste Ausbaustufen</h2>
         <ul className="mt-2 grid gap-1.5 text-sm text-slate-600 sm:grid-cols-2">
-          <li>Modul 4–6 — Kurse, Anmeldungen, Lektionsplaner (Kern-Domäne)</li>
-          <li>Modul 7 — Anwesenheitskontrolle</li>
-          <li>Modul 8+ — Büroplanung, Rechnungen (QR), Honorare</li>
-          <li>Modul 13+ — Aufgaben & Anfragen, KI-Generator, Website</li>
+          <li>Modul 10+ — Kursbestätigungen, Honorare, Vermietung</li>
+          <li>Modul 12+ — Vermietung, Aufgaben &amp; Anfragen, KI-Generator, Website</li>
         </ul>
       </div>
+
+      <OffeneAnwesenheiten user={user} roles={roles} />
     </div>
+  );
+}
+
+/**
+ * Offene Anwesenheiten (Modul 7): beendete, noch nicht abgeschlossene
+ * Lektionen — Büro sieht alle, Lehrpersonen ihre eigenen (Erinnerung läuft
+ * zusätzlich automatisch am nächsten Tag per E-Mail).
+ */
+async function OffeneAnwesenheiten({ user, roles }: { user: { personId: string | null }; roles: Role[] }) {
+  if (!canViewPlaner(roles)) return null;
+  const bueroSicht = canViewAnmeldungen(roles);
+  const eigenePersonId = bueroSicht ? null : (user.personId ?? "__keine__");
+
+  const untergrenze = new Date(new Date().getTime() - 30 * 24 * 60 * 60 * 1000);
+  const jetzt = new Date();
+  let query = db.orm.public.Lektion
+    .where((l) => l.status.in(["PROVISORISCH", "FIXIERT"]))
+    .where((l) => l.startAt.gte(toDbTime(untergrenze)))
+    .where((l) => l.startAt.lt(toDbTime(jetzt)))
+    .include("kurs")
+    .include("lehrperson");
+  if (eigenePersonId) query = query.where((l) => l.lehrpersonId.eq(eigenePersonId));
+  const offene = await query.orderBy((l) => l.startAt.desc()).limit(10).all();
+  if (offene.length === 0) return null;
+
+  // Erfassungsfortschritt: aktive Anmeldungen je Kurs, Anwesenheiten je Lektion.
+  const kursIds = [...new Set(offene.map((l) => l.kursId))];
+  const lektionIds = offene.map((l) => l.id);
+  const [anmeldungen, erfasst] = await Promise.all([
+    db.orm.public.Anmeldung
+      .where((a) => a.kursId.in(kursIds))
+      .where((a) => a.status.eq("AKTIV"))
+      .all(),
+    db.orm.public.Anwesenheit.where((a) => a.lektionId.in(lektionIds)).all(),
+  ]);
+  const aktivProKurs = new Map<string, number>();
+  for (const a of anmeldungen) {
+    aktivProKurs.set(a.kursId, (aktivProKurs.get(a.kursId) ?? 0) + 1);
+  }
+  const erfasstProLektion = new Map<string, number>();
+  for (const e of erfasst) {
+    erfasstProLektion.set(e.lektionId, (erfasstProLektion.get(e.lektionId) ?? 0) + 1);
+  }
+
+  return (
+    <section className="card p-5">
+      <h2 className="text-sm font-semibold text-slate-800">
+        Offene Anwesenheiten {bueroSicht ? "(alle Lehrpersonen)" : "(eigene Lektionen)"}
+      </h2>
+      <p className="mt-0.5 text-xs text-slate-500">
+        Beendete Lektionen ohne Abschluss — Lehrpersonen haben 24 h, danach korrigiert das Büro.
+        Erinnerung geht automatisch am nächsten Tag per E-Mail.
+      </p>
+      <ul className="mt-3 divide-y divide-line text-sm">
+        {offene.map((l) => {
+          const aktiv = aktivProKurs.get(l.kursId) ?? 0;
+          const erfasstCount = erfasstProLektion.get(l.id) ?? 0;
+          const local = utcToZoned(fromDbTime(l.startAt));
+          const tag = dateKeyOf(fromDbTime(l.startAt));
+          return (
+            <li key={l.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
+              <span className="min-w-0">
+                <span className="font-medium text-slate-800">{l.kurs.code}</span>
+                <span className="ml-2 text-slate-500">
+                  {formatDatumKurz(tag)} · {timeFromMinutes(local.minuteOfDay)}
+                </span>
+                {l.lehrperson && <span className="ml-2 text-slate-500">· {l.lehrperson.vorname} {l.lehrperson.nachname}</span>}
+              </span>
+              <span className="flex items-center gap-3">
+                <span className={`text-xs ${erfasstCount >= aktiv ? "text-emerald-700" : "text-amber-700"}`}>
+                  {erfasstCount}/{aktiv} erfasst
+                </span>
+                <Link href={`/planer?tag=${tag}`} className="text-xs font-medium text-brand-700 hover:text-brand-800">
+                  Im Planer erfassen →
+                </Link>
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
   );
 }

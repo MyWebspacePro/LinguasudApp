@@ -1,0 +1,968 @@
+[
+  {
+    "id": "createNativeEnumType.RechnungStatus",
+    "label": "Create enum type \"RechnungStatus\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "RechnungStatus"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"RechnungStatus\"",
+        "sql": "CREATE TYPE \"public\".\"RechnungStatus\" AS ENUM ('ENTWURF', 'VERSENDET', 'TEILBEZAHLT', 'BEZAHLT', 'STORNIERT')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.Mahnung",
+    "label": "Create table \"Mahnung\"",
+    "summary": "Creates table \"Mahnung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Mahnung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Mahnung\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Mahnung\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"Mahnung\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Mahnung\"",
+        "sql": "CREATE TABLE \"public\".\"Mahnung\" (\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"email\" text NOT NULL,\n  \"fehler\" text,\n  \"id\" text NOT NULL,\n  \"rechnungId\" text NOT NULL,\n  \"stufe\" int4 NOT NULL,\n  \"versendetAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Mahnung\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"Mahnung\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Mahnung\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.Rechnung",
+    "label": "Create table \"Rechnung\"",
+    "summary": "Creates table \"Rechnung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Rechnung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Rechnung\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Rechnung\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"Rechnung\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Rechnung\"",
+        "sql": "CREATE TABLE \"public\".\"Rechnung\" (\n  \"anmeldungId\" text,\n  \"betragChf\" numeric(10,2) NOT NULL,\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"empfaengerEmail\" text,\n  \"empfaengerLand\" text DEFAULT 'CH' NOT NULL,\n  \"empfaengerName\" text NOT NULL,\n  \"empfaengerOrt\" text NOT NULL,\n  \"empfaengerPlz\" text NOT NULL,\n  \"empfaengerStrasse\" text NOT NULL,\n  \"faelligAm\" timestamp(3) NOT NULL,\n  \"id\" text NOT NULL,\n  \"kostentraegerId\" text,\n  \"letzteMahnAt\" timestamp(3),\n  \"mahnStufe\" int4 DEFAULT 0 NOT NULL,\n  \"mwstSatzProzent\" numeric(5,2),\n  \"notiz\" text,\n  \"nummer\" text NOT NULL,\n  \"personId\" text,\n  \"rechnungsdatum\" timestamp(3) NOT NULL,\n  \"referenzNr\" text NOT NULL,\n  \"status\" \"RechnungStatus\" DEFAULT 'ENTWURF'::\"RechnungStatus\" NOT NULL,\n  \"storniertAt\" timestamp(3),\n  \"storniertGrund\" text,\n  \"totalChf\" numeric(10,2) NOT NULL,\n  \"updatedAt\" timestamp(3) NOT NULL,\n  \"versendetAt\" timestamp(3),\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Rechnung\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"Rechnung\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Rechnung\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.RechnungsPosition",
+    "label": "Create table \"RechnungsPosition\"",
+    "summary": "Creates table \"RechnungsPosition\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "RechnungsPosition"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"RechnungsPosition\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"RechnungsPosition\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"RechnungsPosition\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"RechnungsPosition\"",
+        "sql": "CREATE TABLE \"public\".\"RechnungsPosition\" (\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"einzelpreisChf\" numeric(10,2) NOT NULL,\n  \"id\" text NOT NULL,\n  \"menge\" int4 DEFAULT 1 NOT NULL,\n  \"rechnungId\" text NOT NULL,\n  \"reihenfolge\" int4 DEFAULT 0 NOT NULL,\n  \"text\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"RechnungsPosition\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"RechnungsPosition\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"RechnungsPosition\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.Zahlung",
+    "label": "Create table \"Zahlung\"",
+    "summary": "Creates table \"Zahlung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Zahlung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Zahlung\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Zahlung\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"Zahlung\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Zahlung\"",
+        "sql": "CREATE TABLE \"public\".\"Zahlung\" (\n  \"actorName\" text NOT NULL,\n  \"actorUserId\" text,\n  \"bemerkung\" text,\n  \"betragChf\" numeric(10,2) NOT NULL,\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"datum\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"rechnungId\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Zahlung\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"Zahlung\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Zahlung\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.Mahnung.Mahnung_rechnungId_idx",
+    "label": "Create index \"Mahnung_rechnungId_idx\" on \"Mahnung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Mahnung_rechnungId_idx",
+        "table": "Mahnung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Mahnung_rechnungId_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Mahnung_rechnungId_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Mahnung_rechnungId_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Mahnung_rechnungId_idx\"",
+        "sql": "CREATE INDEX \"Mahnung_rechnungId_idx\" ON \"public\".\"Mahnung\" (\"rechnungId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Mahnung_rechnungId_idx\" exists on \"Mahnung\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Mahnung_rechnungId_idx\"",
+          "i",
+          "I",
+          "\"public\".\"Mahnung\"",
+          "btree",
+          "[\"rechnungId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Rechnung.Rechnung_kostentraegerId_idx",
+    "label": "Create index \"Rechnung_kostentraegerId_idx\" on \"Rechnung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Rechnung_kostentraegerId_idx",
+        "table": "Rechnung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Rechnung_kostentraegerId_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Rechnung_kostentraegerId_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Rechnung_kostentraegerId_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Rechnung_kostentraegerId_idx\"",
+        "sql": "CREATE INDEX \"Rechnung_kostentraegerId_idx\" ON \"public\".\"Rechnung\" (\"kostentraegerId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Rechnung_kostentraegerId_idx\" exists on \"Rechnung\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Rechnung_kostentraegerId_idx\"",
+          "i",
+          "I",
+          "\"public\".\"Rechnung\"",
+          "btree",
+          "[\"kostentraegerId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Rechnung.Rechnung_nummer_key",
+    "label": "Create index \"Rechnung_nummer_key\" on \"Rechnung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Rechnung_nummer_key",
+        "table": "Rechnung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Rechnung_nummer_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Rechnung_nummer_key\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Rechnung_nummer_key\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Rechnung_nummer_key\"",
+        "sql": "CREATE UNIQUE INDEX \"Rechnung_nummer_key\" ON \"public\".\"Rechnung\" (\"nummer\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Rechnung_nummer_key\" exists on \"Rechnung\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Rechnung_nummer_key\"",
+          "i",
+          "I",
+          "\"public\".\"Rechnung\"",
+          "btree",
+          "[\"nummer\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Rechnung.Rechnung_personId_idx",
+    "label": "Create index \"Rechnung_personId_idx\" on \"Rechnung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Rechnung_personId_idx",
+        "table": "Rechnung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Rechnung_personId_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Rechnung_personId_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Rechnung_personId_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Rechnung_personId_idx\"",
+        "sql": "CREATE INDEX \"Rechnung_personId_idx\" ON \"public\".\"Rechnung\" (\"personId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Rechnung_personId_idx\" exists on \"Rechnung\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Rechnung_personId_idx\"",
+          "i",
+          "I",
+          "\"public\".\"Rechnung\"",
+          "btree",
+          "[\"personId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Rechnung.Rechnung_referenzNr_key",
+    "label": "Create index \"Rechnung_referenzNr_key\" on \"Rechnung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Rechnung_referenzNr_key",
+        "table": "Rechnung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Rechnung_referenzNr_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Rechnung_referenzNr_key\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Rechnung_referenzNr_key\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Rechnung_referenzNr_key\"",
+        "sql": "CREATE UNIQUE INDEX \"Rechnung_referenzNr_key\" ON \"public\".\"Rechnung\" (\"referenzNr\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Rechnung_referenzNr_key\" exists on \"Rechnung\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Rechnung_referenzNr_key\"",
+          "i",
+          "I",
+          "\"public\".\"Rechnung\"",
+          "btree",
+          "[\"referenzNr\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Rechnung.Rechnung_status_faelligAm_idx",
+    "label": "Create index \"Rechnung_status_faelligAm_idx\" on \"Rechnung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Rechnung_status_faelligAm_idx",
+        "table": "Rechnung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Rechnung_status_faelligAm_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Rechnung_status_faelligAm_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Rechnung_status_faelligAm_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Rechnung_status_faelligAm_idx\"",
+        "sql": "CREATE INDEX \"Rechnung_status_faelligAm_idx\" ON \"public\".\"Rechnung\" (\"status\", \"faelligAm\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Rechnung_status_faelligAm_idx\" exists on \"Rechnung\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Rechnung_status_faelligAm_idx\"",
+          "i",
+          "I",
+          "\"public\".\"Rechnung\"",
+          "btree",
+          "[\"status\",\"faelligAm\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.RechnungsPosition.RechnungsPosition_rechnungId_idx",
+    "label": "Create index \"RechnungsPosition_rechnungId_idx\" on \"RechnungsPosition\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "RechnungsPosition_rechnungId_idx",
+        "table": "RechnungsPosition"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"RechnungsPosition_rechnungId_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"RechnungsPosition_rechnungId_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"RechnungsPosition_rechnungId_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"RechnungsPosition_rechnungId_idx\"",
+        "sql": "CREATE INDEX \"RechnungsPosition_rechnungId_idx\" ON \"public\".\"RechnungsPosition\" (\"rechnungId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"RechnungsPosition_rechnungId_idx\" exists on \"RechnungsPosition\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"RechnungsPosition_rechnungId_idx\"",
+          "i",
+          "I",
+          "\"public\".\"RechnungsPosition\"",
+          "btree",
+          "[\"rechnungId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Zahlung.Zahlung_rechnungId_idx",
+    "label": "Create index \"Zahlung_rechnungId_idx\" on \"Zahlung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Zahlung_rechnungId_idx",
+        "table": "Zahlung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Zahlung_rechnungId_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Zahlung_rechnungId_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Zahlung_rechnungId_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Zahlung_rechnungId_idx\"",
+        "sql": "CREATE INDEX \"Zahlung_rechnungId_idx\" ON \"public\".\"Zahlung\" (\"rechnungId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Zahlung_rechnungId_idx\" exists on \"Zahlung\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Zahlung_rechnungId_idx\"",
+          "i",
+          "I",
+          "\"public\".\"Zahlung\"",
+          "btree",
+          "[\"rechnungId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Mahnung.Mahnung_rechnungId_fkey",
+    "label": "Add foreign key \"Mahnung_rechnungId_fkey\" on \"Mahnung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Mahnung_rechnungId_fkey",
+        "table": "Mahnung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Mahnung_rechnungId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Mahnung_rechnungId_fkey",
+          "public",
+          "\"public\".\"Mahnung\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Mahnung_rechnungId_fkey\" on \"Mahnung\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Mahnung_rechnungId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Mahnung\"\nADD CONSTRAINT \"Mahnung_rechnungId_fkey\"\nFOREIGN KEY (\"rechnungId\")\nREFERENCES \"public\".\"Rechnung\" (\"id\")\nON DELETE CASCADE\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Mahnung_rechnungId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Mahnung_rechnungId_fkey",
+          "public",
+          "\"public\".\"Mahnung\"",
+          "f",
+          "[\"rechnungId\"]",
+          "\"public\".\"Rechnung\"",
+          "[\"id\"]",
+          "c",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Rechnung.Rechnung_personId_fkey",
+    "label": "Add foreign key \"Rechnung_personId_fkey\" on \"Rechnung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Rechnung_personId_fkey",
+        "table": "Rechnung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Rechnung_personId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Rechnung_personId_fkey",
+          "public",
+          "\"public\".\"Rechnung\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Rechnung_personId_fkey\" on \"Rechnung\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Rechnung_personId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Rechnung\"\nADD CONSTRAINT \"Rechnung_personId_fkey\"\nFOREIGN KEY (\"personId\")\nREFERENCES \"public\".\"Person\" (\"id\")\nON DELETE RESTRICT\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Rechnung_personId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Rechnung_personId_fkey",
+          "public",
+          "\"public\".\"Rechnung\"",
+          "f",
+          "[\"personId\"]",
+          "\"public\".\"Person\"",
+          "[\"id\"]",
+          "r",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Rechnung.Rechnung_kostentraegerId_fkey",
+    "label": "Add foreign key \"Rechnung_kostentraegerId_fkey\" on \"Rechnung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Rechnung_kostentraegerId_fkey",
+        "table": "Rechnung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Rechnung_kostentraegerId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Rechnung_kostentraegerId_fkey",
+          "public",
+          "\"public\".\"Rechnung\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Rechnung_kostentraegerId_fkey\" on \"Rechnung\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Rechnung_kostentraegerId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Rechnung\"\nADD CONSTRAINT \"Rechnung_kostentraegerId_fkey\"\nFOREIGN KEY (\"kostentraegerId\")\nREFERENCES \"public\".\"Kostentraeger\" (\"id\")\nON DELETE RESTRICT\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Rechnung_kostentraegerId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Rechnung_kostentraegerId_fkey",
+          "public",
+          "\"public\".\"Rechnung\"",
+          "f",
+          "[\"kostentraegerId\"]",
+          "\"public\".\"Kostentraeger\"",
+          "[\"id\"]",
+          "r",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Rechnung.Rechnung_anmeldungId_fkey",
+    "label": "Add foreign key \"Rechnung_anmeldungId_fkey\" on \"Rechnung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Rechnung_anmeldungId_fkey",
+        "table": "Rechnung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Rechnung_anmeldungId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Rechnung_anmeldungId_fkey",
+          "public",
+          "\"public\".\"Rechnung\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Rechnung_anmeldungId_fkey\" on \"Rechnung\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Rechnung_anmeldungId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Rechnung\"\nADD CONSTRAINT \"Rechnung_anmeldungId_fkey\"\nFOREIGN KEY (\"anmeldungId\")\nREFERENCES \"public\".\"Anmeldung\" (\"id\")\nON DELETE SET NULL\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Rechnung_anmeldungId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Rechnung_anmeldungId_fkey",
+          "public",
+          "\"public\".\"Rechnung\"",
+          "f",
+          "[\"anmeldungId\"]",
+          "\"public\".\"Anmeldung\"",
+          "[\"id\"]",
+          "n",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.RechnungsPosition.RechnungsPosition_rechnungId_fkey",
+    "label": "Add foreign key \"RechnungsPosition_rechnungId_fkey\" on \"RechnungsPosition\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "RechnungsPosition_rechnungId_fkey",
+        "table": "RechnungsPosition"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"RechnungsPosition_rechnungId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "RechnungsPosition_rechnungId_fkey",
+          "public",
+          "\"public\".\"RechnungsPosition\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"RechnungsPosition_rechnungId_fkey\" on \"RechnungsPosition\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"RechnungsPosition_rechnungId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"RechnungsPosition\"\nADD CONSTRAINT \"RechnungsPosition_rechnungId_fkey\"\nFOREIGN KEY (\"rechnungId\")\nREFERENCES \"public\".\"Rechnung\" (\"id\")\nON DELETE CASCADE\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"RechnungsPosition_rechnungId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "RechnungsPosition_rechnungId_fkey",
+          "public",
+          "\"public\".\"RechnungsPosition\"",
+          "f",
+          "[\"rechnungId\"]",
+          "\"public\".\"Rechnung\"",
+          "[\"id\"]",
+          "c",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Zahlung.Zahlung_rechnungId_fkey",
+    "label": "Add foreign key \"Zahlung_rechnungId_fkey\" on \"Zahlung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Zahlung_rechnungId_fkey",
+        "table": "Zahlung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Zahlung_rechnungId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Zahlung_rechnungId_fkey",
+          "public",
+          "\"public\".\"Zahlung\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Zahlung_rechnungId_fkey\" on \"Zahlung\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Zahlung_rechnungId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Zahlung\"\nADD CONSTRAINT \"Zahlung_rechnungId_fkey\"\nFOREIGN KEY (\"rechnungId\")\nREFERENCES \"public\".\"Rechnung\" (\"id\")\nON DELETE CASCADE\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Zahlung_rechnungId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Zahlung_rechnungId_fkey",
+          "public",
+          "\"public\".\"Zahlung\"",
+          "f",
+          "[\"rechnungId\"]",
+          "\"public\".\"Rechnung\"",
+          "[\"id\"]",
+          "c",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Zahlung.Zahlung_actorUserId_fkey",
+    "label": "Add foreign key \"Zahlung_actorUserId_fkey\" on \"Zahlung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Zahlung_actorUserId_fkey",
+        "table": "Zahlung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Zahlung_actorUserId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Zahlung_actorUserId_fkey",
+          "public",
+          "\"public\".\"Zahlung\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Zahlung_actorUserId_fkey\" on \"Zahlung\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Zahlung_actorUserId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Zahlung\"\nADD CONSTRAINT \"Zahlung_actorUserId_fkey\"\nFOREIGN KEY (\"actorUserId\")\nREFERENCES \"public\".\"User\" (\"id\")\nON DELETE SET NULL\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Zahlung_actorUserId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Zahlung_actorUserId_fkey",
+          "public",
+          "\"public\".\"Zahlung\"",
+          "f",
+          "[\"actorUserId\"]",
+          "\"public\".\"User\"",
+          "[\"id\"]",
+          "n",
+          "c"
+        ]
+      }
+    ]
+  }
+]

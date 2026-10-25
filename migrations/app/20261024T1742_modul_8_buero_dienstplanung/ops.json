@@ -1,0 +1,738 @@
+[
+  {
+    "id": "createNativeEnumType.BueroAbweichungArt",
+    "label": "Create enum type \"BueroAbweichungArt\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "BueroAbweichungArt"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"BueroAbweichungArt\"",
+        "sql": "CREATE TYPE \"public\".\"BueroAbweichungArt\" AS ENUM ('ARBEITSZEIT', 'FREI')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "createNativeEnumType.BueroAbwesenheitArt",
+    "label": "Create enum type \"BueroAbwesenheitArt\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "BueroAbwesenheitArt"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"BueroAbwesenheitArt\"",
+        "sql": "CREATE TYPE \"public\".\"BueroAbwesenheitArt\" AS ENUM ('URLAUB', 'KRANKHEIT', 'SONSTIGE')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.BueroAbweichung",
+    "label": "Create table \"BueroAbweichung\"",
+    "summary": "Creates table \"BueroAbweichung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "BueroAbweichung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"BueroAbweichung\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"BueroAbweichung\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"BueroAbweichung\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"BueroAbweichung\"",
+        "sql": "CREATE TABLE \"public\".\"BueroAbweichung\" (\n  \"art\" \"BueroAbweichungArt\" NOT NULL,\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"datum\" timestamp(3) NOT NULL,\n  \"endZeit\" text,\n  \"id\" text NOT NULL,\n  \"notiz\" text,\n  \"personId\" text NOT NULL,\n  \"startZeit\" text,\n  \"updatedAt\" timestamp(3) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"BueroAbweichung\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"BueroAbweichung\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"BueroAbweichung\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.BueroAbwesenheit",
+    "label": "Create table \"BueroAbwesenheit\"",
+    "summary": "Creates table \"BueroAbwesenheit\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "BueroAbwesenheit"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"BueroAbwesenheit\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"BueroAbwesenheit\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"BueroAbwesenheit\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"BueroAbwesenheit\"",
+        "sql": "CREATE TABLE \"public\".\"BueroAbwesenheit\" (\n  \"art\" \"BueroAbwesenheitArt\" NOT NULL,\n  \"bemerkung\" text,\n  \"bis\" timestamp(3) NOT NULL,\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"personId\" text NOT NULL,\n  \"updatedAt\" timestamp(3) NOT NULL,\n  \"von\" timestamp(3) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"BueroAbwesenheit\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"BueroAbwesenheit\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"BueroAbwesenheit\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.BueroDienst",
+    "label": "Create table \"BueroDienst\"",
+    "summary": "Creates table \"BueroDienst\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "BueroDienst"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"BueroDienst\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"BueroDienst\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"BueroDienst\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"BueroDienst\"",
+        "sql": "CREATE TABLE \"public\".\"BueroDienst\" (\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"endZeit\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"notiz\" text,\n  \"personId\" text NOT NULL,\n  \"startZeit\" text NOT NULL,\n  \"updatedAt\" timestamp(3) NOT NULL,\n  \"wochentag\" int4 NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"BueroDienst\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"BueroDienst\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"BueroDienst\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.BueroUrlaubskontingent",
+    "label": "Create table \"BueroUrlaubskontingent\"",
+    "summary": "Creates table \"BueroUrlaubskontingent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "BueroUrlaubskontingent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"BueroUrlaubskontingent\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"BueroUrlaubskontingent\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"BueroUrlaubskontingent\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"BueroUrlaubskontingent\"",
+        "sql": "CREATE TABLE \"public\".\"BueroUrlaubskontingent\" (\n  \"id\" text NOT NULL,\n  \"jahr\" int4 NOT NULL,\n  \"personId\" text NOT NULL,\n  \"tage\" int4 NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"BueroUrlaubskontingent\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"BueroUrlaubskontingent\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"BueroUrlaubskontingent\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.BueroAbweichung.BueroAbweichung_datum_idx",
+    "label": "Create index \"BueroAbweichung_datum_idx\" on \"BueroAbweichung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "BueroAbweichung_datum_idx",
+        "table": "BueroAbweichung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"BueroAbweichung_datum_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"BueroAbweichung_datum_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"BueroAbweichung_datum_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"BueroAbweichung_datum_idx\"",
+        "sql": "CREATE INDEX \"BueroAbweichung_datum_idx\" ON \"public\".\"BueroAbweichung\" (\"datum\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"BueroAbweichung_datum_idx\" exists on \"BueroAbweichung\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"BueroAbweichung_datum_idx\"",
+          "i",
+          "I",
+          "\"public\".\"BueroAbweichung\"",
+          "btree",
+          "[\"datum\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.BueroAbweichung.BueroAbweichung_personId_datum_key",
+    "label": "Create index \"BueroAbweichung_personId_datum_key\" on \"BueroAbweichung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "BueroAbweichung_personId_datum_key",
+        "table": "BueroAbweichung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"BueroAbweichung_personId_datum_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"BueroAbweichung_personId_datum_key\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"BueroAbweichung_personId_datum_key\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"BueroAbweichung_personId_datum_key\"",
+        "sql": "CREATE UNIQUE INDEX \"BueroAbweichung_personId_datum_key\" ON \"public\".\"BueroAbweichung\" (\"personId\", \"datum\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"BueroAbweichung_personId_datum_key\" exists on \"BueroAbweichung\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"BueroAbweichung_personId_datum_key\"",
+          "i",
+          "I",
+          "\"public\".\"BueroAbweichung\"",
+          "btree",
+          "[\"personId\",\"datum\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.BueroAbwesenheit.BueroAbwesenheit_personId_von_idx",
+    "label": "Create index \"BueroAbwesenheit_personId_von_idx\" on \"BueroAbwesenheit\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "BueroAbwesenheit_personId_von_idx",
+        "table": "BueroAbwesenheit"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"BueroAbwesenheit_personId_von_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"BueroAbwesenheit_personId_von_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"BueroAbwesenheit_personId_von_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"BueroAbwesenheit_personId_von_idx\"",
+        "sql": "CREATE INDEX \"BueroAbwesenheit_personId_von_idx\" ON \"public\".\"BueroAbwesenheit\" (\"personId\", \"von\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"BueroAbwesenheit_personId_von_idx\" exists on \"BueroAbwesenheit\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"BueroAbwesenheit_personId_von_idx\"",
+          "i",
+          "I",
+          "\"public\".\"BueroAbwesenheit\"",
+          "btree",
+          "[\"personId\",\"von\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.BueroAbwesenheit.BueroAbwesenheit_von_bis_idx",
+    "label": "Create index \"BueroAbwesenheit_von_bis_idx\" on \"BueroAbwesenheit\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "BueroAbwesenheit_von_bis_idx",
+        "table": "BueroAbwesenheit"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"BueroAbwesenheit_von_bis_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"BueroAbwesenheit_von_bis_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"BueroAbwesenheit_von_bis_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"BueroAbwesenheit_von_bis_idx\"",
+        "sql": "CREATE INDEX \"BueroAbwesenheit_von_bis_idx\" ON \"public\".\"BueroAbwesenheit\" (\"von\", \"bis\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"BueroAbwesenheit_von_bis_idx\" exists on \"BueroAbwesenheit\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"BueroAbwesenheit_von_bis_idx\"",
+          "i",
+          "I",
+          "\"public\".\"BueroAbwesenheit\"",
+          "btree",
+          "[\"von\",\"bis\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.BueroDienst.BueroDienst_personId_wochentag_idx",
+    "label": "Create index \"BueroDienst_personId_wochentag_idx\" on \"BueroDienst\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "BueroDienst_personId_wochentag_idx",
+        "table": "BueroDienst"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"BueroDienst_personId_wochentag_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"BueroDienst_personId_wochentag_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"BueroDienst_personId_wochentag_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"BueroDienst_personId_wochentag_idx\"",
+        "sql": "CREATE INDEX \"BueroDienst_personId_wochentag_idx\" ON \"public\".\"BueroDienst\" (\"personId\", \"wochentag\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"BueroDienst_personId_wochentag_idx\" exists on \"BueroDienst\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"BueroDienst_personId_wochentag_idx\"",
+          "i",
+          "I",
+          "\"public\".\"BueroDienst\"",
+          "btree",
+          "[\"personId\",\"wochentag\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.BueroUrlaubskontingent.BueroUrlaubskontingent_personId_jahr_key",
+    "label": "Create index \"BueroUrlaubskontingent_personId_jahr_key\" on \"BueroUrlaubskontingent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "BueroUrlaubskontingent_personId_jahr_key",
+        "table": "BueroUrlaubskontingent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"BueroUrlaubskontingent_personId_jahr_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"BueroUrlaubskontingent_personId_jahr_key\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"BueroUrlaubskontingent_personId_jahr_key\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"BueroUrlaubskontingent_personId_jahr_key\"",
+        "sql": "CREATE UNIQUE INDEX \"BueroUrlaubskontingent_personId_jahr_key\" ON \"public\".\"BueroUrlaubskontingent\" (\"personId\", \"jahr\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"BueroUrlaubskontingent_personId_jahr_key\" exists on \"BueroUrlaubskontingent\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"BueroUrlaubskontingent_personId_jahr_key\"",
+          "i",
+          "I",
+          "\"public\".\"BueroUrlaubskontingent\"",
+          "btree",
+          "[\"personId\",\"jahr\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.BueroAbweichung.BueroAbweichung_personId_fkey",
+    "label": "Add foreign key \"BueroAbweichung_personId_fkey\" on \"BueroAbweichung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "BueroAbweichung_personId_fkey",
+        "table": "BueroAbweichung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"BueroAbweichung_personId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "BueroAbweichung_personId_fkey",
+          "public",
+          "\"public\".\"BueroAbweichung\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"BueroAbweichung_personId_fkey\" on \"BueroAbweichung\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"BueroAbweichung_personId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"BueroAbweichung\"\nADD CONSTRAINT \"BueroAbweichung_personId_fkey\"\nFOREIGN KEY (\"personId\")\nREFERENCES \"public\".\"Person\" (\"id\")\nON DELETE CASCADE\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"BueroAbweichung_personId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "BueroAbweichung_personId_fkey",
+          "public",
+          "\"public\".\"BueroAbweichung\"",
+          "f",
+          "[\"personId\"]",
+          "\"public\".\"Person\"",
+          "[\"id\"]",
+          "c",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.BueroAbwesenheit.BueroAbwesenheit_personId_fkey",
+    "label": "Add foreign key \"BueroAbwesenheit_personId_fkey\" on \"BueroAbwesenheit\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "BueroAbwesenheit_personId_fkey",
+        "table": "BueroAbwesenheit"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"BueroAbwesenheit_personId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "BueroAbwesenheit_personId_fkey",
+          "public",
+          "\"public\".\"BueroAbwesenheit\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"BueroAbwesenheit_personId_fkey\" on \"BueroAbwesenheit\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"BueroAbwesenheit_personId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"BueroAbwesenheit\"\nADD CONSTRAINT \"BueroAbwesenheit_personId_fkey\"\nFOREIGN KEY (\"personId\")\nREFERENCES \"public\".\"Person\" (\"id\")\nON DELETE CASCADE\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"BueroAbwesenheit_personId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "BueroAbwesenheit_personId_fkey",
+          "public",
+          "\"public\".\"BueroAbwesenheit\"",
+          "f",
+          "[\"personId\"]",
+          "\"public\".\"Person\"",
+          "[\"id\"]",
+          "c",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.BueroDienst.BueroDienst_personId_fkey",
+    "label": "Add foreign key \"BueroDienst_personId_fkey\" on \"BueroDienst\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "BueroDienst_personId_fkey",
+        "table": "BueroDienst"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"BueroDienst_personId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "BueroDienst_personId_fkey",
+          "public",
+          "\"public\".\"BueroDienst\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"BueroDienst_personId_fkey\" on \"BueroDienst\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"BueroDienst_personId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"BueroDienst\"\nADD CONSTRAINT \"BueroDienst_personId_fkey\"\nFOREIGN KEY (\"personId\")\nREFERENCES \"public\".\"Person\" (\"id\")\nON DELETE CASCADE\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"BueroDienst_personId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "BueroDienst_personId_fkey",
+          "public",
+          "\"public\".\"BueroDienst\"",
+          "f",
+          "[\"personId\"]",
+          "\"public\".\"Person\"",
+          "[\"id\"]",
+          "c",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.BueroUrlaubskontingent.BueroUrlaubskontingent_personId_fkey",
+    "label": "Add foreign key \"BueroUrlaubskontingent_personId_fkey\" on \"BueroUrlaubskontingent\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "BueroUrlaubskontingent_personId_fkey",
+        "table": "BueroUrlaubskontingent"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"BueroUrlaubskontingent_personId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "BueroUrlaubskontingent_personId_fkey",
+          "public",
+          "\"public\".\"BueroUrlaubskontingent\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"BueroUrlaubskontingent_personId_fkey\" on \"BueroUrlaubskontingent\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"BueroUrlaubskontingent_personId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"BueroUrlaubskontingent\"\nADD CONSTRAINT \"BueroUrlaubskontingent_personId_fkey\"\nFOREIGN KEY (\"personId\")\nREFERENCES \"public\".\"Person\" (\"id\")\nON DELETE CASCADE\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"BueroUrlaubskontingent_personId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "BueroUrlaubskontingent_personId_fkey",
+          "public",
+          "\"public\".\"BueroUrlaubskontingent\"",
+          "f",
+          "[\"personId\"]",
+          "\"public\".\"Person\"",
+          "[\"id\"]",
+          "c",
+          "c"
+        ]
+      }
+    ]
+  }
+]

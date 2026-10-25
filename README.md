@@ -83,6 +83,143 @@ docker-entrypoint.sh  Schema-Adoption + Migrationen + Serverstart im Container
 PFLICHTENHEFT.md   Anforderungen (verbindlich für die Umsetzung)
 ```
 
+## Modul 9 — Rechnungen (PDF) (fertig)
+
+- **Schweizer QR-Rechnung:** jedes PDF trägt den normierten **QR-Zahlteil** (Empfangsschein +
+  Zahlteil, QR-Code 46×46 mm mit Schweizer Kreuz, Perforationslinie). QR-IBAN-Prüfung
+  (QR-IID 30000–31999, mod-97) und 27-stellige **Referenznummer** (mod-10-rekursiv) laufen über
+  `src/lib/rechnungen/qr.ts` — getestet gegen die Referenzbeispiele des Swiss-QR-Bill-Guides.
+  Die Payload wurde im Live-Test aus dem erzeugten PDF dekodiert und verifiziert.
+- **Konfiguration:** `QR_RECHNUNG_QR_IBAN`, `QR_RECHNUNG_NAME/STRASSE/PLZ/ORT/LAND`
+  (siehe `.env.example`; lokal Dummy-Werte, in Coolify die echten Bankdaten). Ohne
+  Konfiguration bricht die PDF-Erzeugung mit klarer Meldung ab.
+- **Mehrere Positionen** (Paket, Lehrmittel, Registration …) mit Menge × Einzelpreis, optionales
+  **MwSt-Feld** (leer = MwSt-frei), Zwischensumme/Total; bei Teilzahlungen zeigt Rechnung und
+  PDF **Restbetrag** bzw. «Bereits bezahlt».
+- **Empfänger:** Person (mit **abweichender Rechnungsadresse** als Snapshot), Kostenträger
+  (Firma/öffentliche Einrichtung) oder **Eltern als abweichender Empfänger** (über die
+  Anmeldung, Modul 5). Empfänger-Adresse wird beim Erstellen eingefroren.
+- **Status-Laufbahn:** Entwurf → versendet → (teilbezahlt) → bezahlt → storniert; **überfällig**
+  ist abgeleitet (versendet/teilbezahlt + Fälligkeit verstrichen) und wird als rotes Badge
+  angezeigt, nicht gespeichert.
+- **Automatik:** bei **fester Anmeldung** und **Paket-Verlängerung** (privat/Firma — Anschluss
+  an die Paketende-Automatik aus Modul 5/7) entsteht automatisch ein Rechnungs-Entwurf mit der
+  Paketposition; Behörden (öffentliche Einrichtungen) rechnen im Nachhinein manuell durchs Büro.
+- **Versenden** markiert als versendet und hängt das PDF an eine E-Mail an (ohne SMTP:
+  Dev-Log). **Teilzahlungen** werden erfasst (Betrag ≤ Restbetrag geprüft) und setzen den
+  Status automatisch auf teilbezahlt/bezahlt — alles im Audit-Log (`rechnung.*`).
+- **Auto-Mahnung:** Mahn-Job (`src/lib/rechnungen/mahnjob.ts`, 30-Minuten-Schleife wie die
+  übrigen Jobs) versendet **Stufe 1 = freundliche Erinnerung** 10 Tage nach Fälligkeit und
+  **Stufe 2 = Mahnung** nach 30 Tagen — je genau einmal (`mahnStufe` als Marker), mit
+  Mahnungs-Historie auf der Rechnung. Das Büro kann beide Stufen jederzeit manuell früher
+  auslösen.
+- Logik in `src/lib/rechnungen/` (`qr.ts` + `logik.ts` pure + getestet, `erstellung.ts`,
+  `druck.ts` (PDF mit pdf-lib + qrcode), `mahnung.ts`, `mahnjob.ts`, `actions.ts`); UI unter
+  `/rechnungen` (Liste, Detail, «Neue Rechnung») für Admin/Chef/Büro (`canManageAnmeldungen`).
+  Rechte-Checks in den Actions + PDF-Route, Audit für jeden Schritt.
+
+## Modul 8 — Dienst- & Urlaubsplanung Büro (fertig)
+
+- **Eigene Ansicht `/bueroplan`** (bewusst nicht im Raumplaner): Wochenansicht Mo–So über alle
+  **Büropersonen** — Personen mit Konto der Rolle **Büro, Admin oder Chef** (Verknüpfung über
+  `User.personId`); reine Lehrpersonen organisieren sich selbst und erscheinen nicht. Wochen-Navigation
+  (‹ / Diese Woche / ›), heutige Spalte hervorgehoben, Legende der Blöcke.
+- **Wiederkehrendes Pensum pro Person** (`BueroDienst`): beliebig viele Zeitblöcke pro Wochentag
+  (z.B. 45 Min vor + nach Unterricht, «2 Vormittage + 3 Nachmittage»), mehrere Personen parallel.
+- **Tages-Abweichungen** (`BueroAbweichung`, ein Eintrag pro Person und Tag): **abweichende
+  Arbeitszeit** ersetzt die Pensum-Blöcke des Tages, **dienstfrei** (z.B. Kompensation) zählt nicht
+  aufs Urlaubs-Kontingent. In der Wochenansicht gelb bzw. als Badge.
+- **Abwesenheiten** (`BueroAbwesenheit`): **Urlaub** (zählt aufs Kontingent), **Krankheit**,
+  **sonstige** — als Kalenderbereich (von–bis inklusive), direkt eingetragen **ohne
+  Genehmigungs-Workflow**; Abwesenheiten haben in der Anzeige Vorrang vor Abweichung und Pensum.
+- **Urlaubs-Jahreskontingent** (`BueroUrlaubskontingent`, anpassbar): Standard **20 Tage** pro Person
+  und Jahr; genutzt = Summe der Kalendertage der URLAUB-Einträge im Jahr (am Jahresrand anteilig).
+  Überschreitung wird beim Erfassen als Warnhinweis gemeldet (keine harte Blockade), die
+  Wochenansicht zeigt «genutzt / Kontingent» pro Person; alle im Stundenlohn.
+- Alle Änderungen Server-seitig auf Büro-Rollen geprüft (`canManageBueroplan`, Wächter in den
+  Actions + Ziel-Person-Prüfung) und vollständig im **Audit-Log** (`bueroplan.*`). Logik in
+  `src/lib/bueroplan/` (`logik.ts` pure + getestet, `actions.ts`, `personen.ts`); Formulare in
+  `src/components/bueroplan/BueroplanFormen.tsx`.
+
+## Modul 7 — Anwesenheitskontrolle (fertig)
+
+- **Erfassung direkt nach der Lektion** im Planer-Panel (Klick auf den Block): je Teilnehmende(r)
+  **anwesend (−1) · abwesend unentschuldigt (−1) · abwesend entschuldigt (−0)** — **Probeteilnehmende
+  erscheinen in der Liste, werden aber ohne Abbuchung erfasst**. Die **Lehrperson hat 24 h** nach dem
+  Lektionsende, danach ist nur noch das Büro berechtigt (Server-seitig geprüft, nicht nur UI).
+- **Abschliessen erst bei vollständiger Erfassung** (alle aktiven Anmeldungen erfasst): setzt die
+  Lektion auf **DURCHGEFÜHRT** und bucht je aktiver Anmeldung ins **Guthaben-Journal**
+  (VERBRAUCH/FEHLZEIT-artspezifisch, mit Lektions-Link `lektionId` für Korrekturen). Danach läuft
+  die **Paketende-Automatik**: Schwelle (12. von 14 / 13. von 15) erreicht → Teilnehmende werden
+  automatisch informiert («fortfahren oder beenden?», Marker `paketEndeGemeldetAt`).
+- **Büro korrigiert nachträglich:** Anwesenheiten lassen sich nach dem Abschluss anpassen — der
+  Journal-Eintrag wird angepasst (nicht doppelt gebucht), jeder Korrektur-Schritt steht im Audit-Log.
+  Die manuelle Fehlzeit-Erfassung in der Anmeldung (Modul 5, `erfasseFehlzeitAction`) bleibt als
+  Büro-Korrekturweg ohne Lektions-Link bestehen.
+- **Lehrpersonen dürfen Lektionen selbst absagen** (Grund ist Pflicht): gleiche Aktion wie das Büro,
+  Teilnehmende werden automatisch informiert, kein Guthaben-Abzug (Audit: `planer.absagen_lehrperson`).
+- **Offene Anwesenheiten:** das Dashboard listet beendete, nicht abgeschlossene Lektionen (Büro: alle;
+  reine Lehrpersonen: eigene) mit Erfassungsfortschritt x/y und Direktlink in den Planer-Tag.
+- **Automatische Erinnerung am nächsten Tag:** nächtlicher Job (`src/lib/anwesenheit/erinnerungsjob.ts`,
+  Marker-Pattern wie der Lektions-Job) mailt der Lehrperson die offenen Lektionen — pro Lektion nur
+  einmal (`anwesenheitErinnertAt`).
+- Logik in `src/lib/anwesenheit/` (`logik.ts` pure + getestet, `actions.ts` Server-Actions,
+  `erinnerung.ts`/`erinnerungsjob.ts` Job); Lektionsstatus **DURCHGEFÜHRT** ist die Grundlage, damit
+  Modul 11 (Honorare) nur abgeschlossene Lektionen zählt.
+
+## Modul 6 — Lektionsgenerierung & Raumplaner (fertig)
+
+- **Rollierende Generierung 2 Wochen im Voraus:** nächtlicher Job (`src/lib/kurse/lektionsjob.ts`,
+  Prüfschleife alle 30 Minuten über einen Tages-Marker in `SystemSetting`) erzeugt für alle
+  **aktiven** Kurse mit Wochentermin die Lektionen — idempotent, Unterbrechungen werden
+  übersprungen. Zusätzlich Button «Lektionen generieren» im Planer (Büro).
+- **Planer** (`/planer`): Tagansicht im 14-Tage-Horizont (Tag-Streifen Mo–Sa), Zeitraster
+  **06:30–23:00**, Spalten oben **Standort → Etage → Räume**; Kurse ohne Raum (Online) in einer
+  eigenen «Online»-Spalte, **externe Firmenkurse erscheinen nicht**. Blöcke zeigen das
+  Lehrpersonen-Kürzel, **Details beim Hover** (Sprache, Niveau, Kursart, Lehrperson, Code, Zeit).
+- **Verschieben nur durchs Büro:** Klick auf einen Block öffnet das Panel — Verschieben
+  (Datum/Zeit/Raum, macht die Lektion wieder **provisorisch**), **Fixieren** (bindend; weicht der
+  Termin vom Wochentermin ab oder wurde manuell verschoben, werden alle Teilnehmenden
+  informiert) und **Absagen** (mit Grund, informiert ebenfalls; kein Guthaben-Abzug).
+- **Keine harte Konfliktblockade:** Raum-Doppelbelegungen und Doppel-Einsätze derselben
+  Lehrperson werden nur **rot markiert**; pausierte/unterbrochene Kurse sind ausgegraut und
+  überbuchbar (erzeugen keine Konflikte).
+
+## Modul 5 — Anmeldungen (fertig)
+
+- **Drei Billing-Typen:** privat (Rechnung im Voraus pro Paket) · Firma (Rechnung an Kostenträger,
+  im Voraus) · öffentliche Einrichtung (Rechnung erst im Nachhinein). Abweichender
+  Rechnungsempfänger (z.B. Eltern) wählbar.
+- **Probelektionen:** Status «Probe» — kein Guthaben, kein Preis, erscheinen in der
+  Anwesenheitsliste; wandeln sich per Klick in feste Anmeldungen um (Paket wird aufgeladen).
+- **Tarif automatisch nach Tageszeit** des Kursstarts (Zeitfenster aus den Tarifstufen,
+  `src/lib/stammdaten/tarif.ts`), **Paketgrösse 14/15** aus der Tarifstufe, **Preis aus der
+  Preisliste** (Kursart × Dauer × Tarifstufe) — jede Grösse einzeln übersteuerbar; Preis-
+  abweichungen müssen dokumentiert werden (Pflichtfeld).
+- **Lektionsguthaben als Konto mit Journal** (`GuthabenJournal`): der Stand ist die Summe der
+  Journal-Deltas; Aufladungen, Korrekturen (begründungspflichtig) und Fehlzeiten —
+  **unentschuldigt −1 / entschuldigt −0, das Büro entscheidet final**. Der automatische
+  Verbrauch (−1 pro durchgeführter Lektion) kommt mit Modul 7 (fertig — siehe oben).
+- **Paketende-Automatik:** nach der **12. von 14 / 13. von 15** Lektion erscheint die Anmeldung
+  unter «Offene Paketentscheide»; «Teilnehmende(r) informieren» verschickt die Frage
+  «fortfahren oder beenden?» (E-Mail bzw. Dev-Log), **Fortfahren** lädt das neue Paket auf und
+  dokumentiert die Rechnungsauslösung (Versand folgt mit Modul 9; bei Behörden nur
+  Verlängerung), **Beenden** schliesst die Anmeldung.
+
+## Modul 4 — Kurse (fertig)
+
+- **Fortlaufend, keine Start-/Enddaten:** Status **geplant · aktiv · pausiert · abgeschlossen ·
+  abgesagt**; Teilnehmende buchen 14/15-Lektionen-Pakete (Modul 5) und verlängern.
+- **Automatischer Kurscode** `DE-B2-6ER-SMIT01-01` = Sprache-Niveau-Kursart-Lehrkürzel +
+  zweistellige Serial (pro Kombination, Lücken bleiben). Der **Niveau-Wechsel** beendet den
+  laufenden Verlauf-Abschnitt, eröffnet den neuen und **passt den Kurscode an** (Serial bleibt
+  möglichst gleich). Wechsel/Unterbrechungen kann auch die **Lehrperson selbst melden**
+  (nur eigene Kurse); Büro setzt sie final.
+- **Unterbrechungen** (Zeiträume, inklusive): im Planer **ausgegraut, Slots überbuchbar**.
+- **Kursort:** intern (Standort → Standard-Raum, kann auch leer bleiben) oder **extern**
+  («Kursort extern» — Firmenkurs vor Ort, erscheint nicht im Raumplaner).
+- **Lehrpersonen sehen ihre Kurse** lesend; jede Änderung steht im Audit-Log.
+
 ## Modul 3 — Personenverwaltung (fertig)
 
 **Eine Kartei für alle** (`/personen`): Interessent/innen, Teilnehmende, Kinder,
@@ -108,7 +245,7 @@ Modul 5, weiterverwendet).
   Person mit an.
 - **Löschen nur wenn unbenutzt:** mit verknüpftem Konto, Familien-Verknüpfungen
   oder Qualifikationen ist keine Löschung möglich (Status «inaktiv» stattdessen).
-  Die **Kurs-Historie** folgt mit Modul 4/5.
+  Die **Kurs-Historie** zeigt alle Anmeldungen der Person (Kurs, Status, Paket, Guthaben).
 
 ## Modul 2 — Stammdaten (fertig)
 
@@ -128,13 +265,16 @@ Regel: anlegen · aktivieren/deaktivieren · **löschen nur wenn unbenutzt** · 
   (Modul 5 kann das Büro jederzeit übersteuern). **Preisliste** je
   Kursart × Dauer × Tarifstufe — **jederzeitig anpassbar** (kein Jahres-Mechanismus).
 - **Kostenträger**: Firmen + öffentliche Einrichtungen mit Kundennummer und
-  Rechnungsadresse.
+  Rechnungsadresse. Kursart/Dauer/Tarifstufe mit Preisen, Standort mit Etagen,
+  Etage mit Räumen können nicht gelöscht werden (archivieren stattdessen).
 
 ### Löschen-Regeln (unbenutzt-Prüfung)
 
 Kursart/Dauer/Tarifstufe mit Preisen, Standort mit Etagen, Etage mit Räumen können
-nicht gelöscht werden (archivieren stattdessen). Weitere Nutzungsprüfen (Kurse,
-Lektionen, Rechnungen) entstehen mit den Modulen 4–9.
+nicht gelöscht werden (archivieren stattdessen). Kurse löschen nur ohne Anmeldungen
+und Lektionen (sonst Status «abgesagt»/«abgeschlossen»); Personen mit Anmeldungen
+sind ebenfalls löschgeschützt (DB-Restriktion). Weitere Prüfungen (Rechnungen,
+Honorare) entstehen mit den Modulen 9–11.
 
 ## Modul 1 — Login & Rechtesystem (fertig)
 

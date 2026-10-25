@@ -1,0 +1,456 @@
+[
+  {
+    "id": "createNativeEnumType.AnwesenheitStatus",
+    "label": "Create enum type \"AnwesenheitStatus\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "AnwesenheitStatus"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"AnwesenheitStatus\"",
+        "sql": "CREATE TYPE \"public\".\"AnwesenheitStatus\" AS ENUM ('ANWESEND', 'ABWESEND_ENTSCHULDIGT', 'ABWESEND_UNENTSCHULDIGT')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "addNativeEnumValue.LektionStatus.DURCHGEFUEHRT",
+    "label": "Add value \"DURCHGEFUEHRT\" to enum type \"LektionStatus\"",
+    "summary": "Adds value \"DURCHGEFUEHRT\" to enum type \"LektionStatus\". A newly added enum value cannot be used until the transaction that adds it commits, so a migration that both appends a value and uses it in the same step will fail at apply.",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "LektionStatus"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure enum type \"LektionStatus\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_type\" AS \"t\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"t\".\"typnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"t\".\"typname\" = $2 AND \"t\".\"typtype\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LektionStatus",
+          "e"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "enum type \"LektionStatus\""
+        }
+      },
+      {
+        "description": "ensure value \"DURCHGEFUEHRT\" is absent from enum type \"LektionStatus\"",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_enum\" AS \"e\" INNER JOIN \"pg_type\" AS \"t\" ON \"t\".\"oid\" = \"e\".\"enumtypid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"t\".\"typnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"t\".\"typname\" = $2 AND \"e\".\"enumlabel\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LektionStatus",
+          "DURCHGEFUEHRT"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "value \"DURCHGEFUEHRT\" in enum type \"LektionStatus\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add value \"DURCHGEFUEHRT\" to enum type \"LektionStatus\"",
+        "sql": "ALTER TYPE \"public\".\"LektionStatus\" ADD VALUE 'DURCHGEFUEHRT'"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify value \"DURCHGEFUEHRT\" exists on enum type \"LektionStatus\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_enum\" AS \"e\" INNER JOIN \"pg_type\" AS \"t\" ON \"t\".\"oid\" = \"e\".\"enumtypid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"t\".\"typnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"t\".\"typname\" = $2 AND \"e\".\"enumlabel\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "LektionStatus",
+          "DURCHGEFUEHRT"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "value \"DURCHGEFUEHRT\" in enum type \"LektionStatus\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.Anwesenheit",
+    "label": "Create table \"Anwesenheit\"",
+    "summary": "Creates table \"Anwesenheit\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Anwesenheit"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Anwesenheit\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Anwesenheit\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"Anwesenheit\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Anwesenheit\"",
+        "sql": "CREATE TABLE \"public\".\"Anwesenheit\" (\n  \"anmeldungId\" text NOT NULL,\n  \"bemerkung\" text,\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"erfasstAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"erfasstVonName\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"korrigiertAt\" timestamp(3),\n  \"lektionId\" text NOT NULL,\n  \"status\" \"AnwesenheitStatus\" NOT NULL,\n  \"updatedAt\" timestamp(3) NOT NULL,\n  \"vonLehrperson\" bool DEFAULT false NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Anwesenheit\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"Anwesenheit\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Anwesenheit\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "column.public.Lektion.abgeschlossenAt",
+    "label": "Add column \"abgeschlossenAt\" to \"Lektion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "abgeschlossenAt",
+        "table": "Lektion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"abgeschlossenAt\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Lektion",
+          "abgeschlossenAt"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"abgeschlossenAt\" on \"Lektion\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"abgeschlossenAt\"",
+        "sql": "ALTER TABLE \"public\".\"Lektion\" ADD COLUMN \"abgeschlossenAt\" timestamp(3)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"abgeschlossenAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Lektion",
+          "abgeschlossenAt"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"abgeschlossenAt\" on \"Lektion\""
+        }
+      },
+      {
+        "description": "verify column \"abgeschlossenAt\" has type \"timestamp(3) without time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "Lektion",
+          "abgeschlossenAt",
+          "timestamp(3) without time zone"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.Lektion.anwesenheitErinnertAt",
+    "label": "Add column \"anwesenheitErinnertAt\" to \"Lektion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "anwesenheitErinnertAt",
+        "table": "Lektion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"anwesenheitErinnertAt\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Lektion",
+          "anwesenheitErinnertAt"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"anwesenheitErinnertAt\" on \"Lektion\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"anwesenheitErinnertAt\"",
+        "sql": "ALTER TABLE \"public\".\"Lektion\" ADD COLUMN \"anwesenheitErinnertAt\" timestamp(3)"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"anwesenheitErinnertAt\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Lektion",
+          "anwesenheitErinnertAt"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"anwesenheitErinnertAt\" on \"Lektion\""
+        }
+      },
+      {
+        "description": "verify column \"anwesenheitErinnertAt\" has type \"timestamp(3) without time zone\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "Lektion",
+          "anwesenheitErinnertAt",
+          "timestamp(3) without time zone"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Anwesenheit.Anwesenheit_anmeldungId_idx",
+    "label": "Create index \"Anwesenheit_anmeldungId_idx\" on \"Anwesenheit\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Anwesenheit_anmeldungId_idx",
+        "table": "Anwesenheit"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Anwesenheit_anmeldungId_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Anwesenheit_anmeldungId_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Anwesenheit_anmeldungId_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Anwesenheit_anmeldungId_idx\"",
+        "sql": "CREATE INDEX \"Anwesenheit_anmeldungId_idx\" ON \"public\".\"Anwesenheit\" (\"anmeldungId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Anwesenheit_anmeldungId_idx\" exists on \"Anwesenheit\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Anwesenheit_anmeldungId_idx\"",
+          "i",
+          "I",
+          "\"public\".\"Anwesenheit\"",
+          "btree",
+          "[\"anmeldungId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Anwesenheit.Anwesenheit_lektionId_anmeldungId_key",
+    "label": "Create index \"Anwesenheit_lektionId_anmeldungId_key\" on \"Anwesenheit\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Anwesenheit_lektionId_anmeldungId_key",
+        "table": "Anwesenheit"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Anwesenheit_lektionId_anmeldungId_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Anwesenheit_lektionId_anmeldungId_key\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Anwesenheit_lektionId_anmeldungId_key\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Anwesenheit_lektionId_anmeldungId_key\"",
+        "sql": "CREATE UNIQUE INDEX \"Anwesenheit_lektionId_anmeldungId_key\" ON \"public\".\"Anwesenheit\" (\"lektionId\", \"anmeldungId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Anwesenheit_lektionId_anmeldungId_key\" exists on \"Anwesenheit\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Anwesenheit_lektionId_anmeldungId_key\"",
+          "i",
+          "I",
+          "\"public\".\"Anwesenheit\"",
+          "btree",
+          "[\"lektionId\",\"anmeldungId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Anwesenheit.Anwesenheit_lektionId_fkey",
+    "label": "Add foreign key \"Anwesenheit_lektionId_fkey\" on \"Anwesenheit\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Anwesenheit_lektionId_fkey",
+        "table": "Anwesenheit"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Anwesenheit_lektionId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Anwesenheit_lektionId_fkey",
+          "public",
+          "\"public\".\"Anwesenheit\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Anwesenheit_lektionId_fkey\" on \"Anwesenheit\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Anwesenheit_lektionId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Anwesenheit\"\nADD CONSTRAINT \"Anwesenheit_lektionId_fkey\"\nFOREIGN KEY (\"lektionId\")\nREFERENCES \"public\".\"Lektion\" (\"id\")\nON DELETE CASCADE\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Anwesenheit_lektionId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Anwesenheit_lektionId_fkey",
+          "public",
+          "\"public\".\"Anwesenheit\"",
+          "f",
+          "[\"lektionId\"]",
+          "\"public\".\"Lektion\"",
+          "[\"id\"]",
+          "c",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Anwesenheit.Anwesenheit_anmeldungId_fkey",
+    "label": "Add foreign key \"Anwesenheit_anmeldungId_fkey\" on \"Anwesenheit\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Anwesenheit_anmeldungId_fkey",
+        "table": "Anwesenheit"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Anwesenheit_anmeldungId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Anwesenheit_anmeldungId_fkey",
+          "public",
+          "\"public\".\"Anwesenheit\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Anwesenheit_anmeldungId_fkey\" on \"Anwesenheit\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Anwesenheit_anmeldungId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Anwesenheit\"\nADD CONSTRAINT \"Anwesenheit_anmeldungId_fkey\"\nFOREIGN KEY (\"anmeldungId\")\nREFERENCES \"public\".\"Anmeldung\" (\"id\")\nON DELETE CASCADE\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Anwesenheit_anmeldungId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Anwesenheit_anmeldungId_fkey",
+          "public",
+          "\"public\".\"Anwesenheit\"",
+          "f",
+          "[\"anmeldungId\"]",
+          "\"public\".\"Anmeldung\"",
+          "[\"id\"]",
+          "c",
+          "c"
+        ]
+      }
+    ]
+  }
+]
