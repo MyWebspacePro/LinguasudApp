@@ -381,6 +381,8 @@ model Person {
   anmeldungenAlsRechnungsempfaenger Anmeldung[] @relation("AnmeldungRechnungsempfaenger")
   // Modul 9 — Rechnungen an diese Person (privat / Eltern als Empfänger).
   rechnungen      Rechnung[] @relation("RechnungenAlsPerson")
+  // Modul 10 — Kursbestätigungen dieser Person (Portal: Selbstdrucken).
+  bestaetigungen  Kursbestaetigung[] @relation("BestaetigungenAlsPerson")
 
   @@index([status])
   @@index([nachname, vorname])
@@ -489,6 +491,8 @@ model Kurs {
   unterbrechungen  KursUnterbrechung[]
   anmeldungen      Anmeldung[]
   lektionen        Lektion[]
+  // Modul 10 — Kursbestätigungen für Niveau-Abschnitte dieses Kurses.
+  bestaetigungen   Kursbestaetigung[]
 
   @@index([status])
   @@index([lehrpersonId])
@@ -511,6 +515,9 @@ model KursNiveauVerlauf {
   /// true, wenn die Lehrperson den Wechsel gemeldet hat (Auslöser Kursbestätigung, Modul 10).
   gemeldetVonLehrperson Boolean @default(false)
   createdAt DateTime @default(now())
+
+  // Modul 10 — Bestätigungen für diesen abgeschlossenen Abschnitt.
+  bestaetigungen Kursbestaetigung[]
 
   @@index([kursId, von])
 }
@@ -602,6 +609,8 @@ model Anmeldung {
   anwesenheiten Anwesenheit[]
   // Modul 9 — Rechnungen, die aus Paket-Verlängerungen dieser Anmeldung ausgelöst wurden.
   rechnungen Rechnung[]
+  // Modul 10 — Kursbestätigungen, die aus dieser Anmeldung entstanden sind.
+  bestaetigungen Kursbestaetigung[]
 
   @@index([kursId, status])
   @@index([personId])
@@ -947,4 +956,70 @@ model Mahnung {
   createdAt  DateTime @default(now())
 
   @@index([rechnungId])
+}
+
+// ————————————————————————————————————————————————————————————————
+// Modul 10 — Kursbestätigungen (PDF)
+// Auslöser: Niveau-Wechsel (Modul 4) beendet einen Abschnitt → das System
+// erzeugt automatisch die Bestätigung für alle aktiven Teilnehmenden; das
+// Büro kann jederzeit manuell erzeugen (auch für beendete Anmeldungen und
+// den laufenden Abschnitt). Inhalt nur Deutsch, keine Leistungsbewertung;
+// bereit im Teilnehmer-Portal zum Selbstdrucken.
+// ————————————————————————————————————————————————————————————————
+
+/// Was die Erzeugung ausgelöst hat (Audit/Anzeige).
+enum BestaetigungsAusloeser {
+  /// Niveau-Wechsel hat den Abschnitt geschlossen (automatisch).
+  NIVEAU_WECHSEL
+  /// Durchs Büro manuell ausgelöst (inkl. Aktualisierung).
+  MANUELL
+}
+
+model Kursbestaetigung {
+  id String @id @default(cuid())
+
+  /// Teilnehmende Person (Empfänger der Bestätigung).
+  personId String
+  person   Person @relation("BestaetigungenAlsPerson", fields: [personId], references: [id], onDelete: Restrict)
+  kursId   String
+  kurs     Kurs   @relation(fields: [kursId], references: [id], onDelete: Cascade)
+  /// Bestätigter Niveau-Abschnitt (Zeitraum dieses Abschnitts).
+  verlaufId String
+  verlauf   KursNiveauVerlauf @relation(fields: [verlaufId], references: [id], onDelete: Cascade)
+  /// Ursprungs-Anmeldung (Snapshot-Link; wird beim Löschen der Anmeldung frei gegeben).
+  anmeldungId String?
+  anmeldung   Anmeldung? @relation(fields: [anmeldungId], references: [id], onDelete: SetNull)
+
+  // ——— Snapshots: das PDF bleibt stabil, auch wenn Stammdaten sich ändern ———
+  /// Anrede der Person (Wert der Anrede-Enumeration: HERR/FRAU/DIVERS).
+  personAnrede String
+  /// Voller Name zum Zeitpunkt der Ausstellung.
+  personName   String
+  spracheName  String
+  niveauCode   String
+  /// Optionale Niveau-Bezeichnung (z.B. «obere Mittelstufe»).
+  niveauName   String?
+  kursartName  String
+  /// Kurscode zum Zeitpunkt der Ausstellung.
+  kursCode     String
+  /// Zeitraum des Abschnitts (UTC-Mitternacht des Lokal-Tags, Muster dbDatum());
+  /// bei Ausstellung im laufenden Abschnitt ist bis = Ausstellungsdatum.
+  zeitraumVon  DateTime
+  zeitraumBis  DateTime
+  /// Besuchte Lektionen: Anwesenheit ANWESEND in DURCHGEFUEHRTen Lektionen
+  /// des Kurses mit startAt im Abschnitts-Zeitraum (snapshot bei Erzeugung).
+  besuchteLektionen Int
+  /// Ausstellungsdatum (UTC-Mitternacht des Lokal-Tags).
+  ausstellungsdatum DateTime
+  /// Name des Auslösenden als Snapshot.
+  ausgestelltVonName String
+  ausloeser  BestaetigungsAusloeser
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  /// Pro Person und Niveau-Abschnitt genau eine Bestätigung (Erneuerung = Update).
+  @@unique([personId, verlaufId])
+  @@index([personId, ausstellungsdatum])
+  @@index([kursId])
 }

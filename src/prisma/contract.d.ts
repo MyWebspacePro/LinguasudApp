@@ -23,9 +23,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'d0264d130365d52f722ae2448ab014f175e5d615f180bb0b46832b441c7277d2'>;
+  StorageHashBase<'177ae0e1aba9645650aa6288c70b1bacbe9c7649529d4828f4eff84ddb571962'>;
 export type ExecutionHash =
-  ExecutionHashBase<'61d3a846c406332478ecee200831f5345e68c0e533bdff56967fd881c03f98aa'>;
+  ExecutionHashBase<'760ad31d82b9acf8640a807f6b6d2b3b78b799ede65c5d3969e9442ed037437b'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -301,6 +301,12 @@ type FieldTypeOverrides = {
           readonly input: 'GEPLANT' | 'AKTIV' | 'PAUSIERT' | 'ABGESCHLOSSEN' | 'ABGESAGT';
         };
       };
+      readonly Kursbestaetigung: {
+        readonly ausloeser: {
+          readonly output: 'NIVEAU_WECHSEL' | 'MANUELL';
+          readonly input: 'NIVEAU_WECHSEL' | 'MANUELL';
+        };
+      };
       readonly Lektion: {
         readonly status: {
           readonly output: 'PROVISORISCH' | 'FIXIERT' | 'ABGESAGT' | 'DURCHGEFUEHRT';
@@ -414,6 +420,12 @@ type ColumnTypeOverrides = {
         readonly input: 'GEPLANT' | 'AKTIV' | 'PAUSIERT' | 'ABGESCHLOSSEN' | 'ABGESAGT';
       };
     };
+    readonly Kursbestaetigung: {
+      readonly ausloeser: {
+        readonly output: 'NIVEAU_WECHSEL' | 'MANUELL';
+        readonly input: 'NIVEAU_WECHSEL' | 'MANUELL';
+      };
+    };
     readonly Lektion: {
       readonly status: {
         readonly output: 'PROVISORISCH' | 'FIXIERT' | 'ABGESAGT' | 'DURCHGEFUEHRT';
@@ -488,6 +500,7 @@ export namespace Models {
     tarifstufeId: FieldOutputTypes['public']['Anmeldung']['tarifstufeId'];
     updatedAt: FieldOutputTypes['public']['Anmeldung']['updatedAt'];
     anwesenheiten: public_Anwesenheit[];
+    bestaetigungen: public_Kursbestaetigung[];
     journal: public_GuthabenJournal[];
     kostentraeger: public_Kostentraeger | null;
     kurs: public_Kurs;
@@ -497,6 +510,7 @@ export namespace Models {
     tarifstufe: public_Tarifstufe;
     readonly [RelationKeys]?:
       | 'anwesenheiten'
+      | 'bestaetigungen'
       | 'journal'
       | 'kostentraeger'
       | 'kurs'
@@ -645,6 +659,7 @@ export namespace Models {
     updatedAt: FieldOutputTypes['public']['Kurs']['updatedAt'];
     wochentag: FieldOutputTypes['public']['Kurs']['wochentag'];
     anmeldungen: public_Anmeldung[];
+    bestaetigungen: public_Kursbestaetigung[];
     kostentraeger: public_Kostentraeger | null;
     kursart: public_Kursart;
     lehrperson: public_Person | null;
@@ -656,6 +671,7 @@ export namespace Models {
     unterbrechungen: public_KursUnterbrechung[];
     readonly [RelationKeys]?:
       | 'anmeldungen'
+      | 'bestaetigungen'
       | 'kostentraeger'
       | 'kursart'
       | 'lehrperson'
@@ -674,9 +690,10 @@ export namespace Models {
     kursId: FieldOutputTypes['public']['KursNiveauVerlauf']['kursId'];
     niveauId: FieldOutputTypes['public']['KursNiveauVerlauf']['niveauId'];
     von: FieldOutputTypes['public']['KursNiveauVerlauf']['von'];
+    bestaetigungen: public_Kursbestaetigung[];
     kurs: public_Kurs;
     niveau: public_Niveau;
-    readonly [RelationKeys]?: 'kurs' | 'niveau';
+    readonly [RelationKeys]?: 'bestaetigungen' | 'kurs' | 'niveau';
   };
   export type public_KursUnterbrechung = {
     bis: FieldOutputTypes['public']['KursUnterbrechung']['bis'];
@@ -702,6 +719,33 @@ export namespace Models {
     kurse: public_Kurs[];
     preise: public_Preis[];
     readonly [RelationKeys]?: 'kurse' | 'preise';
+  };
+  export type public_Kursbestaetigung = {
+    anmeldungId: FieldOutputTypes['public']['Kursbestaetigung']['anmeldungId'];
+    ausgestelltVonName: FieldOutputTypes['public']['Kursbestaetigung']['ausgestelltVonName'];
+    ausloeser: FieldOutputTypes['public']['Kursbestaetigung']['ausloeser'];
+    ausstellungsdatum: FieldOutputTypes['public']['Kursbestaetigung']['ausstellungsdatum'];
+    besuchteLektionen: FieldOutputTypes['public']['Kursbestaetigung']['besuchteLektionen'];
+    createdAt: FieldOutputTypes['public']['Kursbestaetigung']['createdAt'];
+    id: FieldOutputTypes['public']['Kursbestaetigung']['id'];
+    kursCode: FieldOutputTypes['public']['Kursbestaetigung']['kursCode'];
+    kursId: FieldOutputTypes['public']['Kursbestaetigung']['kursId'];
+    kursartName: FieldOutputTypes['public']['Kursbestaetigung']['kursartName'];
+    niveauCode: FieldOutputTypes['public']['Kursbestaetigung']['niveauCode'];
+    niveauName: FieldOutputTypes['public']['Kursbestaetigung']['niveauName'];
+    personAnrede: FieldOutputTypes['public']['Kursbestaetigung']['personAnrede'];
+    personId: FieldOutputTypes['public']['Kursbestaetigung']['personId'];
+    personName: FieldOutputTypes['public']['Kursbestaetigung']['personName'];
+    spracheName: FieldOutputTypes['public']['Kursbestaetigung']['spracheName'];
+    updatedAt: FieldOutputTypes['public']['Kursbestaetigung']['updatedAt'];
+    verlaufId: FieldOutputTypes['public']['Kursbestaetigung']['verlaufId'];
+    zeitraumBis: FieldOutputTypes['public']['Kursbestaetigung']['zeitraumBis'];
+    zeitraumVon: FieldOutputTypes['public']['Kursbestaetigung']['zeitraumVon'];
+    anmeldung: public_Anmeldung | null;
+    kurs: public_Kurs;
+    person: public_Person;
+    verlauf: public_KursNiveauVerlauf;
+    readonly [RelationKeys]?: 'anmeldung' | 'kurs' | 'person' | 'verlauf';
   };
   export type public_Lehrqualifikation = {
     id: FieldOutputTypes['public']['Lehrqualifikation']['id'];
@@ -814,6 +858,7 @@ export namespace Models {
     whatsapp2: FieldOutputTypes['public']['Person']['whatsapp2'];
     anmeldungen: public_Anmeldung[];
     anmeldungenAlsRechnungsempfaenger: public_Anmeldung[];
+    bestaetigungen: public_Kursbestaetigung[];
     bueroAbweichungen: public_BueroAbweichung[];
     bueroAbwesenheiten: public_BueroAbwesenheit[];
     bueroDienste: public_BueroDienst[];
@@ -829,6 +874,7 @@ export namespace Models {
     readonly [RelationKeys]?:
       | 'anmeldungen'
       | 'anmeldungenAlsRechnungsempfaenger'
+      | 'bestaetigungen'
       | 'bueroAbweichungen'
       | 'bueroAbwesenheiten'
       | 'bueroDienste'
@@ -1052,6 +1098,7 @@ export declare const models: {
     KursNiveauVerlauf: Models.public_KursNiveauVerlauf;
     KursUnterbrechung: Models.public_KursUnterbrechung;
     Kursart: Models.public_Kursart;
+    Kursbestaetigung: Models.public_Kursbestaetigung;
     Lehrqualifikation: Models.public_Lehrqualifikation;
     Lektion: Models.public_Lektion;
     Lektionsdauer: Models.public_Lektionsdauer;
@@ -2460,6 +2507,206 @@ type ContractBase = Omit<
                 },
               ];
               foreignKeys: readonly [];
+            };
+            readonly Kursbestaetigung: {
+              columns: {
+                readonly anmeldungId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly ausgestelltVonName: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly ausloeser: {
+                  readonly dataType: 'pg/enum';
+                  readonly codecId: 'pg/enum@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly typeName: 'BestaetigungsAusloeser' };
+                  readonly many: false;
+                };
+                readonly ausstellungsdatum: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly besuchteLektionen: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly kursCode: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly kursId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly kursartName: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly niveauCode: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly niveauName: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly personAnrede: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly personId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly personName: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly spracheName: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly updatedAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly verlaufId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly zeitraumBis: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly zeitraumVon: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'Kursbestaetigung_kursId_idx';
+                  readonly columns: readonly ['kursId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'Kursbestaetigung_personId_ausstellungsdatum_idx';
+                  readonly columns: readonly ['personId', 'ausstellungsdatum'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'Kursbestaetigung_personId_verlaufId_key';
+                  readonly columns: readonly ['personId', 'verlaufId'];
+                  readonly unique: true;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Kursbestaetigung';
+                    readonly columns: readonly ['personId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Person';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Kursbestaetigung';
+                    readonly columns: readonly ['kursId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Kurs';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Kursbestaetigung';
+                    readonly columns: readonly ['verlaufId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'KursNiveauVerlauf';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Kursbestaetigung';
+                    readonly columns: readonly ['anmeldungId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Anmeldung';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
             };
             readonly KursNiveauVerlauf: {
               columns: {
@@ -4614,6 +4861,10 @@ type ContractBase = Omit<
               readonly kind: 'valueSet';
               readonly values: readonly ['LOGIN', 'PASSWORD_RESET'];
             };
+            readonly BestaetigungsAusloeser: {
+              readonly kind: 'valueSet';
+              readonly values: readonly ['NIVEAU_WECHSEL', 'MANUELL'];
+            };
             readonly BillingTyp: {
               readonly kind: 'valueSet';
               readonly values: readonly ['PRIVAT', 'FIRMA', 'OEFFENTLICHE_EINRICHTUNG'];
@@ -4728,6 +4979,10 @@ type ContractBase = Omit<
       readonly model: 'KursUnterbrechung';
     };
     readonly Kursart: { readonly namespace: 'public' & NamespaceId; readonly model: 'Kursart' };
+    readonly Kursbestaetigung: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'Kursbestaetigung';
+    };
     readonly Lehrqualifikation: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'Lehrqualifikation';
@@ -4901,6 +5156,17 @@ type ContractBase = Omit<
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
                   readonly model: 'Anwesenheit';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['anmeldungId'];
+                };
+              };
+              readonly bestaetigungen: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Kursbestaetigung';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {
@@ -5880,6 +6146,17 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['kursId'];
                 };
               };
+              readonly bestaetigungen: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Kursbestaetigung';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['kursId'];
+                };
+              };
               readonly kostentraeger: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -6096,6 +6373,187 @@ type ContractBase = Omit<
               };
             };
           };
+          readonly Kursbestaetigung: {
+            readonly fields: {
+              readonly anmeldungId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly ausgestelltVonName: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly ausloeser: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/enum@1';
+                  readonly typeParams: { readonly typeName: 'BestaetigungsAusloeser' };
+                };
+              };
+              readonly ausstellungsdatum: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly besuchteLektionen: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly kursCode: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly kursId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly kursartName: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly niveauCode: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly niveauName: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly personAnrede: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly personId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly personName: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly spracheName: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly verlaufId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly zeitraumBis: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly zeitraumVon: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+            };
+            readonly relations: {
+              readonly anmeldung: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Anmeldung';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['anmeldungId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly kurs: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Kurs' };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['kursId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly person: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Person';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['personId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly verlauf: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'KursNiveauVerlauf';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['verlaufId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'Kursbestaetigung';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly anmeldungId: { readonly column: 'anmeldungId' };
+                readonly ausgestelltVonName: { readonly column: 'ausgestelltVonName' };
+                readonly ausloeser: { readonly column: 'ausloeser' };
+                readonly ausstellungsdatum: { readonly column: 'ausstellungsdatum' };
+                readonly besuchteLektionen: { readonly column: 'besuchteLektionen' };
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly id: { readonly column: 'id' };
+                readonly kursCode: { readonly column: 'kursCode' };
+                readonly kursId: { readonly column: 'kursId' };
+                readonly kursartName: { readonly column: 'kursartName' };
+                readonly niveauCode: { readonly column: 'niveauCode' };
+                readonly niveauName: { readonly column: 'niveauName' };
+                readonly personAnrede: { readonly column: 'personAnrede' };
+                readonly personId: { readonly column: 'personId' };
+                readonly personName: { readonly column: 'personName' };
+                readonly spracheName: { readonly column: 'spracheName' };
+                readonly updatedAt: { readonly column: 'updatedAt' };
+                readonly verlaufId: { readonly column: 'verlaufId' };
+                readonly zeitraumBis: { readonly column: 'zeitraumBis' };
+                readonly zeitraumVon: { readonly column: 'zeitraumVon' };
+              };
+            };
+          };
           readonly KursNiveauVerlauf: {
             readonly fields: {
               readonly bis: {
@@ -6140,6 +6598,17 @@ type ContractBase = Omit<
               };
             };
             readonly relations: {
+              readonly bestaetigungen: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Kursbestaetigung';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['verlaufId'];
+                };
+              };
               readonly kurs: {
                 readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Kurs' };
                 readonly cardinality: 'N:1';
@@ -6940,6 +7409,17 @@ type ContractBase = Omit<
                 readonly on: {
                   readonly localFields: readonly ['id'];
                   readonly targetFields: readonly ['rechnungsempfaengerId'];
+                };
+              };
+              readonly bestaetigungen: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Kursbestaetigung';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['personId'];
                 };
               };
               readonly bueroAbweichungen: {
@@ -8554,6 +9034,23 @@ type ContractBase = Omit<
           readonly onUpdate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
           readonly ref: {
             readonly entry: 'Kursart';
+            readonly field: 'updatedAt';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'Kursbestaetigung';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly onUpdate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'Kursbestaetigung';
             readonly field: 'updatedAt';
             readonly namespace: 'public';
           };

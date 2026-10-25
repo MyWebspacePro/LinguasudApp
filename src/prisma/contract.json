@@ -60,6 +60,10 @@
       "model": "Kursart",
       "namespace": "public"
     },
+    "Kursbestaetigung": {
+      "model": "Kursbestaetigung",
+      "namespace": "public"
+    },
     "Lehrqualifikation": {
       "model": "Lehrqualifikation",
       "namespace": "public"
@@ -330,6 +334,21 @@
                 },
                 "to": {
                   "model": "Anwesenheit",
+                  "namespace": "public"
+                }
+              },
+              "bestaetigungen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "anmeldungId"
+                  ]
+                },
+                "to": {
+                  "model": "Kursbestaetigung",
                   "namespace": "public"
                 }
               },
@@ -1867,6 +1886,21 @@
                   "namespace": "public"
                 }
               },
+              "bestaetigungen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "kursId"
+                  ]
+                },
+                "to": {
+                  "model": "Kursbestaetigung",
+                  "namespace": "public"
+                }
+              },
               "kostentraeger": {
                 "cardinality": "N:1",
                 "nullable": true,
@@ -2132,6 +2166,21 @@
               }
             },
             "relations": {
+              "bestaetigungen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "verlaufId"
+                  ]
+                },
+                "to": {
+                  "model": "Kursbestaetigung",
+                  "namespace": "public"
+                }
+              },
               "kurs": {
                 "cardinality": "N:1",
                 "nullable": false,
@@ -2439,6 +2488,300 @@
               },
               "namespaceId": "public",
               "table": "Kursart"
+            }
+          },
+          "Kursbestaetigung": {
+            "fields": {
+              "anmeldungId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "ausgestelltVonName": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "ausloeser": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "BestaetigungsAusloeser"
+                  }
+                }
+              },
+              "ausstellungsdatum": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "besuchteLektionen": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "kursCode": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "kursId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "kursartName": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "niveauCode": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "niveauName": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "personAnrede": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "personId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "personName": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "spracheName": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "verlaufId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "zeitraumBis": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "zeitraumVon": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              }
+            },
+            "relations": {
+              "anmeldung": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "anmeldungId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Anmeldung",
+                  "namespace": "public"
+                }
+              },
+              "kurs": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "kursId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Kurs",
+                  "namespace": "public"
+                }
+              },
+              "person": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "personId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Person",
+                  "namespace": "public"
+                }
+              },
+              "verlauf": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "verlaufId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "KursNiveauVerlauf",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "anmeldungId": {
+                  "column": "anmeldungId"
+                },
+                "ausgestelltVonName": {
+                  "column": "ausgestelltVonName"
+                },
+                "ausloeser": {
+                  "column": "ausloeser"
+                },
+                "ausstellungsdatum": {
+                  "column": "ausstellungsdatum"
+                },
+                "besuchteLektionen": {
+                  "column": "besuchteLektionen"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "kursCode": {
+                  "column": "kursCode"
+                },
+                "kursId": {
+                  "column": "kursId"
+                },
+                "kursartName": {
+                  "column": "kursartName"
+                },
+                "niveauCode": {
+                  "column": "niveauCode"
+                },
+                "niveauName": {
+                  "column": "niveauName"
+                },
+                "personAnrede": {
+                  "column": "personAnrede"
+                },
+                "personId": {
+                  "column": "personId"
+                },
+                "personName": {
+                  "column": "personName"
+                },
+                "spracheName": {
+                  "column": "spracheName"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                },
+                "verlaufId": {
+                  "column": "verlaufId"
+                },
+                "zeitraumBis": {
+                  "column": "zeitraumBis"
+                },
+                "zeitraumVon": {
+                  "column": "zeitraumVon"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Kursbestaetigung"
             }
           },
           "Lehrqualifikation": {
@@ -3509,6 +3852,21 @@
                 },
                 "to": {
                   "model": "Anmeldung",
+                  "namespace": "public"
+                }
+              },
+              "bestaetigungen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "personId"
+                  ]
+                },
+                "to": {
+                  "model": "Kursbestaetigung",
                   "namespace": "public"
                 }
               },
@@ -5718,6 +6076,14 @@
               ],
               "typeName": "AuthEventKind"
             },
+            "BestaetigungsAusloeser": {
+              "kind": "postgres-enum",
+              "members": [
+                "NIVEAU_WECHSEL",
+                "MANUELL"
+              ],
+              "typeName": "BestaetigungsAusloeser"
+            },
             "BillingTyp": {
               "kind": "postgres-enum",
               "members": [
@@ -7726,6 +8092,249 @@
                     "name"
                   ],
                   "name": "Kursart_name_key",
+                  "unique": true
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "Kursbestaetigung": {
+              "columns": {
+                "anmeldungId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "ausgestelltVonName": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "ausloeser": {
+                  "codecId": "pg/enum@1",
+                  "dataType": "pg/enum",
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "BestaetigungsAusloeser"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "BestaetigungsAusloeser",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "ausstellungsdatum": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "besuchteLektionen": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "kursCode": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "kursId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "kursartName": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "niveauCode": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "niveauName": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "personAnrede": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "personId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "personName": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "spracheName": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "verlaufId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "zeitraumBis": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "zeitraumVon": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "Kursbestaetigung_personId_verlaufId_key"
+                  },
+                  "onDelete": "restrict",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "personId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kursbestaetigung"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Person"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "Kursbestaetigung_kursId_idx"
+                  },
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "kursId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kursbestaetigung"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kurs"
+                  }
+                },
+                {
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "verlaufId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kursbestaetigung"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "KursNiveauVerlauf"
+                  }
+                },
+                {
+                  "onDelete": "setNull",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "anmeldungId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kursbestaetigung"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Anmeldung"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "kursId"
+                  ],
+                  "name": "Kursbestaetigung_kursId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "personId",
+                    "ausstellungsdatum"
+                  ],
+                  "name": "Kursbestaetigung_personId_ausstellungsdatum_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "personId",
+                    "verlaufId"
+                  ],
+                  "name": "Kursbestaetigung_personId_verlaufId_key",
                   "unique": true
                 }
               ],
@@ -10141,6 +10750,13 @@
                 "PASSWORD_RESET"
               ]
             },
+            "BestaetigungsAusloeser": {
+              "kind": "valueSet",
+              "values": [
+                "NIVEAU_WECHSEL",
+                "MANUELL"
+              ]
+            },
             "BillingTyp": {
               "kind": "valueSet",
               "values": [
@@ -10242,10 +10858,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "d0264d130365d52f722ae2448ab014f175e5d615f180bb0b46832b441c7277d2"
+    "storageHash": "177ae0e1aba9645650aa6288c70b1bacbe9c7649529d4828f4eff84ddb571962"
   },
   "execution": {
-    "executionHash": "61d3a846c406332478ecee200831f5345e68c0e533bdff56967fd881c03f98aa",
+    "executionHash": "760ad31d82b9acf8640a807f6b6d2b3b78b799ede65c5d3969e9442ed037437b",
     "mutations": {
       "defaults": [
         {
@@ -10533,6 +11149,32 @@
           },
           "ref": {
             "entry": "Kursart",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Kursbestaetigung",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Kursbestaetigung",
             "field": "updatedAt",
             "namespace": "public"
           }

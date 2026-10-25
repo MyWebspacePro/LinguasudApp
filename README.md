@@ -83,6 +83,52 @@ docker-entrypoint.sh  Schema-Adoption + Migrationen + Serverstart im Container
 PFLICHTENHEFT.md   Anforderungen (verbindlich für die Umsetzung)
 ```
 
+## Modul 10 — Kursbestätigungen (PDF) (fertig)
+
+- **Auslöser: Niveau-Wechsel.** Schliesst ein Niveau-Wechsel (Modul 4 — ob von der
+  Lehrperson gemeldet oder vom Büro gesetzt) einen Verlauf-Abschnitt ab, erzeugt das
+  System **automatisch** die Kursbestätigung für **alle aktiven Teilnehmenden** des
+  abgeschlossenen Abschnitts und stellt sie im **Teilnehmenden-Portal zum Selbstdrucken**
+  bereit (Erfolgsmeldung am Niveau-Wechsel nennt Anzahl und Niveau). Schlägt die
+  Automatik ausnahmsweise fehl, bleibt der Wechsel gültig — das Büro kann manuell erzeugen.
+- **Inhalt (nur Deutsch, keine Leistungsbewertung):** Briefkopf mit **Logo** (Platzhalter
+  `public/logo-linguasud.png`, Bordeaux-«L» — später 1:1 durch das echte Logo ersetzbar,
+  alternativ `logo-linguasud.jpg`; fehlt die Datei, druckt das PDF ohne Logo) und
+  Schuladresse (aus den `QR_RECHNUNG_*`-Variablen), Anrede + Name (Briefanrede nach
+  Anrede: «Sehr geehrte Frau …» / «Sehr geehrter Herr …» / «Guten Tag …»), **Sprache +
+  bestätigtes Niveau**, **Kursart**, Kurs-Nr., **Zeitraum** des Abschnitts, **besuchte
+  Lektionen**, Ausstellungsdatum (Ort, Datum) und **Unterschriftszeile**.
+- **Besuchte Lektionen** = Anwesenheit **ANWESEND** der Person in **DURCHGEFUEHRTen**
+  Lektionen des Kurses, deren Lokaltag (Europe/Zurich, DST-sicher über `src/lib/zeit.ts`)
+  im Abschnitts-Zeitraum liegt (Grenzen inklusive).
+- **Snapshots:** Name/Anrede, Sprache, Niveau, Kursart, Kurscode, Zeitraum, Lektionszahl
+  und Ausstellungsdatum werden bei der Erzeugung eingefroren (`Kursbestaetigung`-Modell,
+  Unique pro Person × Niveau-Abschnitt) — spätere Stammdaten-Änderungen ändern alte
+  Bestätigungen nicht.
+- **Büro kann jederzeit manuell erzeugen** (Button je Abschnitt im Niveau-Verlauf der
+  Kurs-Detailseite, `canManageKurse`): schliesst **beendete Anmeldungen** ein (z.B.
+  Ausstieg mitten im Niveau) und funktioniert auch für den **laufenden Abschnitt**
+  (Zeitraum dann bis heute, Button heisst «(laufend)»). Erneutes Erzeugen aktualisiert
+  die Snapshots (z.B. nach Anwesenheits-Korrekturen); einzelne Bestätigungen lassen sich
+  löschen. Alles im Audit-Log (`bestaetigung.*`).
+- **Portal** (`/portal`): Liste der eigenen Bestätigungen (Niveau, Zeitraum, Lektionen,
+  Kurs) mit **PDF-Druck-Link** `/bestaetigungen/[id]/pdf` — Rechte-Check in der Route:
+  Verwaltung (`canManageKurse`) oder **eigene Person** (fremde Bestätigungen → 404).
+- Logik in `src/lib/bestaetigungen/` (`logik.ts` pure + getestet — Anrede/Zählung,
+  `erstellung.ts` Kern inkl. Audit, `pdf.ts`/`druck.ts` PDF mit pdf-lib, `actions.ts`);
+  UI: Spalte «Kursbestätigungen» im Niveau-Verlauf der Kurs-Detailseite
+  (`src/components/kurse/BestaetigungAktionen.tsx`) + Portal-Karte.
+
+### Test-Konten & Testdaten (lokal)
+
+- Verwaltung: `buero@linguasud.test` / `admin@linguasud.test`, Passwort
+  `Modul8TestPasswort2026!`.
+- Modul-10-Testdaten (Präfix `m10_` in der DB): Testkurs `DE-A2-6ER-TEST01-01` mit
+  Niveau-Verlauf A2→B1, 6 durchgeführten Lektionen (Aug–Okt, DST-gestreut) + 2 aktive
+  (Tina: 6× anwesend, Max: 5×) und 1 beendete Anmeldung (Zea: 4×); daraus 3 Bestätigungen.
+- Teilnehmer-Login für Portal-Tests: `tina.test@linguasud.test` /
+  `Modul10TestPasswort2026!` (Konto `m10_user_tina`, Rolle TEILNEHMER, Person Tina Testerin).
+
 ## Modul 9 — Rechnungen (PDF) (fertig)
 
 - **Schweizer QR-Rechnung:** jedes PDF trägt den normierten **QR-Zahlteil** (Empfangsschein +

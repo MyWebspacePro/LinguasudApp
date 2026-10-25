@@ -17,6 +17,7 @@ import {
   NiveauWechselForm,
   UnterbrechungenPanel,
 } from "@/components/kurse/KursAktionen";
+import { BestaetigungenForm, BestaetigungLoeschen } from "@/components/kurse/BestaetigungAktionen";
 
 export const metadata: Metadata = {
   title: "Kurs",
@@ -58,7 +59,7 @@ async function KursDetailContent({ params }: { params: Promise<{ id: string }> }
   }
 
   const jetzt = toDbTime(new Date());
-  const [verlauf, unterbrechungen, lektionen, anmeldungen, etage, standort, optionen] = await Promise.all([
+  const [verlauf, unterbrechungen, lektionen, anmeldungen, etage, standort, optionen, bestaetigungen] = await Promise.all([
     db.orm.public.KursNiveauVerlauf.where({ kursId: id }).orderBy((v) => v.von.asc()).all(),
     db.orm.public.KursUnterbrechung.where({ kursId: id }).orderBy((u) => u.von.asc()).all(),
     db.orm.public.Lektion
@@ -77,10 +78,21 @@ async function KursDetailContent({ params }: { params: Promise<{ id: string }> }
     kurs.standardRaum ? db.orm.public.Etage.where({ id: kurs.standardRaum.etageId }).first() : Promise.resolve(null),
     kurs.standardRaum ? etageFuer(kurs.standardRaum.etageId) : Promise.resolve(null),
     canManage ? loadKursOptionen() : Promise.resolve(null),
+    db.orm.public.Kursbestaetigung
+      .where({ kursId: id })
+      .include("person")
+      .orderBy((b) => b.ausstellungsdatum.desc())
+      .all(),
   ]);
 
   const niveaus = optionen?.niveaus ?? [];
   const niveauById = new Map(niveaus.map((n) => [n.id, n]));
+  const bestaetigungenByVerlauf = new Map<string, typeof bestaetigungen>();
+  for (const b of bestaetigungen) {
+    const liste = bestaetigungenByVerlauf.get(b.verlaufId) ?? [];
+    liste.push(b);
+    bestaetigungenByVerlauf.set(b.verlaufId, liste);
+  }
 
   return (
     <div className="max-w-5xl space-y-6">
@@ -175,6 +187,7 @@ async function KursDetailContent({ params }: { params: Promise<{ id: string }> }
                 <th className="th">Von</th>
                 <th className="th">Bis</th>
                 <th className="th">Quelle</th>
+                <th className="th">Kursbestätigungen</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
@@ -185,6 +198,32 @@ async function KursDetailContent({ params }: { params: Promise<{ id: string }> }
                   <td className="td">{v.bis ? formatDatum(datumVonDb(v.bis)) : "—"}</td>
                   <td className="td text-xs">
                     {v.gemeldetVonLehrperson ? "von Lehrperson gemeldet" : "Büro"}
+                  </td>
+                  <td className="td">
+                    <div className="flex flex-col items-start gap-1.5">
+                      {(bestaetigungenByVerlauf.get(v.id) ?? []).length === 0 && (
+                        <span className="text-xs text-slate-400">—</span>
+                      )}
+                      {(bestaetigungenByVerlauf.get(v.id) ?? []).map((b) => (
+                        <span key={b.id} className="flex items-center gap-1.5">
+                          <a
+                            href={`/bestaetigungen/${b.id}/pdf`}
+                            target="_blank"
+                            rel="noopener"
+                            className="text-xs text-brand-700 hover:text-brand-800"
+                          >
+                            {b.person.vorname} {b.person.nachname} (PDF)
+                          </a>
+                          {canManage && (
+                            <BestaetigungLoeschen
+                              bestaetigungId={b.id}
+                              personName={`${b.person.vorname} ${b.person.nachname}`}
+                            />
+                          )}
+                        </span>
+                      ))}
+                      {canManage && <BestaetigungenForm verlaufId={v.id} laufend={v.bis === null} />}
+                    </div>
                   </td>
                 </tr>
               ))}

@@ -18,6 +18,7 @@ import { normalizeTimeInput } from "@/lib/stammdaten/tarif";
 import { addDays, dateKeyToUtcMidnight, heuteDateKey, parseDateKey } from "@/lib/zeit";
 import { zerlegeKursCode } from "./kurscode";
 import { naechsterKursCode } from "./kurscode-server";
+import { erzeugeBestaetigungenFuerAbschnitt } from "@/lib/bestaetigungen/erstellung";
 
 const str = (fd: FormData, key: string) => String(fd.get(key) ?? "").trim();
 
@@ -335,17 +336,40 @@ export async function addNiveauWechselAction(_prev: FormState, formData: FormDat
   if (!niveau) return { error: "Niveau nicht gefunden." };
 
   try {
-    const neuerCode = await fuehreNiveauWechselAus(kursId, niveauId, datumRaw, zugriff.alsLehrperson);
+    const wechsel = await fuehreNiveauWechselAus(kursId, niveauId, datumRaw, zugriff.alsLehrperson);
     await recordAudit({
       actor: zugriff.actor,
       action: zugriff.alsLehrperson ? "kurs.niveauwechsel_gemeldet" : "kurs.niveauwechsel",
       entity: "kurs",
       entityId: kursId,
-      summary: `Niveau-Wechsel bei «${kurs.code}»: neues Niveau ${niveau.code} ab ${datumRaw} → Code ${neuerCode}`,
-      details: { von: kurs.niveauId, zu: niveauId, datum: datumRaw, neuerCode },
+      summary: `Niveau-Wechsel bei «${kurs.code}»: neues Niveau ${niveau.code} ab ${datumRaw} → Code ${wechsel.neuerCode}`,
+      details: { von: kurs.niveauId, zu: niveauId, datum: datumRaw, neuerCode: wechsel.neuerCode },
     });
     revalidateKurse(`/kurse/${kursId}`);
-    return { success: `Niveau-Wechsel erfasst — neuer Kurscode: ${neuerCode}` };
+
+    // Modul 10: Der Wechsel schliesst den bisherigen Abschnitt ab → automatisch
+    // Kursbestätigungen für alle aktiven Teilnehmenden erzeugen (best effort:
+    // der Wechsel bleibt gültig, das Büro kann manuell erzeugen).
+    let bestaetigungsHinweis = "";
+    if (wechsel.geschlossenerVerlaufId) {
+      try {
+        const ergebnis = await erzeugeBestaetigungenFuerAbschnitt({
+          verlaufId: wechsel.geschlossenerVerlaufId,
+          ausloeser: "NIVEAU_WECHSEL",
+          actor: zugriff.actor,
+        });
+        if (ergebnis.personen.length > 0) {
+          bestaetigungsHinweis =
+            ` Kursbestätigungen Niveau ${ergebnis.niveauCode} für ${ergebnis.personen.length} ` +
+            `aktive Teilnehmende im Portal bereitgestellt.`;
+        }
+      } catch (error) {
+        console.error("Automatische Kursbestätigungen fehlgeschlagen:", error);
+        bestaetigungsHinweis = " Kursbestätigungen konnten nicht automatisch erzeugt werden — das Büro kann sie manuell erzeugen.";
+      }
+    }
+
+    return { success: `Niveau-Wechsel erfasst — neuer Kurscode: ${wechsel.neuerCode}.${bestaetigungsHinweis}` };
   } catch (error) {
     console.error("Niveau-Wechsel fehlgeschlagen:", error);
     return { error: "Niveau-Wechsel fehlgeschlagen." };
@@ -358,7 +382,7 @@ async function fuehreNiveauWechselAus(
   niveauId: string,
   datumKey: string,
   gemeldetVonLehrperson: boolean,
-): Promise<string> {
+): Promise<{ neuerCode: string; geschlossenerVerlaufId: string | null }> {
   const kurs = await db.orm.public.Kurs
     .where({ id: kursId })
     .include("sprache")
@@ -377,6 +401,7 @@ async function fuehreNiveauWechselAus(
     lehrKuerzel = lehr?.kuerzel ?? null;
   }
 
+  let geschlossenerVerlaufId: string | null = null;
   await db.transaction(async (tx) => {
     // Laufenden Abschnitt (anderes Niveau) am Vortag beenden.
     const abschnitte = await tx.orm.public.KursNiveauVerlauf.where({ kursId }).all();
@@ -385,6 +410,7 @@ async function fuehreNiveauWechselAus(
       await tx.orm.public.KursNiveauVerlauf
         .where({ id: offener.id })
         .update({ bis: dbDatum(addDays(datumKey, -1)) });
+      geschlossenerVerlaufId = offener.id;
     }
     // Neuen Abschnitt eröffnen.
     await tx.orm.public.KursNiveauVerlauf.create({
@@ -405,7 +431,7 @@ async function fuehreNiveauWechselAus(
     altTeile?.serial,
   );
   await db.orm.public.Kurs.where({ id: kursId }).update({ niveauId, code: neuerCode });
-  return neuerCode;
+  return { neuerCode, geschlossenerVerlaufId };
 }
 
 // ——— Unterbrechungen ——————————————————————————————————————————————
