@@ -107,6 +107,18 @@ export function canManageBueroplan(roles: Role[]): boolean {
   return hasRole(roles, "ADMIN") || hasRole(roles, "CHEF") || hasRole(roles, "BUERO");
 }
 
+/**
+ * Honorarabrechnung (Modul 11): Büro-Operativ (Muster canManageAnmeldungen) —
+ * Honorar-Matrix, Monats-Workflow und Beleg; Auswertungen sieht der Chef.
+ */
+export function canViewHonorare(roles: Role[]): boolean {
+  return hasRole(roles, "ADMIN") || hasRole(roles, "CHEF") || hasRole(roles, "BUERO");
+}
+
+export function canManageHonorare(roles: Role[]): boolean {
+  return hasRole(roles, "ADMIN") || hasRole(roles, "CHEF") || hasRole(roles, "BUERO");
+}
+
 /** Darf dieser Akteur dem Ziel diese Rollen zuweisen? */
 export function canAssignRoles(actorRoles: Role[], targetRoles: Role[]): boolean {
   if (hasRole(actorRoles, "ADMIN")) return true;

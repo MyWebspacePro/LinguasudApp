@@ -81,7 +81,7 @@ export async function baueBestaetigungsPdf(daten: BestaetigungPdfDaten): Promise
     schrift(zeile, textX, y, 8.5, { grau: true });
     y -= 10.5;
   }
-  schrift("KURSBESTÄTIGUNG", A4.breite - RAND, A4.hoehe - RAND, 15, { bold: true });
+  schrift("KURSBESTÄTIGUNG", A4.breite - RAND, A4.hoehe - RAND, 15, { bold: true, align: "rechts" });
   schrift("Niveau-Abschnitt", A4.breite - RAND, A4.hoehe - RAND - 16, 8.5, { grau: true, align: "rechts" });
 
   // Trennlinie unter dem Briefkopf

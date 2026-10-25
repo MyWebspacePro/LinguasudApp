@@ -369,16 +369,24 @@ export async function deletePersonAction(_prev: FormState, formData: FormData): 
         "Diese Person hat ein verknüpftes Konto. Bitte zuerst die Verknüpfung in der Benutzerverwaltung lösen.",
     };
   }
-  const [eltern, kinder, qualifikationen] = await Promise.all([
+  const [eltern, kinder, qualifikationen, honorarSaetze, honorarAbrechnungen] = await Promise.all([
     db.orm.public.PersonBeziehung.where({ kindId: id }).aggregate((a) => ({ n: a.count() })).then((r) => r.n),
     db.orm.public.PersonBeziehung.where({ berechtigterId: id }).aggregate((a) => ({ n: a.count() })).then((r) => r.n),
     db.orm.public.Lehrqualifikation.where({ personId: id }).aggregate((a) => ({ n: a.count() })).then((r) => r.n),
+    db.orm.public.HonorarSatz.where({ lehrpersonId: id }).aggregate((a) => ({ n: a.count() })).then((r) => r.n),
+    db.orm.public.HonorarAbrechnung.where({ lehrpersonId: id }).aggregate((a) => ({ n: a.count() })).then((r) => r.n),
   ]);
   if (eltern + kinder > 0) {
     return { error: "Familien-Verknüpfungen zuerst lösen, dann kann die Person gelöscht werden." };
   }
   if (qualifikationen > 0) {
     return { error: "Qualifikationen zuerst entfernen, dann kann die Person gelöscht werden." };
+  }
+  if (honorarSaetze + honorarAbrechnungen > 0) {
+    return {
+      error:
+        "Diese Person hat Honorar-Daten (Sätze in der Honorar-Matrix oder Monats-Abrechnungen), die historisch erhalten bleiben müssen — bitte den Status auf «inaktiv» setzen statt zu löschen.",
+    };
   }
 
   try {

@@ -40,6 +40,14 @@
       "model": "GuthabenJournal",
       "namespace": "public"
     },
+    "HonorarAbrechnung": {
+      "model": "HonorarAbrechnung",
+      "namespace": "public"
+    },
+    "HonorarSatz": {
+      "model": "HonorarSatz",
+      "namespace": "public"
+    },
     "Kostentraeger": {
       "model": "Kostentraeger",
       "namespace": "public"
@@ -1553,6 +1561,274 @@
               "table": "GuthabenJournal"
             }
           },
+          "HonorarAbrechnung": {
+            "fields": {
+              "actorName": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "actorUserId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "bezahltAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "lehrpersonId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "lektionenAnzahl": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "monat": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "HonorarStatus"
+                  }
+                }
+              },
+              "totalChf": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 10,
+                    "scale": 2
+                  }
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              }
+            },
+            "relations": {
+              "actorUser": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "actorUserId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "lehrperson": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "lehrpersonId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Person",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "actorName": {
+                  "column": "actorName"
+                },
+                "actorUserId": {
+                  "column": "actorUserId"
+                },
+                "bezahltAt": {
+                  "column": "bezahltAt"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "lehrpersonId": {
+                  "column": "lehrpersonId"
+                },
+                "lektionenAnzahl": {
+                  "column": "lektionenAnzahl"
+                },
+                "monat": {
+                  "column": "monat"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "totalChf": {
+                  "column": "totalChf"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "HonorarAbrechnung"
+            }
+          },
+          "HonorarSatz": {
+            "fields": {
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "kursartId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "lehrpersonId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "minuten": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "stundensatzChf": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 8,
+                    "scale": 2
+                  }
+                }
+              }
+            },
+            "relations": {
+              "kursart": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "kursartId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Kursart",
+                  "namespace": "public"
+                }
+              },
+              "lehrperson": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "lehrpersonId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Person",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "id": {
+                  "column": "id"
+                },
+                "kursartId": {
+                  "column": "kursartId"
+                },
+                "lehrpersonId": {
+                  "column": "lehrpersonId"
+                },
+                "minuten": {
+                  "column": "minuten"
+                },
+                "stundensatzChf": {
+                  "column": "stundensatzChf"
+                }
+              },
+              "namespaceId": "public",
+              "table": "HonorarSatz"
+            }
+          },
           "Kostentraeger": {
             "fields": {
               "active": {
@@ -2425,6 +2701,21 @@
               }
             },
             "relations": {
+              "honorarSaetze": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "kursartId"
+                  ]
+                },
+                "to": {
+                  "model": "HonorarSatz",
+                  "namespace": "public"
+                }
+              },
               "kurse": {
                 "cardinality": "1:N",
                 "on": {
@@ -3942,6 +4233,36 @@
                 },
                 "to": {
                   "model": "PersonBeziehung",
+                  "namespace": "public"
+                }
+              },
+              "honorarAbrechnungen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "lehrpersonId"
+                  ]
+                },
+                "to": {
+                  "model": "HonorarAbrechnung",
+                  "namespace": "public"
+                }
+              },
+              "honorarSaetze": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "lehrpersonId"
+                  ]
+                },
+                "to": {
+                  "model": "HonorarSatz",
                   "namespace": "public"
                 }
               },
@@ -5778,6 +6099,21 @@
                   "namespace": "public"
                 }
               },
+              "honorarAbrechnungenAlsErfasser": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "actorUserId"
+                  ]
+                },
+                "to": {
+                  "model": "HonorarAbrechnung",
+                  "namespace": "public"
+                }
+              },
               "passwordResetTokens": {
                 "cardinality": "1:N",
                 "on": {
@@ -6109,6 +6445,14 @@
                 "SONSTIGE"
               ],
               "typeName": "BueroAbwesenheitArt"
+            },
+            "HonorarStatus": {
+              "kind": "postgres-enum",
+              "members": [
+                "OFFEN",
+                "BEZAHLT"
+              ],
+              "typeName": "HonorarStatus"
             },
             "JournalArt": {
               "kind": "postgres-enum",
@@ -7406,6 +7750,257 @@
                   ],
                   "name": "GuthabenJournal_anmeldungId_datum_idx",
                   "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "HonorarAbrechnung": {
+              "columns": {
+                "actorName": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "actorUserId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "bezahltAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "lehrpersonId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "lektionenAnzahl": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "monat": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "status": {
+                  "codecId": "pg/enum@1",
+                  "dataType": "pg/enum",
+                  "default": {
+                    "kind": "literal",
+                    "value": "OFFEN"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "HonorarStatus"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "HonorarStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "totalChf": {
+                  "codecId": "pg/numeric@1",
+                  "dataType": "pg/numeric",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 10,
+                    "scale": 2
+                  }
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "HonorarAbrechnung_lehrpersonId_monat_key"
+                  },
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "lehrpersonId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "HonorarAbrechnung"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Person"
+                  }
+                },
+                {
+                  "onDelete": "setNull",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "actorUserId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "HonorarAbrechnung"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "lehrpersonId",
+                    "monat"
+                  ],
+                  "name": "HonorarAbrechnung_lehrpersonId_monat_key",
+                  "unique": true
+                },
+                {
+                  "columns": [
+                    "monat"
+                  ],
+                  "name": "HonorarAbrechnung_monat_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "HonorarSatz": {
+              "columns": {
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "kursartId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "lehrpersonId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "minuten": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "stundensatzChf": {
+                  "codecId": "pg/numeric@1",
+                  "dataType": "pg/numeric",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 8,
+                    "scale": 2
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "HonorarSatz_lehrpersonId_idx"
+                  },
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "lehrpersonId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "HonorarSatz"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Person"
+                  }
+                },
+                {
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "kursartId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "HonorarSatz"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kursart"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "lehrpersonId"
+                  ],
+                  "name": "HonorarSatz_lehrpersonId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "lehrpersonId",
+                    "kursartId",
+                    "minuten"
+                  ],
+                  "name": "HonorarSatz_lehrpersonId_kursartId_minuten_key",
+                  "unique": true
                 }
               ],
               "primaryKey": {
@@ -10780,6 +11375,13 @@
                 "SONSTIGE"
               ]
             },
+            "HonorarStatus": {
+              "kind": "valueSet",
+              "values": [
+                "OFFEN",
+                "BEZAHLT"
+              ]
+            },
             "JournalArt": {
               "kind": "valueSet",
               "values": [
@@ -10858,10 +11460,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "177ae0e1aba9645650aa6288c70b1bacbe9c7649529d4828f4eff84ddb571962"
+    "storageHash": "2eadc7db4d6f4337490dc7f78c6e9c09b6c6fd2b8989bc6c4dfa8a9a3a4ac7d4"
   },
   "execution": {
-    "executionHash": "760ad31d82b9acf8640a807f6b6d2b3b78b799ede65c5d3969e9442ed037437b",
+    "executionHash": "a41ee9929150f3e430a81aa5fe752277e020d422fb2ce93b3ddac59062483780",
     "mutations": {
       "defaults": [
         {
@@ -11049,6 +11651,43 @@
           },
           "ref": {
             "entry": "GuthabenJournal",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "HonorarAbrechnung",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "HonorarAbrechnung",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "HonorarSatz",
             "field": "id",
             "namespace": "public"
           }

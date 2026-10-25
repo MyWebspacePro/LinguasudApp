@@ -441,6 +441,10 @@ const ENTITY_OPS: Record<StammdatenEntity, EntityOps> = {
     remove: async (id) => {
       const preise = await db.orm.public.Preis.where({ kursartId: id }).aggregate((a) => ({ n: a.count() }));
       if (preise.n > 0) throw new Error("Diese Kursart hat Preise in der Preisliste — zuerst diese entfernen.");
+      const saetze = await db.orm.public.HonorarSatz.where({ kursartId: id }).aggregate((a) => ({ n: a.count() }));
+      if (saetze.n > 0) {
+        throw new Error("Diese Kursart hat Sätze in der Honorar-Matrix — zuerst diese entfernen (oder archivieren).");
+      }
       await db.orm.public.Kursart.where({ id }).delete();
     },
   },

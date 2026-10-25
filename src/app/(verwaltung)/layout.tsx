@@ -7,6 +7,7 @@ import {
   canManageBueroplan,
   canViewAnmeldungen,
   canViewAuditLog,
+  canViewHonorare,
   canViewKurse,
   canViewPersonen,
   canViewPlaner,
@@ -50,6 +51,9 @@ async function VerwaltungGate({ children }: { children: ReactNode }) {
   if (canViewAnmeldungen(roles)) {
     navItems.push({ href: "/anmeldungen", label: "Anmeldungen" });
     navItems.push({ href: "/rechnungen", label: "Rechnungen" });
+  }
+  if (canViewHonorare(roles)) {
+    navItems.push({ href: "/honorare", label: "Honorare" });
   }
   if (canViewPlaner(roles)) {
     navItems.push({ href: "/planer", label: "Raumplaner" });

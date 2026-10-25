@@ -1,0 +1,522 @@
+[
+  {
+    "id": "createNativeEnumType.HonorarStatus",
+    "label": "Create enum type \"HonorarStatus\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "HonorarStatus"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"HonorarStatus\"",
+        "sql": "CREATE TYPE \"public\".\"HonorarStatus\" AS ENUM ('OFFEN', 'BEZAHLT')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.HonorarAbrechnung",
+    "label": "Create table \"HonorarAbrechnung\"",
+    "summary": "Creates table \"HonorarAbrechnung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "HonorarAbrechnung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"HonorarAbrechnung\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"HonorarAbrechnung\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"HonorarAbrechnung\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"HonorarAbrechnung\"",
+        "sql": "CREATE TABLE \"public\".\"HonorarAbrechnung\" (\n  \"actorName\" text NOT NULL,\n  \"actorUserId\" text,\n  \"bezahltAt\" timestamp(3),\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"lehrpersonId\" text NOT NULL,\n  \"lektionenAnzahl\" int4 NOT NULL,\n  \"monat\" text NOT NULL,\n  \"status\" \"HonorarStatus\" DEFAULT 'OFFEN'::\"HonorarStatus\" NOT NULL,\n  \"totalChf\" numeric(10,2) NOT NULL,\n  \"updatedAt\" timestamp(3) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"HonorarAbrechnung\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"HonorarAbrechnung\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"HonorarAbrechnung\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.HonorarSatz",
+    "label": "Create table \"HonorarSatz\"",
+    "summary": "Creates table \"HonorarSatz\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "HonorarSatz"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"HonorarSatz\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"HonorarSatz\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"HonorarSatz\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"HonorarSatz\"",
+        "sql": "CREATE TABLE \"public\".\"HonorarSatz\" (\n  \"id\" text NOT NULL,\n  \"kursartId\" text NOT NULL,\n  \"lehrpersonId\" text NOT NULL,\n  \"minuten\" int4 NOT NULL,\n  \"stundensatzChf\" numeric(8,2) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"HonorarSatz\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"HonorarSatz\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"HonorarSatz\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.HonorarAbrechnung.HonorarAbrechnung_lehrpersonId_monat_key",
+    "label": "Create index \"HonorarAbrechnung_lehrpersonId_monat_key\" on \"HonorarAbrechnung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "HonorarAbrechnung_lehrpersonId_monat_key",
+        "table": "HonorarAbrechnung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"HonorarAbrechnung_lehrpersonId_monat_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"HonorarAbrechnung_lehrpersonId_monat_key\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"HonorarAbrechnung_lehrpersonId_monat_key\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"HonorarAbrechnung_lehrpersonId_monat_key\"",
+        "sql": "CREATE UNIQUE INDEX \"HonorarAbrechnung_lehrpersonId_monat_key\" ON \"public\".\"HonorarAbrechnung\" (\"lehrpersonId\", \"monat\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"HonorarAbrechnung_lehrpersonId_monat_key\" exists on \"HonorarAbrechnung\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"HonorarAbrechnung_lehrpersonId_monat_key\"",
+          "i",
+          "I",
+          "\"public\".\"HonorarAbrechnung\"",
+          "btree",
+          "[\"lehrpersonId\",\"monat\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.HonorarAbrechnung.HonorarAbrechnung_monat_idx",
+    "label": "Create index \"HonorarAbrechnung_monat_idx\" on \"HonorarAbrechnung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "HonorarAbrechnung_monat_idx",
+        "table": "HonorarAbrechnung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"HonorarAbrechnung_monat_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"HonorarAbrechnung_monat_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"HonorarAbrechnung_monat_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"HonorarAbrechnung_monat_idx\"",
+        "sql": "CREATE INDEX \"HonorarAbrechnung_monat_idx\" ON \"public\".\"HonorarAbrechnung\" (\"monat\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"HonorarAbrechnung_monat_idx\" exists on \"HonorarAbrechnung\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"HonorarAbrechnung_monat_idx\"",
+          "i",
+          "I",
+          "\"public\".\"HonorarAbrechnung\"",
+          "btree",
+          "[\"monat\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.HonorarSatz.HonorarSatz_lehrpersonId_idx",
+    "label": "Create index \"HonorarSatz_lehrpersonId_idx\" on \"HonorarSatz\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "HonorarSatz_lehrpersonId_idx",
+        "table": "HonorarSatz"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"HonorarSatz_lehrpersonId_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"HonorarSatz_lehrpersonId_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"HonorarSatz_lehrpersonId_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"HonorarSatz_lehrpersonId_idx\"",
+        "sql": "CREATE INDEX \"HonorarSatz_lehrpersonId_idx\" ON \"public\".\"HonorarSatz\" (\"lehrpersonId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"HonorarSatz_lehrpersonId_idx\" exists on \"HonorarSatz\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"HonorarSatz_lehrpersonId_idx\"",
+          "i",
+          "I",
+          "\"public\".\"HonorarSatz\"",
+          "btree",
+          "[\"lehrpersonId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.HonorarSatz.HonorarSatz_lehrpersonId_kursartId_minuten_key",
+    "label": "Create index \"HonorarSatz_lehrpersonId_kursartId_minuten_key\" on \"HonorarSatz\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "HonorarSatz_lehrpersonId_kursartId_minuten_key",
+        "table": "HonorarSatz"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"HonorarSatz_lehrpersonId_kursartId_minuten_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"HonorarSatz_lehrpersonId_kursartId_minuten_key\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"HonorarSatz_lehrpersonId_kursartId_minuten_key\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"HonorarSatz_lehrpersonId_kursartId_minuten_key\"",
+        "sql": "CREATE UNIQUE INDEX \"HonorarSatz_lehrpersonId_kursartId_minuten_key\" ON \"public\".\"HonorarSatz\" (\"lehrpersonId\", \"kursartId\", \"minuten\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"HonorarSatz_lehrpersonId_kursartId_minuten_key\" exists on \"HonorarSatz\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"HonorarSatz_lehrpersonId_kursartId_minuten_key\"",
+          "i",
+          "I",
+          "\"public\".\"HonorarSatz\"",
+          "btree",
+          "[\"lehrpersonId\",\"kursartId\",\"minuten\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.HonorarAbrechnung.HonorarAbrechnung_lehrpersonId_fkey",
+    "label": "Add foreign key \"HonorarAbrechnung_lehrpersonId_fkey\" on \"HonorarAbrechnung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "HonorarAbrechnung_lehrpersonId_fkey",
+        "table": "HonorarAbrechnung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"HonorarAbrechnung_lehrpersonId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "HonorarAbrechnung_lehrpersonId_fkey",
+          "public",
+          "\"public\".\"HonorarAbrechnung\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"HonorarAbrechnung_lehrpersonId_fkey\" on \"HonorarAbrechnung\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"HonorarAbrechnung_lehrpersonId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"HonorarAbrechnung\"\nADD CONSTRAINT \"HonorarAbrechnung_lehrpersonId_fkey\"\nFOREIGN KEY (\"lehrpersonId\")\nREFERENCES \"public\".\"Person\" (\"id\")\nON DELETE CASCADE\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"HonorarAbrechnung_lehrpersonId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "HonorarAbrechnung_lehrpersonId_fkey",
+          "public",
+          "\"public\".\"HonorarAbrechnung\"",
+          "f",
+          "[\"lehrpersonId\"]",
+          "\"public\".\"Person\"",
+          "[\"id\"]",
+          "c",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.HonorarAbrechnung.HonorarAbrechnung_actorUserId_fkey",
+    "label": "Add foreign key \"HonorarAbrechnung_actorUserId_fkey\" on \"HonorarAbrechnung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "HonorarAbrechnung_actorUserId_fkey",
+        "table": "HonorarAbrechnung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"HonorarAbrechnung_actorUserId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "HonorarAbrechnung_actorUserId_fkey",
+          "public",
+          "\"public\".\"HonorarAbrechnung\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"HonorarAbrechnung_actorUserId_fkey\" on \"HonorarAbrechnung\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"HonorarAbrechnung_actorUserId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"HonorarAbrechnung\"\nADD CONSTRAINT \"HonorarAbrechnung_actorUserId_fkey\"\nFOREIGN KEY (\"actorUserId\")\nREFERENCES \"public\".\"User\" (\"id\")\nON DELETE SET NULL\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"HonorarAbrechnung_actorUserId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "HonorarAbrechnung_actorUserId_fkey",
+          "public",
+          "\"public\".\"HonorarAbrechnung\"",
+          "f",
+          "[\"actorUserId\"]",
+          "\"public\".\"User\"",
+          "[\"id\"]",
+          "n",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.HonorarSatz.HonorarSatz_lehrpersonId_fkey",
+    "label": "Add foreign key \"HonorarSatz_lehrpersonId_fkey\" on \"HonorarSatz\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "HonorarSatz_lehrpersonId_fkey",
+        "table": "HonorarSatz"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"HonorarSatz_lehrpersonId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "HonorarSatz_lehrpersonId_fkey",
+          "public",
+          "\"public\".\"HonorarSatz\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"HonorarSatz_lehrpersonId_fkey\" on \"HonorarSatz\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"HonorarSatz_lehrpersonId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"HonorarSatz\"\nADD CONSTRAINT \"HonorarSatz_lehrpersonId_fkey\"\nFOREIGN KEY (\"lehrpersonId\")\nREFERENCES \"public\".\"Person\" (\"id\")\nON DELETE CASCADE\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"HonorarSatz_lehrpersonId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "HonorarSatz_lehrpersonId_fkey",
+          "public",
+          "\"public\".\"HonorarSatz\"",
+          "f",
+          "[\"lehrpersonId\"]",
+          "\"public\".\"Person\"",
+          "[\"id\"]",
+          "c",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.HonorarSatz.HonorarSatz_kursartId_fkey",
+    "label": "Add foreign key \"HonorarSatz_kursartId_fkey\" on \"HonorarSatz\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "HonorarSatz_kursartId_fkey",
+        "table": "HonorarSatz"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"HonorarSatz_kursartId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "HonorarSatz_kursartId_fkey",
+          "public",
+          "\"public\".\"HonorarSatz\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"HonorarSatz_kursartId_fkey\" on \"HonorarSatz\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"HonorarSatz_kursartId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"HonorarSatz\"\nADD CONSTRAINT \"HonorarSatz_kursartId_fkey\"\nFOREIGN KEY (\"kursartId\")\nREFERENCES \"public\".\"Kursart\" (\"id\")\nON DELETE CASCADE\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"HonorarSatz_kursartId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "HonorarSatz_kursartId_fkey",
+          "public",
+          "\"public\".\"HonorarSatz\"",
+          "f",
+          "[\"kursartId\"]",
+          "\"public\".\"Kursart\"",
+          "[\"id\"]",
+          "c",
+          "c"
+        ]
+      }
+    ]
+  }
+]

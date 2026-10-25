@@ -6,6 +6,47 @@ Kursbestätigungen, Honorare, Vermietung und öffentliche Website.
 
 Die vollständigen Anforderungen stehen im **[PFLICHTENHEFT.md](./PFLICHTENHEFT.md)**.
 
+## Modul 11 — Honorarabrechnung (fertig)
+
+- **Nur durchgeführte Lektionen zählen** (Status `DURCHGEFUEHRT` aus der
+  Anwesenheitskontrolle, Modul 7); Absenzen von Teilnehmenden zählen normal
+  (die Lektion fand statt). Massgebend ist `Lektion.lehrpersonId` — der
+  Snapshot der Lehrperson zum Termin, unabhängig von späteren Kurswechseln.
+- **Honorar-Matrix:** Lehrperson × Kursart × Lektionsdauer mit **globalem
+  Default-Stundensatz** (`SystemSetting` «honorar.defaultStundensatz», pflegt
+  nur Admin im Stammdaten-Bereich `/honorare/saetze`) als Vorbelegung — fallen
+  alle denselben Stundensatz, genügt ein Wert. Abweichungen pro Lehrperson
+  setzt das Büro (Admin/Chef/Büro) auf derselben Seite; die Lektionsdauer wird
+  hochgerechnet (Stundensatz × Minuten/60, auf 5 Rappen gerundet). Lektionen
+  ohne anwendbaren Satz werden rot markiert und blockieren das Markieren
+  (kein falsches 0.00).
+- **Monats-Workflow** (`/honorare`, Büro-Operativ wie Anmeldungen): Monat
+  wählen (Navigation ‹/›) → Lektionsliste je Lehrperson (Datum, Kurs, Dauer,
+  angewandter Satz mit Quelle Default/Abweichung, Betrag) → Total →
+  **«Als bezahlt markieren»** friert Snapshot (Lektionszahl, Total) ein;
+  ändert sich die Liste danach (z.B. Anwesenheit nachträglich abgeschlossen),
+  warnt ein Banner. «Wieder öffnen» setzt den Status zurück. Lektionen ohne
+  Lehrperson werden als nicht abrechenbar gemeldet. Alles im Audit-Log
+  (`honorar.*`).
+- **PDF-Beleg pro Lehrperson und Monat** (`/honorare/[lehrpersonId]/[monat]/pdf`,
+  Rechte-Check in der Route): Datum, Kurs, Dauer, Satz, Betrag je Lektion +
+  Total — nach dem Muster der Kursbestätigungen (A4, Helvetica, Briefkopf mit
+  Logo-Platzhalter aus `public/`).
+- **Finanz-Dashboard des Chefs:** Karte «Honorare <Monat>» auf `/dashboard`
+  (Admin/Chef) mit offenen/bezahlten Monats-Totals und Link in die Abrechnung.
+- Logik in `src/lib/honorare/` (`logik.ts` pure + getestet — Satz-Auflösung,
+  5-Rappen-Rundung, Monats-Gruppierung; `abrechnung.ts` Datenladen,
+  `actions.ts` Server-Actions, `pdf.ts`/`druck.ts` Beleg-PDF); UI in
+  `src/app/(verwaltung)/honorare/` + `src/components/honorare/HonorarFormen.tsx`.
+
+### Test-Daten Modul 11 (lokal, Präfix `m11_`)
+
+- Lehrperson **Heidi Held** (`m11_lehr_heidi`, Kürzel HHEI) unterrichtet die
+  7 durchgeführten Lektionen des Testkurses `DEU-B1-6ER-TEST01-01` (Aug–Nov
+  2026, 60 Min): Default-Stundensatz CHF 40.00/h, Abweichung 6er/60 Min =
+  CHF 45.00/h und Einzel/90 Min = CHF 50.00/h. August 2026 ist als bezahlt
+  markiert (CHF 135.00, 3 Lektionen), Sep–Nov offen.
+
 ## Technologie-Stack
 
 | Baustein | Wahl | Bemerkung |
@@ -319,8 +360,10 @@ Regel: anlegen · aktivieren/deaktivieren · **löschen nur wenn unbenutzt** · 
 Kursart/Dauer/Tarifstufe mit Preisen, Standort mit Etagen, Etage mit Räumen können
 nicht gelöscht werden (archivieren stattdessen). Kurse löschen nur ohne Anmeldungen
 und Lektionen (sonst Status «abgesagt»/«abgeschlossen»); Personen mit Anmeldungen
-sind ebenfalls löschgeschützt (DB-Restriktion). Weitere Prüfungen (Rechnungen,
-Honorare) entstehen mit den Modulen 9–11.
+sind ebenfalls löschgeschützt (DB-Restriktion; Rechnungen über `Restrict`).
+Personen mit Honorar-Daten (Sätze in der Honorar-Matrix, Monats-Abrechnungen)
+sind ebenfalls löschgeschützt (Status «inaktiv» stattdessen), Kursarten mit
+Honorar-Sätzen ebenso.
 
 ## Modul 1 — Login & Rechtesystem (fertig)
 

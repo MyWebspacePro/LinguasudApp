@@ -35,6 +35,8 @@ export type AnwesenheitStatus = Models.public_Anwesenheit["status"];
 export type BueroAbweichungArt = Models.public_BueroAbweichung["art"];
 /** Abwesenheits-Art der Büropersonen (Modul 8). */
 export type BueroAbwesenheitArt = Models.public_BueroAbwesenheit["art"];
+/** Status der Honorar-Monatsabrechnung (Modul 11). */
+export type HonorarStatus = Models.public_HonorarAbrechnung["status"];
 
 /** Zeilen-Typen ohne Relationen (das, was Queries zurückgeben). */
 export type UserRow = Scalars<Models.public_User>;
@@ -55,6 +57,8 @@ export type BueroDienstRow = Scalars<Models.public_BueroDienst>;
 export type BueroAbweichungRow = Scalars<Models.public_BueroAbweichung>;
 export type BueroAbwesenheitRow = Scalars<Models.public_BueroAbwesenheit>;
 export type BueroUrlaubskontingentRow = Scalars<Models.public_BueroUrlaubskontingent>;
+export type HonorarSatzRow = Scalars<Models.public_HonorarSatz>;
+export type HonorarAbrechnungRow = Scalars<Models.public_HonorarAbrechnung>;
 
 /** Anrede-Bezeichnungen für Formulare und Anzeigen. */
 export const ANREDE_LABELS: Record<Anrede, string> = {
@@ -130,6 +134,15 @@ export const LEKTION_STATUS_LABELS: Record<LektionStatus, string> = {
   ABGESAGT: "abgesagt",
   DURCHGEFUEHRT: "durchgeführt",
 };
+
+/** Honorar-Status-Bezeichnungen (Modul 11). */
+export const HONORAR_STATUS_LABELS: Record<HonorarStatus, string> = {
+  OFFEN: "offen",
+  BEZAHLT: "bezahlt",
+};
+
+/** SystemSetting-Schlüssel für den globalen Default-Stundensatz (Modul 11). */
+export const HONORAR_DEFAULT_KEY = "honorar.defaultStundensatz";
 
 /**
  * List-Felder sind im Contract konservativ als (Element | null)[] | null

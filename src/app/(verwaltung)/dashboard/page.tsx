@@ -15,6 +15,8 @@ import {
 } from "@/lib/auth/permissions";
 import { zonedTimeToUtc, addDays, dateKeyOf, heuteDateKey, formatDatumKurz, timeFromMinutes, utcToZoned, weekdayOfDateKey } from "@/lib/zeit";
 import { istUeberfaellig, type RechnungStatus } from "@/lib/rechnungen/logik";
+import { monatLabel as honorarMonatLabel } from "@/lib/honorare/logik";
+import { ladeMonatsAbrechnung } from "@/lib/honorare/abrechnung";
 import { RoleBadge } from "@/components/RoleBadge";
 
 export const metadata: Metadata = {
@@ -33,7 +35,7 @@ export default function DashboardPage() {
 async function DashboardContent() {
   const { user } = await requireStaff();
   const roles = user.roles as Role[];
-  const [userCount, personCount, recentLogins, kursCount, anmeldungAktivCount, lektionenHeute, rechnungsZaehler] = await Promise.all([
+  const [userCount, personCount, recentLogins, kursCount, anmeldungAktivCount, lektionenHeute, rechnungsZaehler, honorarAuswertung] = await Promise.all([
     canViewUsers(roles)
       ? db.orm.public.User.aggregate((a) => ({ n: a.count() })).then((r) => r.n)
       : Promise.resolve(null),
@@ -75,6 +77,31 @@ async function DashboardContent() {
             (r) => istUeberfaellig(r.status as RechnungStatus, String(r.faelligAm).slice(0, 10), heute),
           ).length;
           return { offen: offen.length, ueberfaellig };
+        })()
+      : Promise.resolve(null),
+    hasRole(roles, "ADMIN") || hasRole(roles, "CHEF")
+      ? (async () => {
+          // Modul 11 — Honorar-Totals des laufenden Monats (bezahlte über den
+          // Snapshot, offene aus der live gerechneten Lektionsliste).
+          const monat = heuteDateKey().slice(0, 7);
+          const { gruppen } = await ladeMonatsAbrechnung(monat);
+          let offenChf = 0;
+          let bezahltChf = 0;
+          let offenLehrpersonen = 0;
+          for (const { monat: gruppe, abrechnung } of gruppen) {
+            if (abrechnung?.status === "BEZAHLT") {
+              bezahltChf += abrechnung.totalChf;
+            } else {
+              offenChf += gruppe.totalChf;
+              if (gruppe.zeilen.length > 0) offenLehrpersonen += 1;
+            }
+          }
+          return {
+            monatLabel: honorarMonatLabel(monat),
+            offenChf: Math.round(offenChf * 100) / 100,
+            bezahltChf: Math.round(bezahltChf * 100) / 100,
+            offenLehrpersonen,
+          };
         })()
       : Promise.resolve(null),
   ]);
@@ -185,6 +212,25 @@ async function DashboardContent() {
               offen (versendet / teilbezahlt), {ueberfaelligeRechnungen} überfällig ·{" "}
               <Link href="/rechnungen" className="font-medium text-brand-700 hover:text-brand-800">
                 Rechnungsliste
+              </Link>
+            </p>
+          </div>
+        )}
+
+        {/* Modul 11 — Finanz-Auswertung des Chefs: Honorar-Totals des laufenden Monats. */}
+        {honorarAuswertung && (
+          <div className="card p-5">
+            <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
+              Honorare {honorarAuswertung.monatLabel}
+            </p>
+            <p className="mt-1 text-2xl font-semibold text-slate-900">
+              {honorarAuswertung.offenChf.toFixed(2)} CHF
+            </p>
+            <p className="mt-1 text-sm text-slate-600">
+              offen ({honorarAuswertung.offenLehrpersonen} Lehrpersonen), bezahlt{" "}
+              {honorarAuswertung.bezahltChf.toFixed(2)} CHF ·{" "}
+              <Link href="/honorare" className="font-medium text-brand-700 hover:text-brand-800">
+                Honorarabrechnung
               </Link>
             </p>
           </div>

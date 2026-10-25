@@ -45,6 +45,7 @@ model User {
   personNotizen       PersonNotiz[]
   guthabenJournale    GuthabenJournal[]
   zahlungenAlsErfasser Zahlung[]
+  honorarAbrechnungenAlsErfasser HonorarAbrechnung[]
 
   @@index([isActive])
 }
@@ -231,6 +232,7 @@ model Kursart {
 
   preise          Preis[]
   kurse           Kurs[]
+  honorarSaetze   HonorarSatz[]
 }
 
 /// Lektionsdauern in Minuten (45, 60, 90, …).
@@ -377,6 +379,9 @@ model Person {
   bueroUrlaubskontingente BueroUrlaubskontingent[]
   kurseAlsLehrperson Kurs[]            @relation("KurseAlsLehrperson")
   lektionenAlsLehrperson Lektion[]     @relation("LektionenAlsLehrperson")
+  // Modul 11 — Honorarabrechnung (Abweichungen von der Honorar-Matrix).
+  honorarSaetze          HonorarSatz[]        @relation("HonorarSaetzeAlsLehrperson")
+  honorarAbrechnungen    HonorarAbrechnung[]  @relation("HonorarAbrechnungenAlsLehrperson")
   anmeldungen     Anmeldung[]
   anmeldungenAlsRechnungsempfaenger Anmeldung[] @relation("AnmeldungRechnungsempfaenger")
   // Modul 9 — Rechnungen an diese Person (privat / Eltern als Empfänger).
@@ -1022,4 +1027,62 @@ model Kursbestaetigung {
   @@unique([personId, verlaufId])
   @@index([personId, ausstellungsdatum])
   @@index([kursId])
+}
+
+// ————————————————————————————————————————————————————————————————
+// Modul 11 — Honorarabrechnung
+// Nur DURCHGEFÜHRTE Lektionen zählen (Modul 7); Abwesenheiten von
+// Teilnehmenden zählen normal (die Lektion fand statt). Honorar-Matrix
+// Lehrperson × Kursart × Lektionsdauer mit globalem Default-Stundensatz
+// (SystemSetting «honorar.defaultStundensatz») als Vorbelegung — der
+// Betrag je Lektion wird aus dem Stundensatz hochgerechnet (Minuten/60)
+// und auf 5 Rappen gerundet.
+// ————————————————————————————————————————————————————————————————
+
+/// Honorar-Satz der Matrix: Stundensatz (CHF/h) einer Lehrperson je
+/// Kursart und Lektionsdauer (Minuten). Ohne Eintrag gilt der globale
+/// Default-Stundensatz; Dauer wird hochgerechnet (Stundensatz × Min/60).
+model HonorarSatz {
+  id           String  @id @default(cuid())
+  lehrpersonId String
+  lehrperson   Person  @relation("HonorarSaetzeAlsLehrperson", fields: [lehrpersonId], references: [id], onDelete: Cascade)
+  kursartId    String
+  kursart      Kursart @relation(fields: [kursartId], references: [id], onDelete: Cascade)
+  /// Lektionsdauer in Minuten (Wert der Stammdaten «Lektionsdauer»).
+  minuten        Int
+  /// Stundensatz CHF (Beträge als String mit 2 Nachkommastellen).
+  stundensatzChf Decimal @db.Decimal(8, 2)
+
+  @@unique([lehrpersonId, kursartId, minuten])
+  @@index([lehrpersonId])
+}
+
+/// Status-Tracking pro Lehrperson und Monat («als bezahlt markieren»).
+model HonorarAbrechnung {
+  id           String @id @default(cuid())
+  lehrpersonId String
+  lehrperson   Person @relation("HonorarAbrechnungenAlsLehrperson", fields: [lehrpersonId], references: [id], onDelete: Cascade)
+  /// Monat als "YYYY-MM" (Lokal-Tage Europe/Zurich der Lektionen).
+  monat        String
+  status       HonorarStatus @default(OFFEN)
+
+  /// Snapshots beim Markieren (die Lektionsliste selbst bleibt live rechenbar).
+  lektionenAnzahl Int
+  totalChf        Decimal @db.Decimal(10, 2)
+
+  bezahltAt  DateTime?
+  actorUserId String?
+  actorUser   User?    @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+  actorName   String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([lehrpersonId, monat])
+  @@index([monat])
+}
+
+enum HonorarStatus {
+  OFFEN
+  BEZAHLT
 }
