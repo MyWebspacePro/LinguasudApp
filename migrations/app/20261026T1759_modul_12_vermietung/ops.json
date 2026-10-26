@@ -1,0 +1,1075 @@
+[
+  {
+    "id": "createNativeEnumType.VermietungStatus",
+    "label": "Create enum type \"VermietungStatus\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "VermietungStatus"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"VermietungStatus\"",
+        "sql": "CREATE TYPE \"public\".\"VermietungStatus\" AS ENUM ('GEPLANT', 'FINDET_STATT', 'ABGESAGT')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.Vermietung",
+    "label": "Create table \"Vermietung\"",
+    "summary": "Creates table \"Vermietung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Vermietung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Vermietung\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Vermietung\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"Vermietung\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Vermietung\"",
+        "sql": "CREATE TABLE \"public\".\"Vermietung\" (\n  \"absageGrund\" text,\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"dauerMinuten\" int4 NOT NULL,\n  \"id\" text NOT NULL,\n  \"mieterId\" text NOT NULL,\n  \"notiz\" text,\n  \"preisChf\" numeric(10,2) NOT NULL,\n  \"raumId\" text NOT NULL,\n  \"rechnungId\" text,\n  \"serieId\" text,\n  \"startAt\" timestamp(3) NOT NULL,\n  \"status\" \"VermietungStatus\" DEFAULT 'GEPLANT'::\"VermietungStatus\" NOT NULL,\n  \"updatedAt\" timestamp(3) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Vermietung\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"Vermietung\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"Vermietung\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.VermietungMieter",
+    "label": "Create table \"VermietungMieter\"",
+    "summary": "Creates table \"VermietungMieter\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "VermietungMieter"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"VermietungMieter\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"VermietungMieter\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"VermietungMieter\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"VermietungMieter\"",
+        "sql": "CREATE TABLE \"public\".\"VermietungMieter\" (\n  \"active\" bool DEFAULT true NOT NULL,\n  \"archivedAt\" timestamp(3),\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"email\" text,\n  \"id\" text NOT NULL,\n  \"name\" text NOT NULL,\n  \"notiz\" text,\n  \"ort\" text NOT NULL,\n  \"plz\" text NOT NULL,\n  \"strasse\" text NOT NULL,\n  \"telefon\" text,\n  \"updatedAt\" timestamp(3) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"VermietungMieter\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"VermietungMieter\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"VermietungMieter\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.VermietungSerie",
+    "label": "Create table \"VermietungSerie\"",
+    "summary": "Creates table \"VermietungSerie\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "VermietungSerie"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"VermietungSerie\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"VermietungSerie\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"VermietungSerie\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"VermietungSerie\"",
+        "sql": "CREATE TABLE \"public\".\"VermietungSerie\" (\n  \"bis\" timestamp(3) NOT NULL,\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"endZeit\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"mieterId\" text NOT NULL,\n  \"notiz\" text,\n  \"preisChf\" numeric(10,2) NOT NULL,\n  \"raumId\" text NOT NULL,\n  \"startZeit\" text NOT NULL,\n  \"updatedAt\" timestamp(3) NOT NULL,\n  \"von\" timestamp(3) NOT NULL,\n  \"wochentag\" int4 NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"VermietungSerie\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"VermietungSerie\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"VermietungSerie\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "column.public.Rechnung.mieterId",
+    "label": "Add column \"mieterId\" to \"Rechnung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "mieterId",
+        "table": "Rechnung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"mieterId\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Rechnung",
+          "mieterId"
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "column \"mieterId\" on \"Rechnung\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"mieterId\"",
+        "sql": "ALTER TABLE \"public\".\"Rechnung\" ADD COLUMN \"mieterId\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"mieterId\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Rechnung",
+          "mieterId"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "column \"mieterId\" on \"Rechnung\""
+        }
+      },
+      {
+        "description": "verify column \"mieterId\" has type \"text\"",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_attribute\" AS \"a\" INNER JOIN \"pg_class\" AS \"c\" ON \"c\".\"oid\" = \"a\".\"attrelid\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"relnamespace\" WHERE (\"n\".\"nspname\" = $1 AND \"c\".\"relname\" = $2 AND \"a\".\"attname\" = $3 AND (format_type(\"a\".\"atttypid\", \"a\".\"atttypmod\")) = $4 AND NOT (\"a\".\"attisdropped\"))) AS \"result\"",
+        "params": [
+          "public",
+          "Rechnung",
+          "mieterId",
+          "text"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Rechnung.Rechnung_mieterId_idx",
+    "label": "Create index \"Rechnung_mieterId_idx\" on \"Rechnung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Rechnung_mieterId_idx",
+        "table": "Rechnung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Rechnung_mieterId_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Rechnung_mieterId_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Rechnung_mieterId_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Rechnung_mieterId_idx\"",
+        "sql": "CREATE INDEX \"Rechnung_mieterId_idx\" ON \"public\".\"Rechnung\" (\"mieterId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Rechnung_mieterId_idx\" exists on \"Rechnung\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Rechnung_mieterId_idx\"",
+          "i",
+          "I",
+          "\"public\".\"Rechnung\"",
+          "btree",
+          "[\"mieterId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Vermietung.Vermietung_mieterId_idx",
+    "label": "Create index \"Vermietung_mieterId_idx\" on \"Vermietung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Vermietung_mieterId_idx",
+        "table": "Vermietung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Vermietung_mieterId_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Vermietung_mieterId_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Vermietung_mieterId_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Vermietung_mieterId_idx\"",
+        "sql": "CREATE INDEX \"Vermietung_mieterId_idx\" ON \"public\".\"Vermietung\" (\"mieterId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Vermietung_mieterId_idx\" exists on \"Vermietung\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Vermietung_mieterId_idx\"",
+          "i",
+          "I",
+          "\"public\".\"Vermietung\"",
+          "btree",
+          "[\"mieterId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Vermietung.Vermietung_raumId_startAt_idx",
+    "label": "Create index \"Vermietung_raumId_startAt_idx\" on \"Vermietung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Vermietung_raumId_startAt_idx",
+        "table": "Vermietung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Vermietung_raumId_startAt_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Vermietung_raumId_startAt_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Vermietung_raumId_startAt_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Vermietung_raumId_startAt_idx\"",
+        "sql": "CREATE INDEX \"Vermietung_raumId_startAt_idx\" ON \"public\".\"Vermietung\" (\"raumId\", \"startAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Vermietung_raumId_startAt_idx\" exists on \"Vermietung\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Vermietung_raumId_startAt_idx\"",
+          "i",
+          "I",
+          "\"public\".\"Vermietung\"",
+          "btree",
+          "[\"raumId\",\"startAt\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Vermietung.Vermietung_rechnungId_key",
+    "label": "Create index \"Vermietung_rechnungId_key\" on \"Vermietung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Vermietung_rechnungId_key",
+        "table": "Vermietung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Vermietung_rechnungId_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Vermietung_rechnungId_key\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Vermietung_rechnungId_key\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Vermietung_rechnungId_key\"",
+        "sql": "CREATE UNIQUE INDEX \"Vermietung_rechnungId_key\" ON \"public\".\"Vermietung\" (\"rechnungId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Vermietung_rechnungId_key\" exists on \"Vermietung\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Vermietung_rechnungId_key\"",
+          "i",
+          "I",
+          "\"public\".\"Vermietung\"",
+          "btree",
+          "[\"rechnungId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Vermietung.Vermietung_serieId_idx",
+    "label": "Create index \"Vermietung_serieId_idx\" on \"Vermietung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Vermietung_serieId_idx",
+        "table": "Vermietung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Vermietung_serieId_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Vermietung_serieId_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Vermietung_serieId_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Vermietung_serieId_idx\"",
+        "sql": "CREATE INDEX \"Vermietung_serieId_idx\" ON \"public\".\"Vermietung\" (\"serieId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Vermietung_serieId_idx\" exists on \"Vermietung\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Vermietung_serieId_idx\"",
+          "i",
+          "I",
+          "\"public\".\"Vermietung\"",
+          "btree",
+          "[\"serieId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Vermietung.Vermietung_startAt_idx",
+    "label": "Create index \"Vermietung_startAt_idx\" on \"Vermietung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Vermietung_startAt_idx",
+        "table": "Vermietung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Vermietung_startAt_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Vermietung_startAt_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"Vermietung_startAt_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Vermietung_startAt_idx\"",
+        "sql": "CREATE INDEX \"Vermietung_startAt_idx\" ON \"public\".\"Vermietung\" (\"startAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Vermietung_startAt_idx\" exists on \"Vermietung\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"Vermietung_startAt_idx\"",
+          "i",
+          "I",
+          "\"public\".\"Vermietung\"",
+          "btree",
+          "[\"startAt\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.VermietungMieter.VermietungMieter_active_idx",
+    "label": "Create index \"VermietungMieter_active_idx\" on \"VermietungMieter\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "VermietungMieter_active_idx",
+        "table": "VermietungMieter"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"VermietungMieter_active_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"VermietungMieter_active_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"VermietungMieter_active_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"VermietungMieter_active_idx\"",
+        "sql": "CREATE INDEX \"VermietungMieter_active_idx\" ON \"public\".\"VermietungMieter\" (\"active\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"VermietungMieter_active_idx\" exists on \"VermietungMieter\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"VermietungMieter_active_idx\"",
+          "i",
+          "I",
+          "\"public\".\"VermietungMieter\"",
+          "btree",
+          "[\"active\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.VermietungMieter.VermietungMieter_name_idx",
+    "label": "Create index \"VermietungMieter_name_idx\" on \"VermietungMieter\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "VermietungMieter_name_idx",
+        "table": "VermietungMieter"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"VermietungMieter_name_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"VermietungMieter_name_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"VermietungMieter_name_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"VermietungMieter_name_idx\"",
+        "sql": "CREATE INDEX \"VermietungMieter_name_idx\" ON \"public\".\"VermietungMieter\" (\"name\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"VermietungMieter_name_idx\" exists on \"VermietungMieter\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"VermietungMieter_name_idx\"",
+          "i",
+          "I",
+          "\"public\".\"VermietungMieter\"",
+          "btree",
+          "[\"name\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.VermietungSerie.VermietungSerie_mieterId_idx",
+    "label": "Create index \"VermietungSerie_mieterId_idx\" on \"VermietungSerie\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "VermietungSerie_mieterId_idx",
+        "table": "VermietungSerie"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"VermietungSerie_mieterId_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"VermietungSerie_mieterId_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"VermietungSerie_mieterId_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"VermietungSerie_mieterId_idx\"",
+        "sql": "CREATE INDEX \"VermietungSerie_mieterId_idx\" ON \"public\".\"VermietungSerie\" (\"mieterId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"VermietungSerie_mieterId_idx\" exists on \"VermietungSerie\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"VermietungSerie_mieterId_idx\"",
+          "i",
+          "I",
+          "\"public\".\"VermietungSerie\"",
+          "btree",
+          "[\"mieterId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.VermietungSerie.VermietungSerie_von_idx",
+    "label": "Create index \"VermietungSerie_von_idx\" on \"VermietungSerie\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "VermietungSerie_von_idx",
+        "table": "VermietungSerie"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"VermietungSerie_von_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"VermietungSerie_von_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"VermietungSerie_von_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"VermietungSerie_von_idx\"",
+        "sql": "CREATE INDEX \"VermietungSerie_von_idx\" ON \"public\".\"VermietungSerie\" (\"von\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"VermietungSerie_von_idx\" exists on \"VermietungSerie\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"VermietungSerie_von_idx\"",
+          "i",
+          "I",
+          "\"public\".\"VermietungSerie\"",
+          "btree",
+          "[\"von\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Vermietung.Vermietung_mieterId_fkey",
+    "label": "Add foreign key \"Vermietung_mieterId_fkey\" on \"Vermietung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Vermietung_mieterId_fkey",
+        "table": "Vermietung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Vermietung_mieterId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Vermietung_mieterId_fkey",
+          "public",
+          "\"public\".\"Vermietung\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Vermietung_mieterId_fkey\" on \"Vermietung\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Vermietung_mieterId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Vermietung\"\nADD CONSTRAINT \"Vermietung_mieterId_fkey\"\nFOREIGN KEY (\"mieterId\")\nREFERENCES \"public\".\"VermietungMieter\" (\"id\")\nON DELETE RESTRICT\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Vermietung_mieterId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Vermietung_mieterId_fkey",
+          "public",
+          "\"public\".\"Vermietung\"",
+          "f",
+          "[\"mieterId\"]",
+          "\"public\".\"VermietungMieter\"",
+          "[\"id\"]",
+          "r",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Vermietung.Vermietung_raumId_fkey",
+    "label": "Add foreign key \"Vermietung_raumId_fkey\" on \"Vermietung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Vermietung_raumId_fkey",
+        "table": "Vermietung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Vermietung_raumId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Vermietung_raumId_fkey",
+          "public",
+          "\"public\".\"Vermietung\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Vermietung_raumId_fkey\" on \"Vermietung\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Vermietung_raumId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Vermietung\"\nADD CONSTRAINT \"Vermietung_raumId_fkey\"\nFOREIGN KEY (\"raumId\")\nREFERENCES \"public\".\"Raum\" (\"id\")\nON DELETE RESTRICT\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Vermietung_raumId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Vermietung_raumId_fkey",
+          "public",
+          "\"public\".\"Vermietung\"",
+          "f",
+          "[\"raumId\"]",
+          "\"public\".\"Raum\"",
+          "[\"id\"]",
+          "r",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Vermietung.Vermietung_serieId_fkey",
+    "label": "Add foreign key \"Vermietung_serieId_fkey\" on \"Vermietung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Vermietung_serieId_fkey",
+        "table": "Vermietung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Vermietung_serieId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Vermietung_serieId_fkey",
+          "public",
+          "\"public\".\"Vermietung\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Vermietung_serieId_fkey\" on \"Vermietung\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Vermietung_serieId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Vermietung\"\nADD CONSTRAINT \"Vermietung_serieId_fkey\"\nFOREIGN KEY (\"serieId\")\nREFERENCES \"public\".\"VermietungSerie\" (\"id\")\nON DELETE SET NULL\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Vermietung_serieId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Vermietung_serieId_fkey",
+          "public",
+          "\"public\".\"Vermietung\"",
+          "f",
+          "[\"serieId\"]",
+          "\"public\".\"VermietungSerie\"",
+          "[\"id\"]",
+          "n",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Vermietung.Vermietung_rechnungId_fkey",
+    "label": "Add foreign key \"Vermietung_rechnungId_fkey\" on \"Vermietung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Vermietung_rechnungId_fkey",
+        "table": "Vermietung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Vermietung_rechnungId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Vermietung_rechnungId_fkey",
+          "public",
+          "\"public\".\"Vermietung\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Vermietung_rechnungId_fkey\" on \"Vermietung\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Vermietung_rechnungId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Vermietung\"\nADD CONSTRAINT \"Vermietung_rechnungId_fkey\"\nFOREIGN KEY (\"rechnungId\")\nREFERENCES \"public\".\"Rechnung\" (\"id\")\nON DELETE SET NULL\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Vermietung_rechnungId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Vermietung_rechnungId_fkey",
+          "public",
+          "\"public\".\"Vermietung\"",
+          "f",
+          "[\"rechnungId\"]",
+          "\"public\".\"Rechnung\"",
+          "[\"id\"]",
+          "n",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Rechnung.Rechnung_mieterId_fkey",
+    "label": "Add foreign key \"Rechnung_mieterId_fkey\" on \"Rechnung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Rechnung_mieterId_fkey",
+        "table": "Rechnung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Rechnung_mieterId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Rechnung_mieterId_fkey",
+          "public",
+          "\"public\".\"Rechnung\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"Rechnung_mieterId_fkey\" on \"Rechnung\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Rechnung_mieterId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Rechnung\"\nADD CONSTRAINT \"Rechnung_mieterId_fkey\"\nFOREIGN KEY (\"mieterId\")\nREFERENCES \"public\".\"VermietungMieter\" (\"id\")\nON DELETE RESTRICT\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Rechnung_mieterId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "Rechnung_mieterId_fkey",
+          "public",
+          "\"public\".\"Rechnung\"",
+          "f",
+          "[\"mieterId\"]",
+          "\"public\".\"VermietungMieter\"",
+          "[\"id\"]",
+          "r",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.VermietungSerie.VermietungSerie_mieterId_fkey",
+    "label": "Add foreign key \"VermietungSerie_mieterId_fkey\" on \"VermietungSerie\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "VermietungSerie_mieterId_fkey",
+        "table": "VermietungSerie"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"VermietungSerie_mieterId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "VermietungSerie_mieterId_fkey",
+          "public",
+          "\"public\".\"VermietungSerie\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"VermietungSerie_mieterId_fkey\" on \"VermietungSerie\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"VermietungSerie_mieterId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"VermietungSerie\"\nADD CONSTRAINT \"VermietungSerie_mieterId_fkey\"\nFOREIGN KEY (\"mieterId\")\nREFERENCES \"public\".\"VermietungMieter\" (\"id\")\nON DELETE RESTRICT\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"VermietungSerie_mieterId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "VermietungSerie_mieterId_fkey",
+          "public",
+          "\"public\".\"VermietungSerie\"",
+          "f",
+          "[\"mieterId\"]",
+          "\"public\".\"VermietungMieter\"",
+          "[\"id\"]",
+          "r",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.VermietungSerie.VermietungSerie_raumId_fkey",
+    "label": "Add foreign key \"VermietungSerie_raumId_fkey\" on \"VermietungSerie\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "VermietungSerie_raumId_fkey",
+        "table": "VermietungSerie"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"VermietungSerie_raumId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "VermietungSerie_raumId_fkey",
+          "public",
+          "\"public\".\"VermietungSerie\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"VermietungSerie_raumId_fkey\" on \"VermietungSerie\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"VermietungSerie_raumId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"VermietungSerie\"\nADD CONSTRAINT \"VermietungSerie_raumId_fkey\"\nFOREIGN KEY (\"raumId\")\nREFERENCES \"public\".\"Raum\" (\"id\")\nON DELETE RESTRICT\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"VermietungSerie_raumId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "VermietungSerie_raumId_fkey",
+          "public",
+          "\"public\".\"VermietungSerie\"",
+          "f",
+          "[\"raumId\"]",
+          "\"public\".\"Raum\"",
+          "[\"id\"]",
+          "r",
+          "c"
+        ]
+      }
+    ]
+  }
+]

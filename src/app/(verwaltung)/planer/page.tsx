@@ -9,7 +9,7 @@ import { canManagePlaner, canViewPlaner, hasRole } from "@/lib/auth/permissions"
 import { lehrpersonKonflikte, raumKonflikte, type PlanLektion } from "@/lib/kurse/konflikte";
 import { planTage } from "@/lib/planer/raster";
 import { addDays, formatDatumKurz, heuteDateKey, parseDateKey, utcToZoned, weekdayOfDateKey, zonedTimeToUtc } from "@/lib/zeit";
-import { PlanerGrid, type AnwesenheitEintrag, type PlanerLektion, type PlanerSpalten } from "@/components/planer/PlanerGrid";
+import { PlanerGrid, type AnwesenheitEintrag, type PlanerLektion, type PlanerSpalten, type PlanerVermietung } from "@/components/planer/PlanerGrid";
 import { GenerierenButton } from "@/components/planer/GenerierenButton";
 import { istFensterAbgelaufen } from "@/lib/anwesenheit/logik";
 
@@ -83,6 +83,15 @@ async function PlanerContent({
     .where((l) => l.startAt.lt(toDbTime(tagEnde)))
     .include("kurs")
     .include("lehrperson")
+    .include("raum")
+    .all();
+
+  // Vermietungsblöcke des Tages (Modul 12) — für alle Stabsrollen sichtbar,
+  // da sie den Raum belegen (Konflikt-Check unten).
+  const vermietungRows = await db.orm.public.Vermietung
+    .where((v) => v.startAt.gte(toDbTime(tagStart)))
+    .where((v) => v.startAt.lt(toDbTime(tagEnde)))
+    .include("mieter")
     .include("raum")
     .all();
 
@@ -194,19 +203,45 @@ async function PlanerContent({
   }
 
   // Konflikte nur farblich (keine harte Blockade): pausierte/unterbrochene
-  // Kurse sind überbuchbar und erzeugen keine Konflikte.
-  const konfliktBasis: PlanLektion[] = planLektionen.map((l) => ({
-    id: l.id,
-    raumId: l.raumId,
-    startMinute: l.startMinute,
-    dauerMinuten: l.dauerMinuten,
-    lehrpersonId: l.lehrKuerzel, // wird nur auf Gleichheit geprüft
-    ueberbuchbar: l.kursStatus !== "AKTIV" && l.kursStatus !== "GEPLANT" ? true : l.unterbrochen,
-  }));
+  // Kurse sind überbuchbar und erzeugen keine Konflikte; Vermietungen
+  // belegen den Raum (abgesagte zählen wie abgesagte Lektionen nicht).
+  const planVermietungen: PlanerVermietung[] = vermietungRows.map((v) => {
+    const local = utcToZoned(fromDbTime(v.startAt));
+    return {
+      id: v.id,
+      mieterName: v.mieter.name,
+      raumId: v.raumId,
+      raumLabel: v.raum ? v.raum.name : null,
+      startMinute: local.minuteOfDay,
+      dauerMinuten: v.dauerMinuten,
+      status: v.status,
+      preisChf: Number(v.preisChf.toString()),
+      notiz: v.notiz,
+      ausSerie: v.serieId !== null,
+    };
+  });
+
+  const konfliktBasis: PlanLektion[] = [
+    ...planLektionen.map((l) => ({
+      id: l.id,
+      raumId: l.raumId,
+      startMinute: l.startMinute,
+      dauerMinuten: l.dauerMinuten,
+      lehrpersonId: l.lehrKuerzel, // wird nur auf Gleichheit geprüft
+      ueberbuchbar: l.kursStatus !== "AKTIV" && l.kursStatus !== "GEPLANT" ? true : l.unterbrochen,
+    })),
+    ...planVermietungen.map((v) => ({
+      id: v.id,
+      raumId: v.raumId,
+      startMinute: v.startMinute,
+      dauerMinuten: v.dauerMinuten,
+      lehrpersonId: null,
+      ueberbuchbar: v.status === "ABGESAGT",
+    })),
+  ];
   const konfliktIds = [...new Set([...raumKonflikte(konfliktBasis), ...lehrpersonKonflikte(konfliktBasis)])];
 
   const onlineSpalte = planLektionen.some((l) => l.raumId === null);
-
   // Raumliste fürs Verschieben (label Standort · Etage · Raum).
   const raumOptionen = standorte.flatMap((s) => {
     const etagenDesStandorts = etagen.filter((e) => e.standortId === s.id);
@@ -230,7 +265,9 @@ async function PlanerContent({
             Raumplaner · {formatDatumKurz(tagParam)}
           </h1>
           <p className="mt-0.5 text-sm text-slate-600">
-            {kursCountHeute} Lektion{kursCountHeute === 1 ? "" : "en"} · 14-Tage-Horizont (Mo–Sa, 06:30–23:00) ·
+            {kursCountHeute} Lektion{kursCountHeute === 1 ? "" : "en"}
+            {planVermietungen.length > 0 ? ` · ${planVermietungen.length} Vermietung${planVermietungen.length === 1 ? "" : "en"}` : ""} ·
+            14-Tage-Horizont (Mo–Sa, 06:30–23:00) ·
             pausierte/unterbrochene Kurse ausgegraut + überbuchbar · Konflikte nur markiert, nie blockiert.
           </p>
         </div>
@@ -272,6 +309,7 @@ async function PlanerContent({
             tag={tagParam}
             spalten={spalten}
             lektionen={planLektionen}
+            vermietungen={planVermietungen}
             konfliktIds={konfliktIds}
             onlineSpalte={onlineSpalte}
             canManage={canManage}
@@ -286,6 +324,8 @@ async function PlanerContent({
             <span className="mx-1 inline-block h-3 w-6 rounded border border-brand-700 bg-brand-700 align-middle" /> fixiert ·{" "}
             <span className="mx-1 inline-block h-3 w-6 rounded border border-emerald-600 bg-emerald-600 align-middle" /> durchgeführt
             (Anwesenheit abgeschlossen) ·{" "}
+            <span className="mx-1 inline-block h-3 w-6 rounded border border-amber-500 border-dashed bg-amber-100 align-middle" /> Vermietung
+            (Mieter beim Hover) ·{" "}
             <span className="mx-1 inline-block h-3 w-6 rounded border border-slate-300 bg-slate-200 align-middle" /> pausiert/unterbrochen
             (überbuchbar) ·{" "}
             <span className="mx-1 inline-block h-3 w-6 rounded border border-red-200 bg-red-50 align-middle" /> abgesagt ·{" "}

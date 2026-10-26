@@ -13,6 +13,7 @@ import {
   canViewPlaner,
   canViewStammdaten,
   canViewUsers,
+  canViewVermietung,
   hasRole,
 } from "@/lib/auth/permissions";
 import { logoutAction } from "@/lib/auth/actions";
@@ -51,6 +52,9 @@ async function VerwaltungGate({ children }: { children: ReactNode }) {
   if (canViewAnmeldungen(roles)) {
     navItems.push({ href: "/anmeldungen", label: "Anmeldungen" });
     navItems.push({ href: "/rechnungen", label: "Rechnungen" });
+  }
+  if (canViewVermietung(roles)) {
+    navItems.push({ href: "/vermietungen", label: "Vermietung" });
   }
   if (canViewHonorare(roles)) {
     navItems.push({ href: "/honorare", label: "Honorare" });

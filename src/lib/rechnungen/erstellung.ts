@@ -28,6 +28,8 @@ export interface PositionInput {
 export interface RechnungEmpfaenger {
   personId: string | null;
   kostentraegerId: string | null;
+  /** Modul 12 — Mieter der Raumvermietung (dritter Empfänger-Typ). */
+  mieterId?: string | null;
   name: string;
   strasse: string;
   plz: string;
@@ -103,6 +105,28 @@ export function empfaengerVonKostentraeger(kt: {
   };
 }
 
+/** Empfänger-Snapshot für einen Mieter der Raumvermietung (Modul 12). */
+export function empfaengerVonMieter(mieter: {
+  id: string;
+  name: string;
+  strasse: string;
+  plz: string;
+  ort: string;
+  email?: string | null;
+}): RechnungEmpfaenger {
+  return {
+    personId: null,
+    kostentraegerId: null,
+    mieterId: mieter.id,
+    name: mieter.name,
+    strasse: mieter.strasse,
+    plz: mieter.plz,
+    ort: mieter.ort,
+    land: "CH",
+    email: mieter.email ?? null,
+  };
+}
+
 /**
  * Legt die Rechnung an (Entwurf): Zähler, Nummer, Referenznummer, Positionen
  * und Summen in einer Transaktion. Wirft bei ungültigen Positionen.
@@ -142,6 +166,7 @@ export async function erstelleRechnung(input: ErstelleRechnungInput): Promise<Er
       status: "ENTWURF",
       personId: input.empfaenger.personId,
       kostentraegerId: input.empfaenger.kostentraegerId,
+      mieterId: input.empfaenger.mieterId ?? null,
       empfaengerName: input.empfaenger.name,
       empfaengerStrasse: input.empfaenger.strasse,
       empfaengerPlz: input.empfaenger.plz,

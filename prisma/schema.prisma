@@ -182,6 +182,9 @@ model Raum {
   /// Kurse, die diesen Raum als Standard-Raum führen.
   kurseAlsStandard Kurs[]   @relation("KurseStandardRaum")
   lektionen        Lektion[]
+  // Modul 12 — Vermietungs-Termine und -Serien dieses Raums.
+  vermietungen     Vermietung[]      @relation("VermietungTermine")
+  vermietungSerien VermietungSerie[] @relation("VermietungSerien")
 
   @@unique([etageId, name])
 }
@@ -870,6 +873,12 @@ model Rechnung {
   person          Person?        @relation("RechnungenAlsPerson", fields: [personId], references: [id], onDelete: Restrict)
   kostentraegerId String?
   kostentraeger   Kostentraeger? @relation(fields: [kostentraegerId], references: [id], onDelete: Restrict)
+  // Modul 12 — Mieter als dritter Empfänger-Typ (Raumvermietung); die
+  // Rechnung entsteht ausschliesslich aus der Vermietung (Vermietung.rechnungId).
+  mieterId        String?
+  mieter          VermietungMieter? @relation(fields: [mieterId], references: [id], onDelete: Restrict)
+  /// Raumvermietung, aus der diese Rechnung stammt (Modul 12); null = reguläre Rechnung.
+  vermietung      Vermietung?
   /// Ursprung: Paket-Anmeldung, deren Verlängerung die Rechnung auslöste.
   anmeldungId String?
   anmeldung   Anmeldung? @relation(fields: [anmeldungId], references: [id], onDelete: SetNull)
@@ -914,6 +923,7 @@ model Rechnung {
   @@index([status, faelligAm])
   @@index([personId])
   @@index([kostentraegerId])
+  @@index([mieterId])
 }
 
 /// Rechnungs-Position (Paket, Lehrmittel, Registration …); Beträge exklusive MwSt.
@@ -1085,4 +1095,114 @@ model HonorarAbrechnung {
 enum HonorarStatus {
   OFFEN
   BEZAHLT
+}
+
+// ————————————————————————————————————————————————————————————————
+// Modul 12 — Raumvermietung
+// Eigene Mieterkartei (Name, Kontakt, Rechnungsadresse); einmalige
+// Vermietungen + Serien, die sich beim Anlegen direkt in konkrete
+// Vermietungs-Termine materialisieren (einzeln absagbar/löschbar).
+// Abrechnung über Modul 9: Rechnungs-Entwurf mit Empfänger = Mieter
+// (Rechnung.mieterId als dritter Empfänger-Typ — Mieter sind bewusst
+// KEINE Kostenträger, die Pflichtenheft-semantisch für Firmen und
+// öffentliche Einrichtungen im Kurs-/Anmelde-Billing stehen). Planer:
+// Belegungsblöcke deutlich gekennzeichnet, abgesagt = ausgegraut.
+// Status: geplant → findet statt · abgesagt.
+// ————————————————————————————————————————————————————————————————
+
+/// Lebenszyklus einer Vermietung laut Pflichtenheft.
+enum VermietungStatus {
+  GEPLANT
+  FINDET_STATT
+  ABGESAGT
+}
+
+/// Mieter der Mieterkartei (Modul 12): Name, Kontakt und Rechnungsadresse
+/// (Basis des Empfänger-Snapshots der Vermietungs-Rechnung, Modul 9).
+model VermietungMieter {
+  id        String    @id @default(cuid())
+  name      String
+  /// Kontakt (E-Mail = Versandadresse der Rechnung, Telefon optional).
+  email     String?
+  telefon   String?
+  /// Rechnungsadresse (Pflicht — der Empfänger-Snapshot der Rechnung braucht sie).
+  strasse   String
+  plz       String
+  ort       String
+  notiz     String?
+  active    Boolean   @default(true)
+  archivedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  serien       VermietungSerie[]
+  vermietungen Vermietung[]
+  rechnungen   Rechnung[]
+
+  @@index([name])
+  @@index([active])
+}
+
+/// Vermietungs-Serie (z.B. jeden Dienstag 18–20 Uhr, 1.1.–31.12.): wird beim
+/// Anlegen in konkrete Vermietungs-Termine materialisiert, die einzeln
+/// absagbar/löschbar sind. Beim Löschen der Serie bleiben Termine mit Status
+/// «findet statt», Absage oder Rechnung bestehen (serieId → null).
+model VermietungSerie {
+  id        String @id @default(cuid())
+  mieterId  String
+  mieter    VermietungMieter @relation(fields: [mieterId], references: [id], onDelete: Restrict)
+  raumId    String
+  raum      Raum   @relation("VermietungSerien", fields: [raumId], references: [id], onDelete: Restrict)
+  /// 1 = Montag … 6 = Samstag (Planer-Raster Mo–Sa, kein Sonntag).
+  wochentag Int
+  /// Zeitfenster "HH:mm" (Lokalzeit Europe/Zurich, 06:30–23:00).
+  startZeit String
+  endZeit   String
+  /// Von/Bis inklusive (UTC-Mitternacht des Lokal-Tags, Muster dbDatum()).
+  von       DateTime
+  bis       DateTime
+  /// Preis pro Termin CHF (frei vergeben — keine Preisliste).
+  preisChf  Decimal @db.Decimal(10, 2)
+  notiz     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  termine Vermietung[]
+
+  @@index([mieterId])
+  @@index([von])
+}
+
+/// Konkreter Vermietungs-Termin (Einzelvermietung oder materialisierter
+/// Serientermin). Keine harte Konfliktblockade — Doppelbelegungen markiert
+/// der Planer farblich; abgesagte Termine sind überbuchbar.
+model Vermietung {
+  id           String @id @default(cuid())
+  mieterId     String
+  mieter       VermietungMieter @relation(fields: [mieterId], references: [id], onDelete: Restrict)
+  raumId       String
+  raum         Raum   @relation("VermietungTermine", fields: [raumId], references: [id], onDelete: Restrict)
+  /// Termin (UTC-Instant, Konvertierung via src/lib/zeit.ts).
+  startAt      DateTime
+  dauerMinuten Int
+  /// Preis CHF (frei vergeben — laut Pflichtenheft genügt ein freier Preis).
+  preisChf     Decimal @db.Decimal(10, 2)
+  status       VermietungStatus @default(GEPLANT)
+  absageGrund  String?
+  notiz        String?
+  /// Ursprungs-Serie; null bei Einzelvermietungen.
+  serieId      String?
+  serie        VermietungSerie? @relation(fields: [serieId], references: [id], onDelete: SetNull)
+  /// Rechnungs-Entwurf aus Modul 9 (eine Rechnung pro Termin); beim Löschen
+  /// des Entwurfs wird die Verknüpfung frei (Verkaufsdokument bleibt).
+  rechnungId   String? @unique
+  rechnung     Rechnung? @relation(fields: [rechnungId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([raumId, startAt])
+  @@index([mieterId])
+  @@index([startAt])
+  @@index([serieId])
 }

@@ -119,6 +119,19 @@ export function canManageHonorare(roles: Role[]): boolean {
   return hasRole(roles, "ADMIN") || hasRole(roles, "CHEF") || hasRole(roles, "BUERO");
 }
 
+/**
+ * Raumvermietung (Modul 12): Büro-Operativ (Muster canManageAnmeldungen) —
+ * Mieterkartei, Vermietungen, Serien und Rechnungs-Entwürfe aus der
+ * Vermietung. Die Blöcke selbst sieht jede Stabsrolle im Raumplaner.
+ */
+export function canViewVermietung(roles: Role[]): boolean {
+  return hasRole(roles, "ADMIN") || hasRole(roles, "CHEF") || hasRole(roles, "BUERO");
+}
+
+export function canManageVermietung(roles: Role[]): boolean {
+  return hasRole(roles, "ADMIN") || hasRole(roles, "CHEF") || hasRole(roles, "BUERO");
+}
+
 /** Darf dieser Akteur dem Ziel diese Rollen zuweisen? */
 export function canAssignRoles(actorRoles: Role[], targetRoles: Role[]): boolean {
   if (hasRole(actorRoles, "ADMIN")) return true;

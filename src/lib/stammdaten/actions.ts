@@ -514,7 +514,18 @@ const ENTITY_OPS: Record<StammdatenEntity, EntityOps> = {
     setArchived: (id, archived) =>
       db.orm.public.Raum.where({ id }).update({ archivedAt: archived ? toDbTime(new Date()) : null }),
     remove: async (id) => {
-      // Nutzung durch Lektionen kommt mit Modul 6; dann hier blocken.
+      // Nutzungs-Schutz: Kurse/Lektionen (Modul 6) und Vermietungen (Modul 12)
+      // verweisen auf den Raum — archivieren statt löschen.
+      const [lektionen, vermietungen, serien] = await Promise.all([
+        db.orm.public.Lektion.where({ raumId: id }).aggregate((a) => ({ n: a.count() })).then((r) => r.n),
+        db.orm.public.Vermietung.where({ raumId: id }).aggregate((a) => ({ n: a.count() })).then((r) => r.n),
+        db.orm.public.VermietungSerie.where({ raumId: id }).aggregate((a) => ({ n: a.count() })).then((r) => r.n),
+      ]);
+      if (lektionen + vermietungen + serien > 0) {
+        throw new Error(
+          `Dieser Raum ist in Benutzung (${lektionen} Lektionen, ${vermietungen} Vermietungen, ${serien} Serien) — bitte archivieren statt löschen.`,
+        );
+      }
       await db.orm.public.Raum.where({ id }).delete();
     },
   },

@@ -11,7 +11,8 @@ import { idleFormState } from "@/lib/forms";
 import { FormAlert } from "@/components/FormAlert";
 import { SubmitButton } from "@/components/SubmitButton";
 import { formatDatum, timeFromMinutes } from "@/lib/zeit";
-import type { AnwesenheitStatus, KursStatus, LektionStatus } from "@/lib/db";
+import { VERMIETUNG_STATUS_LABELS } from "@/lib/domain";
+import type { AnwesenheitStatus, KursStatus, LektionStatus, VermietungStatus } from "@/lib/db";
 
 /** Spaltenstruktur: Standort → Etage → Räume (flat für das CSS-Grid). */
 export interface PlanerSpalten {
@@ -67,6 +68,20 @@ export interface PlanerPanelOptionen {
   heuteKey: string;
 }
 
+/** Serialisierte Vermietung im Planer (Modul 12) — deutlich andere Farbe. */
+export interface PlanerVermietung {
+  id: string;
+  mieterName: string;
+  raumId: string;
+  raumLabel: string | null;
+  startMinute: number;
+  dauerMinuten: number;
+  status: VermietungStatus;
+  preisChf: number;
+  notiz: string | null;
+  ausSerie: boolean;
+}
+
 const PX_PRO_MINUTE = 1;
 const RASTER_HOEHE = (23 * 60 - (6 * 60 + 30)) * PX_PRO_MINUTE;
 const FENSTER_VON = 6 * 60 + 30;
@@ -85,6 +100,7 @@ export function PlanerGrid({
   tag,
   spalten,
   lektionen,
+  vermietungen = [],
   konfliktIds,
   onlineSpalte,
   optionen,
@@ -93,12 +109,14 @@ export function PlanerGrid({
   tag: string;
   spalten: PlanerSpalten[];
   lektionen: PlanerLektion[];
+  vermietungen?: PlanerVermietung[];
   konfliktIds: string[];
   onlineSpalte: boolean;
   optionen: PlanerPanelOptionen;
   canManage: boolean;
 }) {
   const [ausgewaehlt, setAusgewaehlt] = useState<PlanerLektion | null>(null);
+  const [ausgewaehlteVermietung, setAusgewaehlteVermietung] = useState<PlanerVermietung | null>(null);
   const konflikte = new Set(konfliktIds);
 
   // Flat-Liste der Spalten (Reihenfolge = Spaltenreihenfolge im Grid).
@@ -131,6 +149,10 @@ export function PlanerGrid({
 
   const lektionenIn = (raumId: string) =>
     lektionen.filter((l) => (raumId === "online" ? l.raumId === null : l.raumId === raumId));
+
+  // Vermietungen haben immer einen Raum — in der Online-Spalte nie zeigen.
+  const vermietungenIn = (raumId: string) =>
+    raumId === "online" ? [] : vermietungen.filter((v) => v.raumId === raumId);
 
   return (
     <div className="space-y-4">
@@ -189,9 +211,12 @@ export function PlanerGrid({
               <RaumSpalte
                 key={c.key}
                 lektionen={lektionenIn(c.key)}
+                vermietungen={vermietungenIn(c.key)}
                 konflikte={konflikte}
                 ausgewaehltId={ausgewaehlt?.id ?? null}
+                ausgewaehlteVermietungId={ausgewaehlteVermietung?.id ?? null}
                 onSelect={setAusgewaehlt}
+                onSelectVermietung={setAusgewaehlteVermietung}
               />
             ))}
           </div>
@@ -211,20 +236,35 @@ export function PlanerGrid({
           onClose={() => setAusgewaehlt(null)}
         />
       )}
+
+      {ausgewaehlteVermietung && (
+        <VermietungPanel
+          vermietung={ausgewaehlteVermietung}
+          tag={tag}
+          canManage={canManage}
+          onClose={() => setAusgewaehlteVermietung(null)}
+        />
+      )}
     </div>
   );
 }
 
 function RaumSpalte({
   lektionen,
+  vermietungen,
   konflikte,
   ausgewaehltId,
+  ausgewaehlteVermietungId,
   onSelect,
+  onSelectVermietung,
 }: {
   lektionen: PlanerLektion[];
+  vermietungen: PlanerVermietung[];
   konflikte: Set<string>;
   ausgewaehltId: string | null;
+  ausgewaehlteVermietungId: string | null;
   onSelect: (l: PlanerLektion) => void;
+  onSelectVermietung: (v: PlanerVermietung) => void;
 }) {
   return (
     <div
@@ -289,6 +329,50 @@ function RaumSpalte({
           </button>
         );
       })}
+
+      {/* Vermietungsblöcke (Modul 12): deutlich andere Farbe (amber), Hover mit
+          Mieter/Zeit, abgesagt ausgegraut und überbuchbar. */}
+      {vermietungen.map((v) => {
+        const abgesagt = v.status === "ABGESAGT";
+        const konflikt = konflikte.has(v.id);
+        return (
+          <button
+            key={v.id}
+            type="button"
+            onClick={() => onSelectVermietung(v)}
+            className={[
+              "group absolute left-0.5 right-0.5 overflow-hidden rounded-md border border-dashed px-1 text-left text-[10px] leading-tight transition",
+              abgesagt
+                ? "border-slate-300 bg-slate-100/90 text-slate-400 line-through"
+                : "border-amber-500 bg-amber-100 text-amber-900",
+              konflikt && !abgesagt ? "ring-2 ring-red-500 ring-offset-0" : "",
+              ausgewaehlteVermietungId === v.id ? "outline outline-2 outline-offset-1 outline-slate-800" : "",
+            ].join(" ")}
+            style={{ top: (v.startMinute - FENSTER_VON) * PX_PRO_MINUTE, height: Math.max(18, v.dauerMinuten * PX_PRO_MINUTE) - 2 }}
+            title={vermietungTooltip(v, konflikt)}
+          >
+            <span className="block truncate font-semibold">Vermietung</span>
+            {v.dauerMinuten >= 60 && (
+              <span className="block truncate opacity-80">
+                {timeFromMinutes(v.startMinute)} · {v.mieterName}
+              </span>
+            )}
+            <span className="pointer-events-none invisible absolute left-1/2 top-full z-20 mt-1 w-60 -translate-x-1/2 rounded-lg border border-line bg-paper p-2.5 text-left text-[11px] font-normal normal-case leading-snug text-slate-700 opacity-0 shadow-lg transition group-hover:visible group-hover:opacity-100 group-focus:visible group-focus:opacity-100">
+              <span className="mb-1 block text-[10px] font-bold text-amber-700">Raumvermietung{v.ausSerie ? " (Serie)" : ""}</span>
+              <span className="block">Mieter: {v.mieterName}</span>
+              <span className="block">
+                {timeFromMinutes(v.startMinute)}–{timeFromMinutes(v.startMinute + v.dauerMinuten)} · {v.raumLabel ?? "Raum"}
+              </span>
+              <span className="block">
+                {VERMIETUNG_STATUS_LABELS[v.status]} · Preis {v.preisChf.toFixed(2)} CHF
+                {konflikt ? " · KONFLIKT: Doppelbelegung" : ""}
+                {abgesagt ? " · überbuchbar" : ""}
+              </span>
+              {v.notiz && <span className="block text-slate-500">{v.notiz}</span>}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -320,10 +404,69 @@ function tooltipText(l: PlanerLektion, konflikt: boolean): string {
   return teile.join("\n");
 }
 
+function vermietungTooltip(v: PlanerVermietung, konflikt: boolean): string {
+  const teile = [
+    `Raumvermietung${v.ausSerie ? " (Serie)" : ""}`,
+    `Mieter: ${v.mieterName}`,
+    `${timeFromMinutes(v.startMinute)}–${timeFromMinutes(v.startMinute + v.dauerMinuten)} · ${v.raumLabel ?? "Raum"}`,
+    `${VERMIETUNG_STATUS_LABELS[v.status]} · Preis ${v.preisChf.toFixed(2)} CHF`,
+  ];
+  if (v.status === "ABGESAGT") teile.push("abgesagt — Slot überbuchbar");
+  if (konflikt) teile.push("Konflikt: Doppelbelegung");
+  if (v.notiz) teile.push(v.notiz);
+  return teile.join("\n");
+}
+
 function stundenLabels(): number[] {
   const labels: number[] = [];
   for (let m = 7 * 60; m <= 23 * 60; m += 60) labels.push(m);
   return labels;
+}
+
+/** Klick-Panel einer Vermietung im Planer (Modul 12): Details + Link. */
+function VermietungPanel({
+  vermietung,
+  tag,
+  canManage,
+  onClose,
+}: {
+  vermietung: PlanerVermietung;
+  tag: string;
+  canManage: boolean;
+  onClose: () => void;
+}) {
+  return (
+    <section className="card p-5">
+      <div className="flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <h2 className="text-sm font-bold text-amber-700">
+            Raumvermietung{vermietung.ausSerie ? " (aus Serie)" : ""}
+          </h2>
+          <p className="mt-0.5 text-sm text-slate-700">Mieter: {vermietung.mieterName}</p>
+          <p className="mt-0.5 text-xs text-slate-500">
+            {formatDatum(tag)} · {timeFromMinutes(vermietung.startMinute)}–
+            {timeFromMinutes(vermietung.startMinute + vermietung.dauerMinuten)} · {vermietung.raumLabel ?? "Raum"} ·{" "}
+            {VERMIETUNG_STATUS_LABELS[vermietung.status]} · Preis {vermietung.preisChf.toFixed(2)} CHF
+          </p>
+          {vermietung.notiz && <p className="mt-1 text-xs text-slate-500">{vermietung.notiz}</p>}
+        </div>
+        <div className="flex gap-2">
+          {canManage && (
+            <a href={`/vermietungen/${vermietung.id}`} className="btn-secondary px-3 py-1.5 text-xs">
+              Vermietung öffnen
+            </a>
+          )}
+          <button type="button" onClick={onClose} className="btn-secondary px-3 py-1.5 text-xs">
+            Schliessen
+          </button>
+        </div>
+      </div>
+      <p className="mt-3 border-t border-line pt-3 text-xs text-slate-500">
+        Vermietungen werden in der Verwaltung unter «Vermietung» gepflegt (Rechnungs-Entwurf mit
+        QR-Zahlteil an den Mieter). Doppelbelegungen werden nur markiert, nie blockiert.
+      </p>
+    </section>
+  );
 }
 
 /** Klick-Panel einer Lektion: Details + Anwesenheit (Modul 7) + Verschieben/Fixieren/Absagen (Büro). */

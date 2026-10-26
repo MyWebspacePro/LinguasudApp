@@ -47,6 +47,58 @@ Die vollständigen Anforderungen stehen im **[PFLICHTENHEFT.md](./PFLICHTENHEFT.
   CHF 45.00/h und Einzel/90 Min = CHF 50.00/h. August 2026 ist als bezahlt
   markiert (CHF 135.00, 3 Lektionen), Sep–Nov offen.
 
+## Modul 12 — Raumvermietung (fertig)
+
+- **Eigene Mieterkartei** (`/vermietungen/mieter`): Name, E-Mail (Rechnungsversand),
+  Telefon, Rechnungsadresse (Pflicht) — bewusst getrennt von Personen- und
+  Kostenträger-Kartei. **Löschen nur ohne Vermietungen/Serien/Rechnungen**
+  (sonst archivieren; serverseitig geprüft und über Restrict-FKs abgesichert),
+  jede Änderung im Audit-Log (`vermietung.mieter_*`).
+- **Vermietungen** (`/vermietungen`): Raum, Datum/Zeitfenster (Planer-Raster
+  06:30–23:00, Mo–Sa), Mieter, **frei vergebener Preis**, Notiz; Status
+  **geplant → findet statt · abgesagt** (Absage mit Pflicht-Grund). Bearbeiten
+  ist gesperrt, sobald eine Rechnung existiert (Entwurf dort löschen, dann ändern);
+  Doppelbelegungen blockieren nicht — weicher Belegungshinweis beim Erfassen,
+  Konflikt-Markierung im Planer.
+- **Serien** (z.B. jeden Dienstag 18–20 Uhr, 1.1.–31.12.): werden beim Anlegen
+  **sofort in konkrete Vermietungs-Termine materialisiert** — jeder einzeln
+  absagbar/löschbar. Löschen einer Serie entfernt geplante Termine ohne Rechnung;
+  bestätigte, abgesagte und abgerechnete bleiben bestehen (`serieId` → null).
+- **Rechnungsweg (Modul 9):** pro Vermietung ein Rechnungs-Entwurf mit
+  Schweizer QR-Zahlteil — Empfänger ist der **Mieter als dritter Empfänger-Typ**
+  (`Rechnung.mieterId`, Adresse als Snapshot beim Erstellen). Bewusst **nicht**
+  auf Kostenträger abgebildet: Kostenträger sind Pflichtenheft-semantisch Firmen
+  und öffentliche Einrichtungen des Kurs-/Anmelde-Billings (Kundennummer,
+  Verwendung in Modul 4/5) — ein Mapping würde überall Sonderfilter erzwingen.
+  Versand, Teilzahlungen und Mahnungen laufen unverändert über die
+  Rechnungsverwaltung; die Vermietung verlinkt ihre Rechnung
+  (`Vermietung.rechnungId`, eine Rechnung pro Termin).
+- **Raumplaner (Modul 6):** Vermietungsblöcke in **Amber mit gestricheltem Rand**
+  (andere Farbe als Kurse), Hover mit Mieter/Zeit/Status/Preis, Klick-Panel mit
+  Link zur Vermietung; **abgesagte Vermietungen ausgegraut und überbuchbar**
+  (Muster pausierte Kurse). Vermietungen fliessen in den Raum-Konflikt-Check ein
+  (`raumKonflikte`) — Kurs auf vermietetem Slot → roter Ring auf beiden Blöcken.
+- **Finanz-Dashboard des Chefs** (`/dashboard`, Admin/Chef): Karte
+  «Vermietung <Monat>» mit Umsatz aus den Vermietungs-Rechnungen des
+  Termin-Monats (offen/bezahlt, Storno ausgenommen) plus Termin-Zähler und
+  Hinweis «n ohne Rechnung» — Muster Honorar-Karte.
+- Logik in `src/lib/vermietung/` (`logik.ts` pure + getestet — Serien-Expansion
+  DST-sicher über Kalender-Date-Keys; `actions.ts` Server-Actions mit Audit,
+  `daten.ts` Formular-Optionen + Monats-Auswertung); UI in
+  `src/app/(verwaltung)/vermietungen/` + `src/components/vermietung/`.
+  Die **Raum-Löschung in den Stammdaten blockiert jetzt bei Nutzung**
+  (Lektionen, Vermietungen, Serien — archivieren stattdessen; schliesst den
+  bisher offenen Modul-6-TODO nach).
+
+### Test-Daten Modul 12 (lokal, Präfix `m12_`)
+
+- Mieter **m12 Testmieter Musikverein Armonia** (Teststrasse 12, 8200
+  Schaffhausen, `m12-mieter@linguasud.test`).
+- 1 Einzelvermietung: **Mi, 28.10.2026, 18:00–20:00, Oxford** (Bahnhofplatz 9),
+  CHF 150.00, geplant, Rechnungs-Entwurf RE-2026-0003 erstellt.
+- 1 Serie: **jeden Mittwoch 18:30–20:30, Sydney**, 3 Termine à CHF 80.00
+  (28.10.–11.11.2026), Notiz «Chorprobe m12 (Testserie)».
+
 ## Technologie-Stack
 
 | Baustein | Wahl | Bemerkung |

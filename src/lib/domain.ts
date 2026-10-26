@@ -37,6 +37,8 @@ export type BueroAbweichungArt = Models.public_BueroAbweichung["art"];
 export type BueroAbwesenheitArt = Models.public_BueroAbwesenheit["art"];
 /** Status der Honorar-Monatsabrechnung (Modul 11). */
 export type HonorarStatus = Models.public_HonorarAbrechnung["status"];
+/** Status einer Vermietung (Modul 12): geplant → findet statt · abgesagt. */
+export type VermietungStatus = Models.public_Vermietung["status"];
 
 /** Zeilen-Typen ohne Relationen (das, was Queries zurückgeben). */
 export type UserRow = Scalars<Models.public_User>;
@@ -140,6 +142,20 @@ export const HONORAR_STATUS_LABELS: Record<HonorarStatus, string> = {
   OFFEN: "offen",
   BEZAHLT: "bezahlt",
 };
+
+/** Vermietungs-Status-Bezeichnungen (Modul 12). */
+export const VERMIETUNG_STATUS_LABELS: Record<VermietungStatus, string> = {
+  GEPLANT: "geplant",
+  FINDET_STATT: "findet statt",
+  ABGESAGT: "abgesagt",
+};
+
+/** Gültige Vermietungs-Status-Werte in Lebenszyklus-Reihenfolge. */
+export const VERMIETUNG_STATUS_WERTE: readonly VermietungStatus[] = [
+  "GEPLANT",
+  "FINDET_STATT",
+  "ABGESAGT",
+];
 
 /** SystemSetting-Schlüssel für den globalen Default-Stundensatz (Modul 11). */
 export const HONORAR_DEFAULT_KEY = "honorar.defaultStundensatz";

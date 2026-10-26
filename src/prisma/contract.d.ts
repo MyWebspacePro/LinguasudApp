@@ -23,9 +23,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'2eadc7db4d6f4337490dc7f78c6e9c09b6c6fd2b8989bc6c4dfa8a9a3a4ac7d4'>;
+  StorageHashBase<'e558cb7e1b5d2b4abae3142585604187b29c286de6e1444d7725e567b0cab6e4'>;
 export type ExecutionHash =
-  ExecutionHashBase<'a41ee9929150f3e430a81aa5fe752277e020d422fb2ce93b3ddac59062483780'>;
+  ExecutionHashBase<'f351136e3d525e275f4fa177c75a00cd2933eae9ddd05272d5bb320f79e7cd22'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -347,6 +347,12 @@ type FieldTypeOverrides = {
           readonly input: 'ADMIN' | 'CHEF' | 'BUERO' | 'LEHRPERSON' | 'TEILNEHMER';
         };
       };
+      readonly Vermietung: {
+        readonly status: {
+          readonly output: 'GEPLANT' | 'FINDET_STATT' | 'ABGESAGT';
+          readonly input: 'GEPLANT' | 'FINDET_STATT' | 'ABGESAGT';
+        };
+      };
     };
   };
 };
@@ -470,6 +476,12 @@ type ColumnTypeOverrides = {
       readonly roles: {
         readonly output: 'ADMIN' | 'CHEF' | 'BUERO' | 'LEHRPERSON' | 'TEILNEHMER';
         readonly input: 'ADMIN' | 'CHEF' | 'BUERO' | 'LEHRPERSON' | 'TEILNEHMER';
+      };
+    };
+    readonly Vermietung: {
+      readonly status: {
+        readonly output: 'GEPLANT' | 'FINDET_STATT' | 'ABGESAGT';
+        readonly input: 'GEPLANT' | 'FINDET_STATT' | 'ABGESAGT';
       };
     };
   };
@@ -974,7 +986,10 @@ export namespace Models {
     etage: public_Etage;
     kurseAlsStandard: public_Kurs[];
     lektionen: public_Lektion[];
-    readonly [RelationKeys]?: 'etage' | 'kurseAlsStandard' | 'lektionen';
+    vermietungSerien: public_VermietungSerie[];
+    vermietungen: public_Vermietung[];
+    readonly [RelationKeys]?:
+      'etage' | 'kurseAlsStandard' | 'lektionen' | 'vermietungSerien' | 'vermietungen';
   };
   export type public_Rechnung = {
     anmeldungId: FieldOutputTypes['public']['Rechnung']['anmeldungId'];
@@ -991,6 +1006,7 @@ export namespace Models {
     kostentraegerId: FieldOutputTypes['public']['Rechnung']['kostentraegerId'];
     letzteMahnAt: FieldOutputTypes['public']['Rechnung']['letzteMahnAt'];
     mahnStufe: FieldOutputTypes['public']['Rechnung']['mahnStufe'];
+    mieterId: FieldOutputTypes['public']['Rechnung']['mieterId'];
     mwstSatzProzent: FieldOutputTypes['public']['Rechnung']['mwstSatzProzent'];
     notiz: FieldOutputTypes['public']['Rechnung']['notiz'];
     nummer: FieldOutputTypes['public']['Rechnung']['nummer'];
@@ -1006,11 +1022,20 @@ export namespace Models {
     anmeldung: public_Anmeldung | null;
     kostentraeger: public_Kostentraeger | null;
     mahnungen: public_Mahnung[];
+    mieter: public_VermietungMieter | null;
     person: public_Person | null;
     positionen: public_RechnungsPosition[];
+    vermietung: public_Vermietung | null;
     zahlungen: public_Zahlung[];
     readonly [RelationKeys]?:
-      'anmeldung' | 'kostentraeger' | 'mahnungen' | 'person' | 'positionen' | 'zahlungen';
+      | 'anmeldung'
+      | 'kostentraeger'
+      | 'mahnungen'
+      | 'mieter'
+      | 'person'
+      | 'positionen'
+      | 'vermietung'
+      | 'zahlungen';
   };
   export type public_RechnungsPosition = {
     createdAt: FieldOutputTypes['public']['RechnungsPosition']['createdAt'];
@@ -1112,6 +1137,62 @@ export namespace Models {
       | 'sessions'
       | 'zahlungenAlsErfasser';
   };
+  export type public_Vermietung = {
+    absageGrund: FieldOutputTypes['public']['Vermietung']['absageGrund'];
+    createdAt: FieldOutputTypes['public']['Vermietung']['createdAt'];
+    dauerMinuten: FieldOutputTypes['public']['Vermietung']['dauerMinuten'];
+    id: FieldOutputTypes['public']['Vermietung']['id'];
+    mieterId: FieldOutputTypes['public']['Vermietung']['mieterId'];
+    notiz: FieldOutputTypes['public']['Vermietung']['notiz'];
+    preisChf: FieldOutputTypes['public']['Vermietung']['preisChf'];
+    raumId: FieldOutputTypes['public']['Vermietung']['raumId'];
+    rechnungId: FieldOutputTypes['public']['Vermietung']['rechnungId'];
+    serieId: FieldOutputTypes['public']['Vermietung']['serieId'];
+    startAt: FieldOutputTypes['public']['Vermietung']['startAt'];
+    status: FieldOutputTypes['public']['Vermietung']['status'];
+    updatedAt: FieldOutputTypes['public']['Vermietung']['updatedAt'];
+    mieter: public_VermietungMieter;
+    raum: public_Raum;
+    rechnung: public_Rechnung | null;
+    serie: public_VermietungSerie | null;
+    readonly [RelationKeys]?: 'mieter' | 'raum' | 'rechnung' | 'serie';
+  };
+  export type public_VermietungMieter = {
+    active: FieldOutputTypes['public']['VermietungMieter']['active'];
+    archivedAt: FieldOutputTypes['public']['VermietungMieter']['archivedAt'];
+    createdAt: FieldOutputTypes['public']['VermietungMieter']['createdAt'];
+    email: FieldOutputTypes['public']['VermietungMieter']['email'];
+    id: FieldOutputTypes['public']['VermietungMieter']['id'];
+    name: FieldOutputTypes['public']['VermietungMieter']['name'];
+    notiz: FieldOutputTypes['public']['VermietungMieter']['notiz'];
+    ort: FieldOutputTypes['public']['VermietungMieter']['ort'];
+    plz: FieldOutputTypes['public']['VermietungMieter']['plz'];
+    strasse: FieldOutputTypes['public']['VermietungMieter']['strasse'];
+    telefon: FieldOutputTypes['public']['VermietungMieter']['telefon'];
+    updatedAt: FieldOutputTypes['public']['VermietungMieter']['updatedAt'];
+    rechnungen: public_Rechnung[];
+    serien: public_VermietungSerie[];
+    vermietungen: public_Vermietung[];
+    readonly [RelationKeys]?: 'rechnungen' | 'serien' | 'vermietungen';
+  };
+  export type public_VermietungSerie = {
+    bis: FieldOutputTypes['public']['VermietungSerie']['bis'];
+    createdAt: FieldOutputTypes['public']['VermietungSerie']['createdAt'];
+    endZeit: FieldOutputTypes['public']['VermietungSerie']['endZeit'];
+    id: FieldOutputTypes['public']['VermietungSerie']['id'];
+    mieterId: FieldOutputTypes['public']['VermietungSerie']['mieterId'];
+    notiz: FieldOutputTypes['public']['VermietungSerie']['notiz'];
+    preisChf: FieldOutputTypes['public']['VermietungSerie']['preisChf'];
+    raumId: FieldOutputTypes['public']['VermietungSerie']['raumId'];
+    startZeit: FieldOutputTypes['public']['VermietungSerie']['startZeit'];
+    updatedAt: FieldOutputTypes['public']['VermietungSerie']['updatedAt'];
+    von: FieldOutputTypes['public']['VermietungSerie']['von'];
+    wochentag: FieldOutputTypes['public']['VermietungSerie']['wochentag'];
+    mieter: public_VermietungMieter;
+    raum: public_Raum;
+    termine: public_Vermietung[];
+    readonly [RelationKeys]?: 'mieter' | 'raum' | 'termine';
+  };
   export type public_Zahlung = {
     actorName: FieldOutputTypes['public']['Zahlung']['actorName'];
     actorUserId: FieldOutputTypes['public']['Zahlung']['actorUserId'];
@@ -1166,6 +1247,9 @@ export declare const models: {
     SystemSetting: Models.public_SystemSetting;
     Tarifstufe: Models.public_Tarifstufe;
     User: Models.public_User;
+    Vermietung: Models.public_Vermietung;
+    VermietungMieter: Models.public_VermietungMieter;
+    VermietungSerie: Models.public_VermietungSerie;
     Zahlung: Models.public_Zahlung;
   };
 };
@@ -4282,6 +4366,12 @@ type ContractBase = Omit<
                   };
                   readonly many: false;
                 };
+                readonly mieterId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
                 readonly mwstSatzProzent: {
                   readonly dataType: 'pg/numeric';
                   readonly codecId: 'pg/numeric@1';
@@ -4375,6 +4465,11 @@ type ContractBase = Omit<
                   readonly unique: false;
                 },
                 {
+                  readonly name: 'Rechnung_mieterId_idx';
+                  readonly columns: readonly ['mieterId'];
+                  readonly unique: false;
+                },
+                {
                   readonly name: 'Rechnung_nummer_key';
                   readonly columns: readonly ['nummer'];
                   readonly unique: true;
@@ -4417,6 +4512,18 @@ type ContractBase = Omit<
                   readonly target: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'Kostentraeger';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Rechnung';
+                    readonly columns: readonly ['mieterId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'VermietungMieter';
                     readonly columns: readonly ['id'];
                   };
                 },
@@ -4989,6 +5096,398 @@ type ContractBase = Omit<
                 },
               ];
             };
+            readonly Vermietung: {
+              columns: {
+                readonly absageGrund: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly dauerMinuten: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly mieterId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly notiz: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly preisChf: {
+                  readonly dataType: 'pg/numeric';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 10; readonly scale: 2 };
+                  readonly many: false;
+                };
+                readonly raumId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly rechnungId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly serieId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly startAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly status: {
+                  readonly dataType: 'pg/enum';
+                  readonly codecId: 'pg/enum@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/enum@1', 'GEPLANT'>;
+                  };
+                  readonly typeParams: { readonly typeName: 'VermietungStatus' };
+                  readonly many: false;
+                };
+                readonly updatedAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'Vermietung_mieterId_idx';
+                  readonly columns: readonly ['mieterId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'Vermietung_raumId_startAt_idx';
+                  readonly columns: readonly ['raumId', 'startAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'Vermietung_rechnungId_key';
+                  readonly columns: readonly ['rechnungId'];
+                  readonly unique: true;
+                },
+                {
+                  readonly name: 'Vermietung_serieId_idx';
+                  readonly columns: readonly ['serieId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'Vermietung_startAt_idx';
+                  readonly columns: readonly ['startAt'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Vermietung';
+                    readonly columns: readonly ['mieterId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'VermietungMieter';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Vermietung';
+                    readonly columns: readonly ['raumId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Raum';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Vermietung';
+                    readonly columns: readonly ['serieId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'VermietungSerie';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Vermietung';
+                    readonly columns: readonly ['rechnungId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Rechnung';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
+            readonly VermietungMieter: {
+              columns: {
+                readonly active: {
+                  readonly dataType: 'pg/bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', true>;
+                  };
+                  readonly many: false;
+                };
+                readonly archivedAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly email: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly name: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly notiz: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly ort: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly plz: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly strasse: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly telefon: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly updatedAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'VermietungMieter_active_idx';
+                  readonly columns: readonly ['active'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'VermietungMieter_name_idx';
+                  readonly columns: readonly ['name'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [];
+            };
+            readonly VermietungSerie: {
+              columns: {
+                readonly bis: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly endZeit: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly mieterId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly notiz: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly preisChf: {
+                  readonly dataType: 'pg/numeric';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 10; readonly scale: 2 };
+                  readonly many: false;
+                };
+                readonly raumId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly startZeit: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly updatedAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly von: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly wochentag: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'VermietungSerie_mieterId_idx';
+                  readonly columns: readonly ['mieterId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'VermietungSerie_von_idx';
+                  readonly columns: readonly ['von'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'VermietungSerie';
+                    readonly columns: readonly ['mieterId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'VermietungMieter';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'VermietungSerie';
+                    readonly columns: readonly ['raumId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Raum';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
             readonly Zahlung: {
               columns: {
                 readonly actorName: {
@@ -5173,6 +5672,10 @@ type ContractBase = Omit<
               readonly kind: 'valueSet';
               readonly values: readonly ['ADMIN', 'CHEF', 'BUERO', 'LEHRPERSON', 'TEILNEHMER'];
             };
+            readonly VermietungStatus: {
+              readonly kind: 'valueSet';
+              readonly values: readonly ['GEPLANT', 'FINDET_STATT', 'ABGESAGT'];
+            };
           };
         };
       };
@@ -5284,6 +5787,18 @@ type ContractBase = Omit<
       readonly model: 'Tarifstufe';
     };
     readonly User: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
+    readonly Vermietung: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'Vermietung';
+    };
+    readonly VermietungMieter: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'VermietungMieter';
+    };
+    readonly VermietungSerie: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'VermietungSerie';
+    };
     readonly Zahlung: { readonly namespace: 'public' & NamespaceId; readonly model: 'Zahlung' };
   };
   readonly domain: {
@@ -8322,6 +8837,28 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['raumId'];
                 };
               };
+              readonly vermietungSerien: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'VermietungSerie';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['raumId'];
+                };
+              };
+              readonly vermietungen: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Vermietung';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['raumId'];
+                };
+              };
             };
             readonly storage: {
               readonly table: 'Raum';
@@ -8411,6 +8948,10 @@ type ContractBase = Omit<
               readonly mahnStufe: {
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly mieterId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
               readonly mwstSatzProzent: {
                 readonly nullable: true;
@@ -8525,6 +9066,18 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['rechnungId'];
                 };
               };
+              readonly mieter: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'VermietungMieter';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['mieterId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
               readonly person: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -8543,6 +9096,18 @@ type ContractBase = Omit<
                   readonly model: 'RechnungsPosition';
                 };
                 readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['rechnungId'];
+                };
+              };
+              readonly vermietung: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Vermietung';
+                };
+                readonly cardinality: '1:1';
+                readonly nullable: true;
                 readonly on: {
                   readonly localFields: readonly ['id'];
                   readonly targetFields: readonly ['rechnungId'];
@@ -8578,6 +9143,7 @@ type ContractBase = Omit<
                 readonly kostentraegerId: { readonly column: 'kostentraegerId' };
                 readonly letzteMahnAt: { readonly column: 'letzteMahnAt' };
                 readonly mahnStufe: { readonly column: 'mahnStufe' };
+                readonly mieterId: { readonly column: 'mieterId' };
                 readonly mwstSatzProzent: { readonly column: 'mwstSatzProzent' };
                 readonly notiz: { readonly column: 'notiz' };
                 readonly nummer: { readonly column: 'nummer' };
@@ -9195,6 +9761,389 @@ type ContractBase = Omit<
               };
             };
           };
+          readonly Vermietung: {
+            readonly fields: {
+              readonly absageGrund: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly dauerMinuten: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly mieterId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly notiz: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly preisChf: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly typeParams: { readonly precision: 10; readonly scale: 2 };
+                };
+              };
+              readonly raumId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly rechnungId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly serieId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly startAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly status: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/enum@1';
+                  readonly typeParams: { readonly typeName: 'VermietungStatus' };
+                };
+              };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+            };
+            readonly relations: {
+              readonly mieter: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'VermietungMieter';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['mieterId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly raum: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Raum' };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['raumId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly rechnung: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Rechnung';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['rechnungId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly serie: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'VermietungSerie';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['serieId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'Vermietung';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly absageGrund: { readonly column: 'absageGrund' };
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly dauerMinuten: { readonly column: 'dauerMinuten' };
+                readonly id: { readonly column: 'id' };
+                readonly mieterId: { readonly column: 'mieterId' };
+                readonly notiz: { readonly column: 'notiz' };
+                readonly preisChf: { readonly column: 'preisChf' };
+                readonly raumId: { readonly column: 'raumId' };
+                readonly rechnungId: { readonly column: 'rechnungId' };
+                readonly serieId: { readonly column: 'serieId' };
+                readonly startAt: { readonly column: 'startAt' };
+                readonly status: { readonly column: 'status' };
+                readonly updatedAt: { readonly column: 'updatedAt' };
+              };
+            };
+          };
+          readonly VermietungMieter: {
+            readonly fields: {
+              readonly active: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly archivedAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly email: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly name: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly notiz: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly ort: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly plz: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly strasse: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly telefon: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+            };
+            readonly relations: {
+              readonly rechnungen: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Rechnung';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['mieterId'];
+                };
+              };
+              readonly serien: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'VermietungSerie';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['mieterId'];
+                };
+              };
+              readonly vermietungen: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Vermietung';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['mieterId'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'VermietungMieter';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly active: { readonly column: 'active' };
+                readonly archivedAt: { readonly column: 'archivedAt' };
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly email: { readonly column: 'email' };
+                readonly id: { readonly column: 'id' };
+                readonly name: { readonly column: 'name' };
+                readonly notiz: { readonly column: 'notiz' };
+                readonly ort: { readonly column: 'ort' };
+                readonly plz: { readonly column: 'plz' };
+                readonly strasse: { readonly column: 'strasse' };
+                readonly telefon: { readonly column: 'telefon' };
+                readonly updatedAt: { readonly column: 'updatedAt' };
+              };
+            };
+          };
+          readonly VermietungSerie: {
+            readonly fields: {
+              readonly bis: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly endZeit: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly mieterId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly notiz: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly preisChf: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/numeric@1';
+                  readonly typeParams: { readonly precision: 10; readonly scale: 2 };
+                };
+              };
+              readonly raumId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly startZeit: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly von: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly wochentag: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+            };
+            readonly relations: {
+              readonly mieter: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'VermietungMieter';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['mieterId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly raum: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Raum' };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['raumId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly termine: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Vermietung';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['serieId'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'VermietungSerie';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly bis: { readonly column: 'bis' };
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly endZeit: { readonly column: 'endZeit' };
+                readonly id: { readonly column: 'id' };
+                readonly mieterId: { readonly column: 'mieterId' };
+                readonly notiz: { readonly column: 'notiz' };
+                readonly preisChf: { readonly column: 'preisChf' };
+                readonly raumId: { readonly column: 'raumId' };
+                readonly startZeit: { readonly column: 'startZeit' };
+                readonly updatedAt: { readonly column: 'updatedAt' };
+                readonly von: { readonly column: 'von' };
+                readonly wochentag: { readonly column: 'wochentag' };
+              };
+            };
+          };
           readonly Zahlung: {
             readonly fields: {
               readonly actorName: {
@@ -9798,6 +10747,57 @@ type ContractBase = Omit<
           readonly onUpdate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
           readonly ref: {
             readonly entry: 'User';
+            readonly field: 'updatedAt';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'Vermietung';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly onUpdate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'Vermietung';
+            readonly field: 'updatedAt';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'VermietungMieter';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly onUpdate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'VermietungMieter';
+            readonly field: 'updatedAt';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'VermietungSerie';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly onUpdate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'VermietungSerie';
             readonly field: 'updatedAt';
             readonly namespace: 'public';
           };

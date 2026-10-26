@@ -17,6 +17,7 @@ import { zonedTimeToUtc, addDays, dateKeyOf, heuteDateKey, formatDatumKurz, time
 import { istUeberfaellig, type RechnungStatus } from "@/lib/rechnungen/logik";
 import { monatLabel as honorarMonatLabel } from "@/lib/honorare/logik";
 import { ladeMonatsAbrechnung } from "@/lib/honorare/abrechnung";
+import { ladeVermietungsMonat } from "@/lib/vermietung/daten";
 import { RoleBadge } from "@/components/RoleBadge";
 
 export const metadata: Metadata = {
@@ -35,7 +36,7 @@ export default function DashboardPage() {
 async function DashboardContent() {
   const { user } = await requireStaff();
   const roles = user.roles as Role[];
-  const [userCount, personCount, recentLogins, kursCount, anmeldungAktivCount, lektionenHeute, rechnungsZaehler, honorarAuswertung] = await Promise.all([
+  const [userCount, personCount, recentLogins, kursCount, anmeldungAktivCount, lektionenHeute, rechnungsZaehler, honorarAuswertung, vermietungsAuswertung] = await Promise.all([
     canViewUsers(roles)
       ? db.orm.public.User.aggregate((a) => ({ n: a.count() })).then((r) => r.n)
       : Promise.resolve(null),
@@ -102,6 +103,13 @@ async function DashboardContent() {
             bezahltChf: Math.round(bezahltChf * 100) / 100,
             offenLehrpersonen,
           };
+        })()
+      : Promise.resolve(null),
+    hasRole(roles, "ADMIN") || hasRole(roles, "CHEF")
+      ? (async () => {
+          // Modul 12 — Vermietungs-Umsatz des laufenden Monats (offen/bezahlt
+          // aus den Vermietungs-Rechnungen, Muster Honorar-Karte).
+          return await ladeVermietungsMonat(heuteDateKey().slice(0, 7));
         })()
       : Promise.resolve(null),
   ]);
@@ -236,6 +244,30 @@ async function DashboardContent() {
           </div>
         )}
 
+        {/* Modul 12 — Finanz-Auswertung des Chefs: Vermietungs-Umsatz des laufenden Monats. */}
+        {vermietungsAuswertung && (
+          <div className="card p-5">
+            <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">
+              Vermietung {honorarMonatLabel(heuteDateKey().slice(0, 7))}
+            </p>
+            <p className="mt-1 text-2xl font-semibold text-slate-900">
+              {vermietungsAuswertung.umsatzChf.toFixed(2)} CHF
+            </p>
+            <p className="mt-1 text-sm text-slate-600">
+              offen {vermietungsAuswertung.offenChf.toFixed(2)} CHF · bezahlt{" "}
+              {vermietungsAuswertung.bezahltChf.toFixed(2)} CHF · {vermietungsAuswertung.termine} Termin
+              {vermietungsAuswertung.termine === 1 ? "" : "e"}
+              {vermietungsAuswertung.ohneRechnung > 0
+                ? `, ${vermietungsAuswertung.ohneRechnung} ohne Rechnung`
+                : ""}{" "}
+              ·{" "}
+              <Link href="/vermietungen" className="font-medium text-brand-700 hover:text-brand-800">
+                Vermietung
+              </Link>
+            </p>
+          </div>
+        )}
+
         {canViewUsers(roles) && (
           <div className="card p-5">
             <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">Konten</p>
@@ -287,8 +319,7 @@ async function DashboardContent() {
       <div className="card p-5">
         <h2 className="text-sm font-semibold text-slate-800">Nächste Ausbaustufen</h2>
         <ul className="mt-2 grid gap-1.5 text-sm text-slate-600 sm:grid-cols-2">
-          <li>Modul 10+ — Kursbestätigungen, Honorare, Vermietung</li>
-          <li>Modul 12+ — Vermietung, Aufgaben &amp; Anfragen, KI-Generator, Website</li>
+          <li>Modul 13+ — Aufgaben &amp; Anfragen, KI-Generator, Website</li>
         </ul>
       </div>
 

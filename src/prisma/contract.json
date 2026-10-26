@@ -152,6 +152,18 @@
       "model": "User",
       "namespace": "public"
     },
+    "Vermietung": {
+      "model": "Vermietung",
+      "namespace": "public"
+    },
+    "VermietungMieter": {
+      "model": "VermietungMieter",
+      "namespace": "public"
+    },
+    "VermietungSerie": {
+      "model": "VermietungSerie",
+      "namespace": "public"
+    },
     "Zahlung": {
       "model": "Zahlung",
       "namespace": "public"
@@ -4868,6 +4880,36 @@
                   "model": "Lektion",
                   "namespace": "public"
                 }
+              },
+              "vermietungSerien": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "raumId"
+                  ]
+                },
+                "to": {
+                  "model": "VermietungSerie",
+                  "namespace": "public"
+                }
+              },
+              "vermietungen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "raumId"
+                  ]
+                },
+                "to": {
+                  "model": "Vermietung",
+                  "namespace": "public"
+                }
               }
             },
             "storage": {
@@ -5011,6 +5053,13 @@
                 "nullable": false,
                 "type": {
                   "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "mieterId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
                   "kind": "scalar"
                 }
               },
@@ -5170,6 +5219,22 @@
                   "namespace": "public"
                 }
               },
+              "mieter": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "mieterId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "VermietungMieter",
+                  "namespace": "public"
+                }
+              },
               "person": {
                 "cardinality": "N:1",
                 "nullable": true,
@@ -5198,6 +5263,22 @@
                 },
                 "to": {
                   "model": "RechnungsPosition",
+                  "namespace": "public"
+                }
+              },
+              "vermietung": {
+                "cardinality": "1:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "rechnungId"
+                  ]
+                },
+                "to": {
+                  "model": "Vermietung",
                   "namespace": "public"
                 }
               },
@@ -5260,6 +5341,9 @@
                 },
                 "mahnStufe": {
                   "column": "mahnStufe"
+                },
+                "mieterId": {
+                  "column": "mieterId"
                 },
                 "mwstSatzProzent": {
                   "column": "mwstSatzProzent"
@@ -6234,6 +6318,609 @@
               "table": "User"
             }
           },
+          "Vermietung": {
+            "fields": {
+              "absageGrund": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "dauerMinuten": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "mieterId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "notiz": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "preisChf": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 10,
+                    "scale": 2
+                  }
+                }
+              },
+              "raumId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "rechnungId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "serieId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "startAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "VermietungStatus"
+                  }
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              }
+            },
+            "relations": {
+              "mieter": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "mieterId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "VermietungMieter",
+                  "namespace": "public"
+                }
+              },
+              "raum": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "raumId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Raum",
+                  "namespace": "public"
+                }
+              },
+              "rechnung": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "rechnungId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Rechnung",
+                  "namespace": "public"
+                }
+              },
+              "serie": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "serieId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "VermietungSerie",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "absageGrund": {
+                  "column": "absageGrund"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "dauerMinuten": {
+                  "column": "dauerMinuten"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "mieterId": {
+                  "column": "mieterId"
+                },
+                "notiz": {
+                  "column": "notiz"
+                },
+                "preisChf": {
+                  "column": "preisChf"
+                },
+                "raumId": {
+                  "column": "raumId"
+                },
+                "rechnungId": {
+                  "column": "rechnungId"
+                },
+                "serieId": {
+                  "column": "serieId"
+                },
+                "startAt": {
+                  "column": "startAt"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Vermietung"
+            }
+          },
+          "VermietungMieter": {
+            "fields": {
+              "active": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "archivedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "email": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "name": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "notiz": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "ort": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "plz": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "strasse": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "telefon": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              }
+            },
+            "relations": {
+              "rechnungen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "mieterId"
+                  ]
+                },
+                "to": {
+                  "model": "Rechnung",
+                  "namespace": "public"
+                }
+              },
+              "serien": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "mieterId"
+                  ]
+                },
+                "to": {
+                  "model": "VermietungSerie",
+                  "namespace": "public"
+                }
+              },
+              "vermietungen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "mieterId"
+                  ]
+                },
+                "to": {
+                  "model": "Vermietung",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "active": {
+                  "column": "active"
+                },
+                "archivedAt": {
+                  "column": "archivedAt"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "email": {
+                  "column": "email"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "name": {
+                  "column": "name"
+                },
+                "notiz": {
+                  "column": "notiz"
+                },
+                "ort": {
+                  "column": "ort"
+                },
+                "plz": {
+                  "column": "plz"
+                },
+                "strasse": {
+                  "column": "strasse"
+                },
+                "telefon": {
+                  "column": "telefon"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "VermietungMieter"
+            }
+          },
+          "VermietungSerie": {
+            "fields": {
+              "bis": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "endZeit": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "mieterId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "notiz": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "preisChf": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/numeric@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 10,
+                    "scale": 2
+                  }
+                }
+              },
+              "raumId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "startZeit": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "von": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "wochentag": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "mieter": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "mieterId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "VermietungMieter",
+                  "namespace": "public"
+                }
+              },
+              "raum": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "raumId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Raum",
+                  "namespace": "public"
+                }
+              },
+              "termine": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "serieId"
+                  ]
+                },
+                "to": {
+                  "model": "Vermietung",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "bis": {
+                  "column": "bis"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "endZeit": {
+                  "column": "endZeit"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "mieterId": {
+                  "column": "mieterId"
+                },
+                "notiz": {
+                  "column": "notiz"
+                },
+                "preisChf": {
+                  "column": "preisChf"
+                },
+                "raumId": {
+                  "column": "raumId"
+                },
+                "startZeit": {
+                  "column": "startZeit"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                },
+                "von": {
+                  "column": "von"
+                },
+                "wochentag": {
+                  "column": "wochentag"
+                }
+              },
+              "namespaceId": "public",
+              "table": "VermietungSerie"
+            }
+          },
           "Zahlung": {
             "fields": {
               "actorName": {
@@ -6533,6 +7220,15 @@
                 "TEILNEHMER"
               ],
               "typeName": "Role"
+            },
+            "VermietungStatus": {
+              "kind": "postgres-enum",
+              "members": [
+                "GEPLANT",
+                "FINDET_STATT",
+                "ABGESAGT"
+              ],
+              "typeName": "VermietungStatus"
             }
           },
           "table": {
@@ -10346,6 +11042,11 @@
                   },
                   "nullable": false
                 },
+                "mieterId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
                 "mwstSatzProzent": {
                   "codecId": "pg/numeric@1",
                   "dataType": "pg/numeric",
@@ -10484,6 +11185,27 @@
                   }
                 },
                 {
+                  "index": {
+                    "name": "Rechnung_mieterId_idx"
+                  },
+                  "onDelete": "restrict",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "mieterId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Rechnung"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "VermietungMieter"
+                  }
+                },
+                {
                   "onDelete": "setNull",
                   "onUpdate": "cascade",
                   "source": {
@@ -10508,6 +11230,13 @@
                     "kostentraegerId"
                   ],
                   "name": "Rechnung_kostentraegerId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "mieterId"
+                  ],
+                  "name": "Rechnung_mieterId_idx",
                   "unique": false
                 },
                 {
@@ -11194,6 +11923,486 @@
               },
               "uniques": []
             },
+            "Vermietung": {
+              "columns": {
+                "absageGrund": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "dauerMinuten": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "mieterId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "notiz": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "preisChf": {
+                  "codecId": "pg/numeric@1",
+                  "dataType": "pg/numeric",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 10,
+                    "scale": 2
+                  }
+                },
+                "raumId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "rechnungId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "serieId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "startAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "status": {
+                  "codecId": "pg/enum@1",
+                  "dataType": "pg/enum",
+                  "default": {
+                    "kind": "literal",
+                    "value": "GEPLANT"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "VermietungStatus"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "VermietungStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "Vermietung_mieterId_idx"
+                  },
+                  "onDelete": "restrict",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "mieterId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Vermietung"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "VermietungMieter"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "Vermietung_raumId_startAt_idx"
+                  },
+                  "onDelete": "restrict",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "raumId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Vermietung"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Raum"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "Vermietung_serieId_idx"
+                  },
+                  "onDelete": "setNull",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "serieId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Vermietung"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "VermietungSerie"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "Vermietung_rechnungId_key"
+                  },
+                  "onDelete": "setNull",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "rechnungId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Vermietung"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Rechnung"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "mieterId"
+                  ],
+                  "name": "Vermietung_mieterId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "raumId",
+                    "startAt"
+                  ],
+                  "name": "Vermietung_raumId_startAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "rechnungId"
+                  ],
+                  "name": "Vermietung_rechnungId_key",
+                  "unique": true
+                },
+                {
+                  "columns": [
+                    "serieId"
+                  ],
+                  "name": "Vermietung_serieId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "startAt"
+                  ],
+                  "name": "Vermietung_startAt_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "VermietungMieter": {
+              "columns": {
+                "active": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": true
+                  },
+                  "nullable": false
+                },
+                "archivedAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "email": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "name": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "notiz": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "ort": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "plz": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "strasse": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "telefon": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "active"
+                  ],
+                  "name": "VermietungMieter_active_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "name"
+                  ],
+                  "name": "VermietungMieter_name_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "VermietungSerie": {
+              "columns": {
+                "bis": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "endZeit": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "mieterId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "notiz": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "preisChf": {
+                  "codecId": "pg/numeric@1",
+                  "dataType": "pg/numeric",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 10,
+                    "scale": 2
+                  }
+                },
+                "raumId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "startZeit": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "von": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "wochentag": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "VermietungSerie_mieterId_idx"
+                  },
+                  "onDelete": "restrict",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "mieterId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "VermietungSerie"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "VermietungMieter"
+                  }
+                },
+                {
+                  "onDelete": "restrict",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "raumId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "VermietungSerie"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Raum"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "mieterId"
+                  ],
+                  "name": "VermietungSerie_mieterId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "von"
+                  ],
+                  "name": "VermietungSerie_von_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "Zahlung": {
               "columns": {
                 "actorName": {
@@ -11453,6 +12662,14 @@
                 "LEHRPERSON",
                 "TEILNEHMER"
               ]
+            },
+            "VermietungStatus": {
+              "kind": "valueSet",
+              "values": [
+                "GEPLANT",
+                "FINDET_STATT",
+                "ABGESAGT"
+              ]
             }
           }
         },
@@ -11460,10 +12677,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "2eadc7db4d6f4337490dc7f78c6e9c09b6c6fd2b8989bc6c4dfa8a9a3a4ac7d4"
+    "storageHash": "e558cb7e1b5d2b4abae3142585604187b29c286de6e1444d7725e567b0cab6e4"
   },
   "execution": {
-    "executionHash": "a41ee9929150f3e430a81aa5fe752277e020d422fb2ce93b3ddac59062483780",
+    "executionHash": "f351136e3d525e275f4fa177c75a00cd2933eae9ddd05272d5bb320f79e7cd22",
     "mutations": {
       "defaults": [
         {
@@ -12188,6 +13405,84 @@
           },
           "ref": {
             "entry": "User",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Vermietung",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Vermietung",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "VermietungMieter",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "VermietungMieter",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "VermietungSerie",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "VermietungSerie",
             "field": "updatedAt",
             "namespace": "public"
           }
