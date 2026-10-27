@@ -7,6 +7,7 @@ import "server-only";
 
 import { cache } from "react";
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { db, fromDbTime, roleList, toDbTime, type SessionRow, type UserRow } from "@/lib/db";
 import { getEnv } from "@/lib/env";
@@ -61,6 +62,10 @@ export async function createSession(userId: string, meta: RequestMeta): Promise<
  * das Idle-Fenster bei Bedarf.
  */
 export const getAuthContext = cache(async (): Promise<AuthContext | null> => {
+  // Request-Time-Rendering: der DB-Client nutzt intern crypto.randomUUID().
+  // Ohne connection() versucht Next.js, den Session-Lookup zu prerendern
+  // (Next-16-Fehler «unstable value crypto.randomUUID() while prerendering»).
+  await connection();
   const token = (await cookies()).get(SESSION_COOKIE_NAME)?.value;
   if (!token) return null;
 

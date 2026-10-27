@@ -99,6 +99,78 @@ Die vollständigen Anforderungen stehen im **[PFLICHTENHEFT.md](./PFLICHTENHEFT.
 - 1 Serie: **jeden Mittwoch 18:30–20:30, Sydney**, 3 Termine à CHF 80.00
   (28.10.–11.11.2026), Notiz «Chorprobe m12 (Testserie)».
 
+## Modul 13 — Aufgaben & Anfragen (fertig)
+
+- **Online-Einstufungstest** (`/einstufungstest`, öffentlich, ohne Login):
+  Sprachen mit aktiven Fragen werden angeboten; der Test stellt Multiple-
+  Choice-Fragen je Niveau (aufsteigend, aktuell bis zu 3 pro Stufe) und
+  wertet serverseitig aus. Empfehlung nach der **Durchsteig-Regel**: empfohlen
+  wird die erste nicht bestandene Stufe (bestanden ab der Hälfte richtiger
+  Antworten), sonst das höchste geprüfte Niveau. Das Ergebnis zeigt die
+  Stufen-Tabelle mit Begründung und führt mit vorbefüllter, editierbarer
+  Empfehlung ins Anfrage-Formular.
+- **Anfrage-Eingang** (`/anfrage`, öffentlich): Name, E-Mail, Telefon,
+  gewünschte Sprache/Niveau, Nachricht — Empfehlung aus dem Test wird
+  übernommen. Beim Absenden automatisch: Bestätigungs-Mail an die
+  Anfragenden, Benachrichtigung ans Büro (Postfach via SystemSetting
+  «anfragen.bueroEmail», Fallback buero@linguasud.com) und **eine offene
+  Büro-Aufgabe** (fällig in 2 Tagen). Drossel pro E-Mail/IP (Tabelle
+  `PublicFormVersuch`) plus Honeypot; Audit mit `actor: null`
+  (`anfrage.eingegangen`). Ohne SMTP landen die Mails im Dev-Log.
+- **Aufgaben-System** (`/aufgaben`, Büro-Operativ): Titel, Beschreibung,
+  Zugewiesene:r (Stabs-Konto), Fälligkeit, Status offen/erledigt, optionale
+  Verknüpfung mit Person/Kurs/Anfrage (nullable FKs). Liste mit
+  Status-Filter (offen/erledigt/alle) und «Nur meine», Überfälligkeit rot
+  markiert; Detailseite zum Bearbeiten, Erledigen, Wieder-Öffnen und Löschen
+  (mit Bestätigung). Alles im Audit-Log (`aufgabe.*`); das Quelle-Badge
+  unterscheidet manuelle und Automatik-Aufgaben.
+- **Anfragen-Verwaltung** (`/anfragen`, Büro-Operativ): Liste mit
+  Status-Filter und Zählern (offen / in Bearbeitung / zugeordnet /
+  abgelehnt); Detail mit Kontakt-Snapshot, Test-Rohresultat und Statuswechsel.
+  Zuordnung nach Identitätsprüfung an eine **bestehende Person** oder eine
+  **neue INTERESSENT-Person** (Anrede, Vor- und Nachname Pflicht; E-Mail und
+  Telefon werden aus der Anfrage übernommen); Zuordnung aufheben möglich.
+  Audit `anfrage.*`.
+- **Automatische Aufgaben mit Dedup:** neue Anfrage (`anfrage:<id>`),
+  Paket-Ende ohne Antwort (`paketende:<anmeldungId>`, zusammen mit
+  `paketEndeGemeldetAt` in den Anmeldungen) und offene Anwesenheiten
+  (`anwesenheit:<lektionId>` im nächtlichen Erinnerungslauf).
+  `Aufgabe.dedupKey` ist unique — pro Vorgang genau EINE Aufgabe, auch nach
+  dem Erledigen wird für denselben Vorgang nicht neu angelegt.
+- **Fragenkatalog** (`/stammdaten/einstufungstest`, nur Admin): Fragen je
+  Sprache × Niveau mit vier Antwortoptionen, richtiger Antwort, Reihenfolge,
+  aktiv/inaktiv und Löschen; öffentlich erscheinen nur aktive Fragen.
+  Startdaten (Deutsch A1–B1, Englisch A1–A2) werden beim Start gesät
+  (Marker `anfragen.fragenStartdaten`, unabhängig vom Modul-2-Marker, damit
+  bestehende Datenbanken die Fragen nachrüsten).
+- **Dashboard-Karte** «Aufgaben & Anfragen» (Büro-Operativ): offene Aufgaben
+  inkl. der mir zugewiesenen sowie Anfragen in Bearbeitung, mit Links in
+  beide Listen. Rechte über `canViewAnfragen`/`canManageAnfragen`;
+  Navigation «Anfragen»/«Aufgaben» nur für Admin/Chef/Büro.
+- Logik in `src/lib/anfragen/` (`logik.ts` pure + getestet — Durchsteig-Regel,
+  kompaktes Resultat-Format für die URL-Weitergabe, Drossel-Limits;
+  `drossel.ts`, `actions.ts`, `seed.ts`) und `src/lib/aufgaben/`
+  (`logik.ts` pure + getestet — Fälligkeit/Überfälligkeit; `actions.ts`,
+  `automatik.ts` mit Dedup). UI in `src/app/einstufungstest/`,
+  `src/app/anfrage/`, `src/app/(verwaltung)/anfragen|aufgaben/` +
+  `src/components/anfragen|aufgaben|oeffentlich/`. E2E-Verifikation:
+  `tests/integration/modul13_verification.py`.
+
+### Test-Daten Modul 13 (lokal, Präfix `m13_`)
+
+Erzeugt durch das Playwright-E2E-Skript (`tests/integration/modul13_verification.py`,
+gegen localhost:3000):
+- 1 öffentliche Anfrage **m13_Testinteressent Mustermann**
+  (`m13-test@linguasud.test`, Telefon +41 79 123 45 67) über den
+  Einstufungstest (Deutsch, alle Antworten richtig → Empfehlung **B1**).
+- Automatisch entstandene Aufgabe «Neue Anfrage von m13_Testinteressent
+  Mustermann» (Quelle `anfrage`, fällig in 2 Tagen, dedupKey `anfrage:<id>`),
+  im Test erledigt und wieder geöffnet (bleibt offen).
+- Zuordnung zu neuer INTERESSENT-Person **m13_Vorname m13_Nachname**
+  (Anrede Frau); Anfrage-Status **zugeordnet**.
+- Fragen-Seed: 13 aktive Fragen (Deutsch 9, Englisch 4) — Marker
+  `anfragen.fragenStartdaten`.
+
 ## Technologie-Stack
 
 | Baustein | Wahl | Bemerkung |
