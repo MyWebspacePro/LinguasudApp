@@ -64,6 +64,8 @@ async function Ergebnis({
     );
   }
 
+  // Request-Time-Rendering: der DB-Client nutzt intern crypto.randomUUID().
+  await connection();
   const sprache = spracheId ? await db.orm.public.Sprache.where({ id: spracheId }).first() : null;
   const empfohlenesNiveau = res.empfehlungCode
     ? (await db.orm.public.Niveau.where({ code: res.empfehlungCode }).first())

@@ -47,6 +47,8 @@ async function AnfrageInhalt({
   const sp = (await searchParams) ?? {};
   const wert = (key: string) => (typeof sp[key] === "string" ? (sp[key] as string) : "");
 
+  // Request-Time-Rendering: der DB-Client nutzt intern crypto.randomUUID().
+  await connection();
   const [sprachen, niveaus] = await Promise.all([
     db.orm.public.Sprache.where({ active: true }).orderBy((s) => s.name.asc()).all(),
     db.orm.public.Niveau.where({ active: true }).orderBy((n) => n.sortOrder.asc()).all(),
