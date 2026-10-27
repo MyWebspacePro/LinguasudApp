@@ -145,6 +145,27 @@ export function canManageAnfragen(roles: Role[]): boolean {
   return hasRole(roles, "ADMIN") || hasRole(roles, "CHEF") || hasRole(roles, "BUERO");
 }
 
+// ——— Modul 14: KI-Lektionsgenerator ————————————————————————————————
+
+/**
+ * KI-Generator nutzen (Modul 14): alle Stabsrollen inkl. Lehrpersonen —
+ * das Pflichtenheft nennt die Nutzung durch Lehrpersonen ausdrücklich.
+ * Reine Teilnehmende sehen nichts.
+ */
+export function canViewKi(roles: Role[]): boolean {
+  return isStaff(roles);
+}
+
+/** KI-Einstellungen (OpenRouter-Key + Modell) pflegt ausschliesslich der Admin. */
+export function canManageKiEinstellungen(roles: Role[]): boolean {
+  return hasRole(roles, "ADMIN");
+}
+
+/** Geteilte Lektionen anderer Personen verwalten (teilen/löschen): Admin und Chef. */
+export function canAdminKi(roles: Role[]): boolean {
+  return hasRole(roles, "ADMIN") || hasRole(roles, "CHEF");
+}
+
 /** Darf dieser Akteur dem Ziel diese Rollen zuweisen? */
 export function canAssignRoles(actorRoles: Role[], targetRoles: Role[]): boolean {
   if (hasRole(actorRoles, "ADMIN")) return true;

@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import type { Role } from "@/lib/db";
 import { db } from "@/lib/db";
 import { requireStaff } from "@/lib/auth/session";
-import { canManageStammdaten, canViewStammdaten } from "@/lib/auth/permissions";
+import { canManageKiEinstellungen, canManageStammdaten, canViewStammdaten } from "@/lib/auth/permissions";
 
 export const metadata: Metadata = {
   title: "Stammdaten",
@@ -81,6 +81,21 @@ async function StammdatenContent() {
           </Link>
         ))}
       </div>
+
+      {canManageKiEinstellungen(roles) && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <Link
+            href="/stammdaten/ki-generator"
+            className="card p-5 transition hover:border-brand-300 hover:shadow"
+          >
+            <p className="text-sm font-semibold text-slate-900">KI-Lektor (OpenRouter)</p>
+            <p className="mt-1 text-sm text-brand-700">API-Key &amp; Modell</p>
+            <p className="mt-1 text-xs text-slate-600">
+              Anbindung des KI-Lektionsgenerators aktivieren, Modell wählen und Key verwalten.
+            </p>
+          </Link>
+        </div>
+      )}
 
       <div className="alert-info">
         Regel: alles anlegen · aktivieren/deaktivieren · löschen nur wenn unbenutzt · archivieren.

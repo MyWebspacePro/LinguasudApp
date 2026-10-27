@@ -23,9 +23,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'10cd32cbcf39c462c93242877cb595645363916a4759257d4049964301779c75'>;
+  StorageHashBase<'fbb48def7deb8c71f91ca1587127f4e683a0942d123b7bb961d6352021b489a2'>;
 export type ExecutionHash =
-  ExecutionHashBase<'b29acf087a08c605e4d88904959a0f6f0b6f460671ecbe71cfc212171edb6607'>;
+  ExecutionHashBase<'52226a697d30dbcf910ce5c60ab2a67a3c1dedd46a3b94df27dbf3c4075b8f3c'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -307,6 +307,12 @@ type FieldTypeOverrides = {
           readonly input: 'OFFEN' | 'BEZAHLT';
         };
       };
+      readonly KiLektion: {
+        readonly modus: {
+          readonly output: 'STRUKTUR' | 'FREI';
+          readonly input: 'STRUKTUR' | 'FREI';
+        };
+      };
       readonly Kostentraeger: {
         readonly art: {
           readonly output: 'FIRMA' | 'OEFFENTLICHE_EINRICHTUNG';
@@ -449,6 +455,9 @@ type ColumnTypeOverrides = {
         readonly output: 'OFFEN' | 'BEZAHLT';
         readonly input: 'OFFEN' | 'BEZAHLT';
       };
+    };
+    readonly KiLektion: {
+      readonly modus: { readonly output: 'STRUKTUR' | 'FREI'; readonly input: 'STRUKTUR' | 'FREI' };
     };
     readonly Kostentraeger: {
       readonly art: {
@@ -763,6 +772,32 @@ export namespace Models {
     lehrperson: public_Person;
     readonly [RelationKeys]?: 'kursart' | 'lehrperson';
   };
+  export type public_KiLektion = {
+    createdAt: FieldOutputTypes['public']['KiLektion']['createdAt'];
+    dauerMs: FieldOutputTypes['public']['KiLektion']['dauerMs'];
+    ergebnis: FieldOutputTypes['public']['KiLektion']['ergebnis'];
+    erstelltVonName: FieldOutputTypes['public']['KiLektion']['erstelltVonName'];
+    erstelltVonUserId: FieldOutputTypes['public']['KiLektion']['erstelltVonUserId'];
+    geteilt: FieldOutputTypes['public']['KiLektion']['geteilt'];
+    id: FieldOutputTypes['public']['KiLektion']['id'];
+    kursartId: FieldOutputTypes['public']['KiLektion']['kursartId'];
+    modell: FieldOutputTypes['public']['KiLektion']['modell'];
+    modus: FieldOutputTypes['public']['KiLektion']['modus'];
+    niveauId: FieldOutputTypes['public']['KiLektion']['niveauId'];
+    parameter: FieldOutputTypes['public']['KiLektion']['parameter'];
+    prompt: FieldOutputTypes['public']['KiLektion']['prompt'];
+    spracheId: FieldOutputTypes['public']['KiLektion']['spracheId'];
+    thema: FieldOutputTypes['public']['KiLektion']['thema'];
+    titel: FieldOutputTypes['public']['KiLektion']['titel'];
+    tokenInput: FieldOutputTypes['public']['KiLektion']['tokenInput'];
+    tokenOutput: FieldOutputTypes['public']['KiLektion']['tokenOutput'];
+    updatedAt: FieldOutputTypes['public']['KiLektion']['updatedAt'];
+    erstelltVon: public_User;
+    kursart: public_Kursart | null;
+    niveau: public_Niveau | null;
+    sprache: public_Sprache | null;
+    readonly [RelationKeys]?: 'erstelltVon' | 'kursart' | 'niveau' | 'sprache';
+  };
   export type public_Kostentraeger = {
     active: FieldOutputTypes['public']['Kostentraeger']['active'];
     archivedAt: FieldOutputTypes['public']['Kostentraeger']['archivedAt'];
@@ -860,9 +895,10 @@ export namespace Models {
     sortOrder: FieldOutputTypes['public']['Kursart']['sortOrder'];
     updatedAt: FieldOutputTypes['public']['Kursart']['updatedAt'];
     honorarSaetze: public_HonorarSatz[];
+    kiLektionen: public_KiLektion[];
     kurse: public_Kurs[];
     preise: public_Preis[];
-    readonly [RelationKeys]?: 'honorarSaetze' | 'kurse' | 'preise';
+    readonly [RelationKeys]?: 'honorarSaetze' | 'kiLektionen' | 'kurse' | 'preise';
   };
   export type public_Kursbestaetigung = {
     anmeldungId: FieldOutputTypes['public']['Kursbestaetigung']['anmeldungId'];
@@ -965,6 +1001,7 @@ export namespace Models {
     anfragen: public_Anfrage[];
     anfragenEmpfohlen: public_Anfrage[];
     einstufungsfragen: public_Einstufungsfrage[];
+    kiLektionen: public_KiLektion[];
     kurse: public_Kurs[];
     qualifikationen: public_Lehrqualifikation[];
     verlauf: public_KursNiveauVerlauf[];
@@ -972,6 +1009,7 @@ export namespace Models {
       | 'anfragen'
       | 'anfragenEmpfohlen'
       | 'einstufungsfragen'
+      | 'kiLektionen'
       | 'kurse'
       | 'qualifikationen'
       | 'verlauf';
@@ -1184,9 +1222,11 @@ export namespace Models {
     updatedAt: FieldOutputTypes['public']['Sprache']['updatedAt'];
     anfragen: public_Anfrage[];
     einstufungsfragen: public_Einstufungsfrage[];
+    kiLektionen: public_KiLektion[];
     kurse: public_Kurs[];
     qualifikationen: public_Lehrqualifikation[];
-    readonly [RelationKeys]?: 'anfragen' | 'einstufungsfragen' | 'kurse' | 'qualifikationen';
+    readonly [RelationKeys]?:
+      'anfragen' | 'einstufungsfragen' | 'kiLektionen' | 'kurse' | 'qualifikationen';
   };
   export type public_Standort = {
     active: FieldOutputTypes['public']['Standort']['active'];
@@ -1239,6 +1279,7 @@ export namespace Models {
     aufgabenAlsZugewiesene: public_Aufgabe[];
     guthabenJournale: public_GuthabenJournal[];
     honorarAbrechnungenAlsErfasser: public_HonorarAbrechnung[];
+    kiLektionen: public_KiLektion[];
     passwordResetTokens: public_PasswordResetToken[];
     person: public_Person | null;
     personNotizen: public_PersonNotiz[];
@@ -1249,6 +1290,7 @@ export namespace Models {
       | 'aufgabenAlsZugewiesene'
       | 'guthabenJournale'
       | 'honorarAbrechnungenAlsErfasser'
+      | 'kiLektionen'
       | 'passwordResetTokens'
       | 'person'
       | 'personNotizen'
@@ -1342,6 +1384,7 @@ export declare const models: {
     GuthabenJournal: Models.public_GuthabenJournal;
     HonorarAbrechnung: Models.public_HonorarAbrechnung;
     HonorarSatz: Models.public_HonorarSatz;
+    KiLektion: Models.public_KiLektion;
     Kostentraeger: Models.public_Kostentraeger;
     Kurs: Models.public_Kurs;
     KursNiveauVerlauf: Models.public_KursNiveauVerlauf;
@@ -3064,6 +3107,201 @@ type ContractBase = Omit<
                   readonly source: {
                     readonly namespaceId: 'public' & NamespaceId;
                     readonly tableName: 'HonorarSatz';
+                    readonly columns: readonly ['kursartId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Kursart';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
+            readonly KiLektion: {
+              columns: {
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly dauerMs: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly ergebnis: {
+                  readonly dataType: 'pg/jsonb';
+                  readonly codecId: 'pg/jsonb@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly erstelltVonName: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly erstelltVonUserId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly geteilt: {
+                  readonly dataType: 'pg/bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly kursartId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly modell: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly modus: {
+                  readonly dataType: 'pg/enum';
+                  readonly codecId: 'pg/enum@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly typeName: 'KiModus' };
+                  readonly many: false;
+                };
+                readonly niveauId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly parameter: {
+                  readonly dataType: 'pg/jsonb';
+                  readonly codecId: 'pg/jsonb@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly prompt: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly spracheId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly thema: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly titel: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly tokenInput: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly tokenOutput: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly updatedAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'KiLektion_createdAt_idx';
+                  readonly columns: readonly ['createdAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'KiLektion_erstelltVonUserId_createdAt_idx';
+                  readonly columns: readonly ['erstelltVonUserId', 'createdAt'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'KiLektion_geteilt_createdAt_idx';
+                  readonly columns: readonly ['geteilt', 'createdAt'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'KiLektion';
+                    readonly columns: readonly ['erstelltVonUserId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'User';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'KiLektion';
+                    readonly columns: readonly ['spracheId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Sprache';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'KiLektion';
+                    readonly columns: readonly ['niveauId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Niveau';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'KiLektion';
                     readonly columns: readonly ['kursartId'];
                   };
                   readonly target: {
@@ -6336,6 +6574,10 @@ type ContractBase = Omit<
                 'KORREKTUR',
               ];
             };
+            readonly KiModus: {
+              readonly kind: 'valueSet';
+              readonly values: readonly ['STRUKTUR', 'FREI'];
+            };
             readonly KostentraegerArt: {
               readonly kind: 'valueSet';
               readonly values: readonly ['FIRMA', 'OEFFENTLICHE_EINRICHTUNG'];
@@ -6432,6 +6674,7 @@ type ContractBase = Omit<
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'HonorarSatz';
     };
+    readonly KiLektion: { readonly namespace: 'public' & NamespaceId; readonly model: 'KiLektion' };
     readonly Kostentraeger: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'Kostentraeger';
@@ -8038,6 +8281,170 @@ type ContractBase = Omit<
               };
             };
           };
+          readonly KiLektion: {
+            readonly fields: {
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly dauerMs: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly ergebnis: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/jsonb@1' };
+              };
+              readonly erstelltVonName: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly erstelltVonUserId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly geteilt: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly kursartId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly modell: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly modus: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/enum@1';
+                  readonly typeParams: { readonly typeName: 'KiModus' };
+                };
+              };
+              readonly niveauId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly parameter: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/jsonb@1' };
+              };
+              readonly prompt: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly spracheId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly thema: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly titel: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly tokenInput: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly tokenOutput: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+            };
+            readonly relations: {
+              readonly erstelltVon: {
+                readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'User' };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['erstelltVonUserId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly kursart: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Kursart';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['kursartId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly niveau: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Niveau';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['niveauId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly sprache: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Sprache';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['spracheId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'KiLektion';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly dauerMs: { readonly column: 'dauerMs' };
+                readonly ergebnis: { readonly column: 'ergebnis' };
+                readonly erstelltVonName: { readonly column: 'erstelltVonName' };
+                readonly erstelltVonUserId: { readonly column: 'erstelltVonUserId' };
+                readonly geteilt: { readonly column: 'geteilt' };
+                readonly id: { readonly column: 'id' };
+                readonly kursartId: { readonly column: 'kursartId' };
+                readonly modell: { readonly column: 'modell' };
+                readonly modus: { readonly column: 'modus' };
+                readonly niveauId: { readonly column: 'niveauId' };
+                readonly parameter: { readonly column: 'parameter' };
+                readonly prompt: { readonly column: 'prompt' };
+                readonly spracheId: { readonly column: 'spracheId' };
+                readonly thema: { readonly column: 'thema' };
+                readonly titel: { readonly column: 'titel' };
+                readonly tokenInput: { readonly column: 'tokenInput' };
+                readonly tokenOutput: { readonly column: 'tokenOutput' };
+                readonly updatedAt: { readonly column: 'updatedAt' };
+              };
+            };
+          };
           readonly Kostentraeger: {
             readonly fields: {
               readonly active: {
@@ -8456,6 +8863,17 @@ type ContractBase = Omit<
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
                   readonly model: 'HonorarSatz';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['kursartId'];
+                };
+              };
+              readonly kiLektionen: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'KiLektion';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {
@@ -9324,6 +9742,17 @@ type ContractBase = Omit<
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
                   readonly model: 'Einstufungsfrage';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['niveauId'];
+                };
+              };
+              readonly kiLektionen: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'KiLektion';
                 };
                 readonly cardinality: '1:N';
                 readonly on: {
@@ -10633,6 +11062,17 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['spracheId'];
                 };
               };
+              readonly kiLektionen: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'KiLektion';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['spracheId'];
+                };
+              };
               readonly kurse: {
                 readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Kurs' };
                 readonly cardinality: '1:N';
@@ -10984,6 +11424,17 @@ type ContractBase = Omit<
                 readonly on: {
                   readonly localFields: readonly ['id'];
                   readonly targetFields: readonly ['actorUserId'];
+                };
+              };
+              readonly kiLektionen: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'KiLektion';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['erstelltVonUserId'];
                 };
               };
               readonly passwordResetTokens: {
@@ -11765,6 +12216,23 @@ type ContractBase = Omit<
           readonly ref: {
             readonly entry: 'HonorarSatz';
             readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'KiLektion';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly onUpdate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'KiLektion';
+            readonly field: 'updatedAt';
             readonly namespace: 'public';
           };
         },

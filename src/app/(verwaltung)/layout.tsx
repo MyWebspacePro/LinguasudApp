@@ -9,6 +9,7 @@ import {
   canViewAnmeldungen,
   canViewAuditLog,
   canViewHonorare,
+  canViewKi,
   canViewKurse,
   canViewPersonen,
   canViewPlaner,
@@ -66,6 +67,9 @@ async function VerwaltungGate({ children }: { children: ReactNode }) {
   }
   if (canViewPlaner(roles)) {
     navItems.push({ href: "/planer", label: "Raumplaner" });
+  }
+  if (canViewKi(roles)) {
+    navItems.push({ href: "/ki-generator", label: "KI-Lektor" });
   }
   if (canManageBueroplan(roles)) {
     navItems.push({ href: "/bueroplan", label: "Büroplan" });

@@ -43,6 +43,8 @@ export type VermietungStatus = Models.public_Vermietung["status"];
 export type AnfrageStatus = Models.public_Anfrage["status"];
 /** Status einer Aufgabe (Modul 13): schlicht offen/erledigt. */
 export type AufgabeStatus = Models.public_Aufgabe["status"];
+/** Modus des KI-Lektionsgenerators (Modul 14): strukturiert oder freier Prompt. */
+export type KiModus = Models.public_KiLektion["modus"];
 
 /** Zeilen-Typen ohne Relationen (das, was Queries zurückgeben). */
 export type UserRow = Scalars<Models.public_User>;
@@ -68,6 +70,18 @@ export type HonorarAbrechnungRow = Scalars<Models.public_HonorarAbrechnung>;
 export type EinstufungsfrageRow = Scalars<Models.public_Einstufungsfrage>;
 export type AnfrageRow = Scalars<Models.public_Anfrage>;
 export type AufgabeRow = Scalars<Models.public_Aufgabe>;
+export type KiLektionRow = Scalars<Models.public_KiLektion>;
+/**
+ * KI-Lektion inklusive der beim Laden eingebundenen Relationen. Bewusst nur
+ * die Skalar-Felder der Relationen: `.include("niveau")` lädt keine
+ * Rück-Relationen (anfragen, kiLektionen …) mit, daher wäre der volle
+ * `public_Niveau`-Typ zu streng.
+ */
+export type KiLektionMitRelationen = Scalars<Models.public_KiLektion> & {
+  sprache: Scalars<Models.public_Sprache> | null;
+  niveau: Scalars<Models.public_Niveau> | null;
+  kursart: Scalars<Models.public_Kursart> | null;
+};
 
 /** Anrede-Bezeichnungen für Formulare und Anzeigen. */
 export const ANREDE_LABELS: Record<Anrede, string> = {

@@ -60,6 +60,10 @@
       "model": "HonorarSatz",
       "namespace": "public"
     },
+    "KiLektion": {
+      "model": "KiLektion",
+      "namespace": "public"
+    },
     "Kostentraeger": {
       "model": "Kostentraeger",
       "namespace": "public"
@@ -2577,6 +2581,281 @@
               "table": "HonorarSatz"
             }
           },
+          "KiLektion": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "dauerMs": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "ergebnis": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/jsonb@1",
+                  "kind": "scalar"
+                }
+              },
+              "erstelltVonName": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "erstelltVonUserId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "geteilt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "kursartId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "modell": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "modus": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "KiModus"
+                  }
+                }
+              },
+              "niveauId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "parameter": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/jsonb@1",
+                  "kind": "scalar"
+                }
+              },
+              "prompt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "spracheId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "thema": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "titel": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "tokenInput": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "tokenOutput": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              }
+            },
+            "relations": {
+              "erstelltVon": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "erstelltVonUserId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "kursart": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "kursartId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Kursart",
+                  "namespace": "public"
+                }
+              },
+              "niveau": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "niveauId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Niveau",
+                  "namespace": "public"
+                }
+              },
+              "sprache": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "spracheId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Sprache",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "dauerMs": {
+                  "column": "dauerMs"
+                },
+                "ergebnis": {
+                  "column": "ergebnis"
+                },
+                "erstelltVonName": {
+                  "column": "erstelltVonName"
+                },
+                "erstelltVonUserId": {
+                  "column": "erstelltVonUserId"
+                },
+                "geteilt": {
+                  "column": "geteilt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "kursartId": {
+                  "column": "kursartId"
+                },
+                "modell": {
+                  "column": "modell"
+                },
+                "modus": {
+                  "column": "modus"
+                },
+                "niveauId": {
+                  "column": "niveauId"
+                },
+                "parameter": {
+                  "column": "parameter"
+                },
+                "prompt": {
+                  "column": "prompt"
+                },
+                "spracheId": {
+                  "column": "spracheId"
+                },
+                "thema": {
+                  "column": "thema"
+                },
+                "titel": {
+                  "column": "titel"
+                },
+                "tokenInput": {
+                  "column": "tokenInput"
+                },
+                "tokenOutput": {
+                  "column": "tokenOutput"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "KiLektion"
+            }
+          },
           "Kostentraeger": {
             "fields": {
               "active": {
@@ -3476,6 +3755,21 @@
                 },
                 "to": {
                   "model": "HonorarSatz",
+                  "namespace": "public"
+                }
+              },
+              "kiLektionen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "kursartId"
+                  ]
+                },
+                "to": {
+                  "model": "KiLektion",
                   "namespace": "public"
                 }
               },
@@ -4577,6 +4871,21 @@
                 },
                 "to": {
                   "model": "Einstufungsfrage",
+                  "namespace": "public"
+                }
+              },
+              "kiLektionen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "niveauId"
+                  ]
+                },
+                "to": {
+                  "model": "KiLektion",
                   "namespace": "public"
                 }
               },
@@ -6590,6 +6899,21 @@
                   "namespace": "public"
                 }
               },
+              "kiLektionen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "spracheId"
+                  ]
+                },
+                "to": {
+                  "model": "KiLektion",
+                  "namespace": "public"
+                }
+              },
               "kurse": {
                 "cardinality": "1:N",
                 "on": {
@@ -7130,6 +7454,21 @@
                 },
                 "to": {
                   "model": "HonorarAbrechnung",
+                  "namespace": "public"
+                }
+              },
+              "kiLektionen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "erstelltVonUserId"
+                  ]
+                },
+                "to": {
+                  "model": "KiLektion",
                   "namespace": "public"
                 }
               },
@@ -8104,6 +8443,14 @@
                 "KORREKTUR"
               ],
               "typeName": "JournalArt"
+            },
+            "KiModus": {
+              "kind": "postgres-enum",
+              "members": [
+                "STRUKTUR",
+                "FREI"
+              ],
+              "typeName": "KiModus"
             },
             "KostentraegerArt": {
               "kind": "postgres-enum",
@@ -10290,6 +10637,236 @@
                   ],
                   "name": "HonorarSatz_lehrpersonId_kursartId_minuten_key",
                   "unique": true
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "KiLektion": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "dauerMs": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": true
+                },
+                "ergebnis": {
+                  "codecId": "pg/jsonb@1",
+                  "dataType": "pg/jsonb",
+                  "nullable": true
+                },
+                "erstelltVonName": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "erstelltVonUserId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "geteilt": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "kursartId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "modell": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "modus": {
+                  "codecId": "pg/enum@1",
+                  "dataType": "pg/enum",
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "KiModus"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "KiModus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "niveauId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "parameter": {
+                  "codecId": "pg/jsonb@1",
+                  "dataType": "pg/jsonb",
+                  "nullable": true
+                },
+                "prompt": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "spracheId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "thema": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "titel": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "tokenInput": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": true
+                },
+                "tokenOutput": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": true
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "KiLektion_erstelltVonUserId_createdAt_idx"
+                  },
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "erstelltVonUserId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "KiLektion"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                },
+                {
+                  "onDelete": "setNull",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "spracheId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "KiLektion"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Sprache"
+                  }
+                },
+                {
+                  "onDelete": "setNull",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "niveauId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "KiLektion"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Niveau"
+                  }
+                },
+                {
+                  "onDelete": "setNull",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "kursartId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "KiLektion"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kursart"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "createdAt"
+                  ],
+                  "name": "KiLektion_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "erstelltVonUserId",
+                    "createdAt"
+                  ],
+                  "name": "KiLektion_erstelltVonUserId_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "geteilt",
+                    "createdAt"
+                  ],
+                  "name": "KiLektion_geteilt_createdAt_idx",
+                  "unique": false
                 }
               ],
               "primaryKey": {
@@ -14273,6 +14850,13 @@
                 "KORREKTUR"
               ]
             },
+            "KiModus": {
+              "kind": "valueSet",
+              "values": [
+                "STRUKTUR",
+                "FREI"
+              ]
+            },
             "KostentraegerArt": {
               "kind": "valueSet",
               "values": [
@@ -14349,10 +14933,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "10cd32cbcf39c462c93242877cb595645363916a4759257d4049964301779c75"
+    "storageHash": "fbb48def7deb8c71f91ca1587127f4e683a0942d123b7bb961d6352021b489a2"
   },
   "execution": {
-    "executionHash": "b29acf087a08c605e4d88904959a0f6f0b6f460671ecbe71cfc212171edb6607",
+    "executionHash": "52226a697d30dbcf910ce5c60ab2a67a3c1dedd46a3b94df27dbf3c4075b8f3c",
     "mutations": {
       "defaults": [
         {
@@ -14656,6 +15240,32 @@
           "ref": {
             "entry": "HonorarSatz",
             "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "KiLektion",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "KiLektion",
+            "field": "updatedAt",
             "namespace": "public"
           }
         },

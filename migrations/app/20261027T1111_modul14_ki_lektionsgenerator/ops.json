@@ -1,0 +1,425 @@
+[
+  {
+    "id": "createNativeEnumType.KiModus",
+    "label": "Create enum type \"KiModus\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "KiModus"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"KiModus\"",
+        "sql": "CREATE TYPE \"public\".\"KiModus\" AS ENUM ('STRUKTUR', 'FREI')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.KiLektion",
+    "label": "Create table \"KiLektion\"",
+    "summary": "Creates table \"KiLektion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "KiLektion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"KiLektion\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"KiLektion\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"KiLektion\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"KiLektion\"",
+        "sql": "CREATE TABLE \"public\".\"KiLektion\" (\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"dauerMs\" int4,\n  \"ergebnis\" jsonb,\n  \"erstelltVonName\" text NOT NULL,\n  \"erstelltVonUserId\" text NOT NULL,\n  \"geteilt\" bool DEFAULT false NOT NULL,\n  \"id\" text NOT NULL,\n  \"kursartId\" text,\n  \"modell\" text,\n  \"modus\" \"KiModus\" NOT NULL,\n  \"niveauId\" text,\n  \"parameter\" jsonb,\n  \"prompt\" text NOT NULL,\n  \"spracheId\" text,\n  \"thema\" text,\n  \"titel\" text NOT NULL,\n  \"tokenInput\" int4,\n  \"tokenOutput\" int4,\n  \"updatedAt\" timestamp(3) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"KiLektion\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"KiLektion\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"KiLektion\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.KiLektion.KiLektion_createdAt_idx",
+    "label": "Create index \"KiLektion_createdAt_idx\" on \"KiLektion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "KiLektion_createdAt_idx",
+        "table": "KiLektion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"KiLektion_createdAt_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"KiLektion_createdAt_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"KiLektion_createdAt_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"KiLektion_createdAt_idx\"",
+        "sql": "CREATE INDEX \"KiLektion_createdAt_idx\" ON \"public\".\"KiLektion\" (\"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"KiLektion_createdAt_idx\" exists on \"KiLektion\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"KiLektion_createdAt_idx\"",
+          "i",
+          "I",
+          "\"public\".\"KiLektion\"",
+          "btree",
+          "[\"createdAt\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.KiLektion.KiLektion_erstelltVonUserId_createdAt_idx",
+    "label": "Create index \"KiLektion_erstelltVonUserId_createdAt_idx\" on \"KiLektion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "KiLektion_erstelltVonUserId_createdAt_idx",
+        "table": "KiLektion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"KiLektion_erstelltVonUserId_createdAt_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"KiLektion_erstelltVonUserId_createdAt_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"KiLektion_erstelltVonUserId_createdAt_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"KiLektion_erstelltVonUserId_createdAt_idx\"",
+        "sql": "CREATE INDEX \"KiLektion_erstelltVonUserId_createdAt_idx\" ON \"public\".\"KiLektion\" (\"erstelltVonUserId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"KiLektion_erstelltVonUserId_createdAt_idx\" exists on \"KiLektion\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"KiLektion_erstelltVonUserId_createdAt_idx\"",
+          "i",
+          "I",
+          "\"public\".\"KiLektion\"",
+          "btree",
+          "[\"erstelltVonUserId\",\"createdAt\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.KiLektion.KiLektion_geteilt_createdAt_idx",
+    "label": "Create index \"KiLektion_geteilt_createdAt_idx\" on \"KiLektion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "KiLektion_geteilt_createdAt_idx",
+        "table": "KiLektion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"KiLektion_geteilt_createdAt_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"KiLektion_geteilt_createdAt_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"KiLektion_geteilt_createdAt_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"KiLektion_geteilt_createdAt_idx\"",
+        "sql": "CREATE INDEX \"KiLektion_geteilt_createdAt_idx\" ON \"public\".\"KiLektion\" (\"geteilt\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"KiLektion_geteilt_createdAt_idx\" exists on \"KiLektion\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"KiLektion_geteilt_createdAt_idx\"",
+          "i",
+          "I",
+          "\"public\".\"KiLektion\"",
+          "btree",
+          "[\"geteilt\",\"createdAt\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.KiLektion.KiLektion_erstelltVonUserId_fkey",
+    "label": "Add foreign key \"KiLektion_erstelltVonUserId_fkey\" on \"KiLektion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "KiLektion_erstelltVonUserId_fkey",
+        "table": "KiLektion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"KiLektion_erstelltVonUserId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "KiLektion_erstelltVonUserId_fkey",
+          "public",
+          "\"public\".\"KiLektion\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"KiLektion_erstelltVonUserId_fkey\" on \"KiLektion\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"KiLektion_erstelltVonUserId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"KiLektion\"\nADD CONSTRAINT \"KiLektion_erstelltVonUserId_fkey\"\nFOREIGN KEY (\"erstelltVonUserId\")\nREFERENCES \"public\".\"User\" (\"id\")\nON DELETE CASCADE\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"KiLektion_erstelltVonUserId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "KiLektion_erstelltVonUserId_fkey",
+          "public",
+          "\"public\".\"KiLektion\"",
+          "f",
+          "[\"erstelltVonUserId\"]",
+          "\"public\".\"User\"",
+          "[\"id\"]",
+          "c",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.KiLektion.KiLektion_spracheId_fkey",
+    "label": "Add foreign key \"KiLektion_spracheId_fkey\" on \"KiLektion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "KiLektion_spracheId_fkey",
+        "table": "KiLektion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"KiLektion_spracheId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "KiLektion_spracheId_fkey",
+          "public",
+          "\"public\".\"KiLektion\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"KiLektion_spracheId_fkey\" on \"KiLektion\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"KiLektion_spracheId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"KiLektion\"\nADD CONSTRAINT \"KiLektion_spracheId_fkey\"\nFOREIGN KEY (\"spracheId\")\nREFERENCES \"public\".\"Sprache\" (\"id\")\nON DELETE SET NULL\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"KiLektion_spracheId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "KiLektion_spracheId_fkey",
+          "public",
+          "\"public\".\"KiLektion\"",
+          "f",
+          "[\"spracheId\"]",
+          "\"public\".\"Sprache\"",
+          "[\"id\"]",
+          "n",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.KiLektion.KiLektion_niveauId_fkey",
+    "label": "Add foreign key \"KiLektion_niveauId_fkey\" on \"KiLektion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "KiLektion_niveauId_fkey",
+        "table": "KiLektion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"KiLektion_niveauId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "KiLektion_niveauId_fkey",
+          "public",
+          "\"public\".\"KiLektion\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"KiLektion_niveauId_fkey\" on \"KiLektion\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"KiLektion_niveauId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"KiLektion\"\nADD CONSTRAINT \"KiLektion_niveauId_fkey\"\nFOREIGN KEY (\"niveauId\")\nREFERENCES \"public\".\"Niveau\" (\"id\")\nON DELETE SET NULL\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"KiLektion_niveauId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "KiLektion_niveauId_fkey",
+          "public",
+          "\"public\".\"KiLektion\"",
+          "f",
+          "[\"niveauId\"]",
+          "\"public\".\"Niveau\"",
+          "[\"id\"]",
+          "n",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.KiLektion.KiLektion_kursartId_fkey",
+    "label": "Add foreign key \"KiLektion_kursartId_fkey\" on \"KiLektion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "KiLektion_kursartId_fkey",
+        "table": "KiLektion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"KiLektion_kursartId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "KiLektion_kursartId_fkey",
+          "public",
+          "\"public\".\"KiLektion\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"KiLektion_kursartId_fkey\" on \"KiLektion\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"KiLektion_kursartId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"KiLektion\"\nADD CONSTRAINT \"KiLektion_kursartId_fkey\"\nFOREIGN KEY (\"kursartId\")\nREFERENCES \"public\".\"Kursart\" (\"id\")\nON DELETE SET NULL\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"KiLektion_kursartId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "KiLektion_kursartId_fkey",
+          "public",
+          "\"public\".\"KiLektion\"",
+          "f",
+          "[\"kursartId\"]",
+          "\"public\".\"Kursart\"",
+          "[\"id\"]",
+          "n",
+          "c"
+        ]
+      }
+    ]
+  }
+]

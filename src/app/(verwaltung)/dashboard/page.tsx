@@ -8,6 +8,7 @@ import {
   canViewAnfragen,
   canViewAuditLog,
   canViewAnmeldungen,
+  canViewKi,
   canViewKurse,
   canViewPersonen,
   canViewPlaner,
@@ -232,6 +233,25 @@ async function DashboardContent() {
             <p className="mt-2 text-sm">
               <Link href="/bueroplan" className="font-medium text-brand-700 hover:text-brand-800">
                 Büroplan öffnen →
+              </Link>
+            </p>
+          </div>
+        )}
+
+        {/* Modul 14 — KI-Lektor: Lektionspläne generieren und in der Bibliothek ablegen. */}
+        {canViewKi(roles) && (
+          <div className="card p-5">
+            <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">KI-Lektor</p>
+            <p className="mt-1 text-sm text-slate-600">
+              Lektionspläne generieren, prüfen, in der Bibliothek ablegen und als PDF drucken.
+            </p>
+            <p className="mt-2 text-sm">
+              <Link href="/ki-generator" className="font-medium text-brand-700 hover:text-brand-800">
+                KI-Lektor öffnen →
+              </Link>
+              {" · "}
+              <Link href="/ki-generator/bibliothek" className="font-medium text-brand-700 hover:text-brand-800">
+                Bibliothek
               </Link>
             </p>
           </div>

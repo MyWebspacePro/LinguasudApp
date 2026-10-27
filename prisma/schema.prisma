@@ -48,6 +48,8 @@ model User {
   honorarAbrechnungenAlsErfasser HonorarAbrechnung[]
   // Modul 13 — Aufgaben, die dieser Stabs-Person zugewiesen sind.
   aufgabenAlsZugewiesene Aufgabe[] @relation("AufgabenAlsZugewiesene")
+  // Modul 14 — KI-generierte Lektionspläne.
+  kiLektionen KiLektion[] @relation("KiLektionen")
 
   @@index([isActive])
 }
@@ -206,6 +208,8 @@ model Sprache {
   // Modul 13 — Einstufungstest-Fragen und Anfragen dieser Sprache.
   einstufungsfragen Einstufungsfrage[]
   anfragen          Anfrage[]
+  // Modul 14 — KI-Lektionspläne dieser Sprache.
+  kiLektionen       KiLektion[]
 }
 
 /// Niveaustufen (A1 … C2), Sortierung frei definierbar.
@@ -226,6 +230,8 @@ model Niveau {
   einstufungsfragen Einstufungsfrage[]
   anfragen          Anfrage[] @relation("AnfragenGewuenschtesNiveau")
   anfragenEmpfohlen Anfrage[] @relation("AnfragenEmpfohlenesNiveau")
+  // Modul 14 — KI-Lektionspläne dieses Niveaus.
+  kiLektionen       KiLektion[]
 }
 
 /// Kursarten: Einzel, 2er, 3er, 4er, 6er, Online, Firmenkurs — beliebig erweiterbar.
@@ -245,6 +251,8 @@ model Kursart {
   preise          Preis[]
   kurse           Kurs[]
   honorarSaetze   HonorarSatz[]
+  // Modul 14 — KI-Lektionspläne dieser Kursart.
+  kiLektionen     KiLektion[]
 }
 
 /// Lektionsdauern in Minuten (45, 60, 90, …).
@@ -1372,4 +1380,63 @@ model PublicFormVersuch {
 
   @@index([form, email, createdAt])
   @@index([form, ip, createdAt])
+}
+
+
+// ————————————————————————————————————————————————————————————————
+// Modul 14 — KI-Lektionsgenerator
+// Feature vollständig sichtbar; die KI-Anbindung (OpenRouter) wird erst
+// aktiv, wenn Admin unter Stammdaten → KI-Generator API-Key + Modell
+// hinterlegt. Zwei Modi: strukturiert (Lernziele, Ablauf mit Phasen und
+// Zeiten, ausformulierte Materialien, Hausaufgabe) und frei (eigener
+// Prompt). Gespeicherte Pläne sind standardmässig privat und optional für
+// Kolleginnen/Kollegen freigegeben.
+// ————————————————————————————————————————————————————————————————
+
+/// Generierungsmodus: strukturierter Lektionsplan oder freier Prompt.
+enum KiModus {
+  STRUKTUR
+  FREI
+}
+
+model KiLektion {
+  id          String  @id @default(cuid())
+  titel       String
+  modus       KiModus
+  /// Thema (strukturiert) bzw. Kurzbeschreibung; im Freimodus der Prompt-Auszug.
+  thema       String?
+  /// Der effektiv an das Modell gesendete Prompt (System + User zusammengefasst).
+  prompt      String
+  /// Eingabeparameter (strukturiert): Sprache, Niveau, Kursart, Dauer,
+  /// Lernziele, Zusatzhinweise. Im Freimodus nur der Prompt.
+  parameter   Json?
+  /// Ergebnis: strukturiert = { lernziele, ablauf, materialien, hausaufgabe };
+  /// frei = { text }. Roh-JSON des Modells wird validiert gespeichert.
+  ergebnis    Json?
+  /// Modellname + Verbrauch/Dauer für die Kosten-Nachvollziehbarkeit.
+  modell      String?
+  tokenInput  Int?
+  tokenOutput Int?
+  dauerMs     Int?
+  /// Freigabe für Kolleginnen/Kollegen (Bibliothek).
+  geteilt     Boolean @default(false)
+
+  erstelltVonUserId String
+  erstelltVon       User   @relation("KiLektionen", fields: [erstelltVonUserId], references: [id], onDelete: Cascade)
+  /// Snapshot des Namens (bleibt lesbar, falls das Konto später gelöscht wird).
+  erstelltVonName   String
+
+  spracheId String?
+  sprache   Sprache? @relation(fields: [spracheId], references: [id], onDelete: SetNull)
+  niveauId  String?
+  niveau    Niveau?  @relation(fields: [niveauId], references: [id], onDelete: SetNull)
+  kursartId String?
+  kursart   Kursart? @relation(fields: [kursartId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([erstelltVonUserId, createdAt])
+  @@index([geteilt, createdAt])
+  @@index([createdAt])
 }

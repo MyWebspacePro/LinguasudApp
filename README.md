@@ -171,6 +171,53 @@ gegen localhost:3000):
 - Fragen-Seed: 13 aktive Fragen (Deutsch 9, Englisch 4) — Marker
   `anfragen.fragenStartdaten`.
 
+## Modul 14 — KI-Lektionsgenerator (fertig)
+
+- **KI-Lektor** (`/ki-generator`, Stabsrollen mit `canViewKi`): Lektionspläne
+  per OpenRouter generieren. Formular mit Sprache, Niveau, Kursart, Thema,
+  Dauer, Teilnehmerzahl und optionalen Zusatzwünschen; Ergebnis wird direkt
+  angezeigt, geprüft und erst danach in der Bibliothek gespeichert. Zwei
+  Modi: **Strukturiert** (JSON mit Lernzielen, Ablauf, Materialien,
+  Hausaufgabe) und **Freier Prompt** (Freitext-Antwort).
+- **Admin-Einstellungen** (`/stammdaten/ki-generator`, nur `ADMIN`): API-Key
+  und Modell pflegen. Der Key liegt ausschliesslich serverseitig in
+  `SystemSetting` (`ki.openrouterApiKey`) bzw. optional als Env-Fallback
+  (`OPENROUTER_API_KEY`); nach aussen geht nur die maskierte Fassung
+  (`getKiEinstellungenMaskiert`). Änderungen wirken **sofort** auf die nächste
+  Generierung — ohne Neustart. Modellliste kommt bevorzugt live von
+  `/api/v1/models` (Fallback-Liste bei Netzwerkfehlern), freie Modell-ID
+  zusätzlich eingebbar. Standard: `openai/gpt-4o-mini`.
+- **Robuste Generierung** (`src/lib/ki/openrouter.ts`): 401/402/429/5xx und
+  Timeouts werden abgefangen und als verständliche Meldung zurückgegeben.
+  Die Antwort wird als JSON geparst; schlägt das fehl, bleibt der Rohtext als
+  Fallback erhalten (`istRohtext`) — keine Generierung geht verloren. Jede
+  Generierung wird im Audit-Log vermerkt (`ki.lektion.generieren`) — ohne Key.
+- **Bibliothek** (`/ki-generator/bibliothek`): eigene Lektionen plus fürs
+  Kollegium freigegebene (max. 100 Einträge), Volltextsuche über GET-Parameter
+  `?q=`. Detailseite (`/ki-generator/[lektionId]`) zeigt Modus, Stammdaten,
+  Tokenverbrauch, Dauer und den verwendeten Prompt.
+- **PDF-Export** (`/ki-generator/[lektionId]/pdf`, Rechte-Check in der Route):
+  A4, Helvetica (WinAnsi — Umlaute ok), mehrseitig mit automatischem Umbruch,
+  Briefkopf mit Logo wie bei den übrigen Belegen. Im Struktur-Modus die
+  Abschnitte, im Frei-Modus der Freitext; KI-Inhalte werden vor dem Druck auf
+  WinAnsi-taugliche Zeichen gesäubert.
+- **Teilen & Löschen**: Besitzer oder Admin/Chef schalten die Freigabe fürs
+  Kollegium um (`geteilt`); Löschen nur mit Bestätigungs-Checkbox. Beides im
+  Audit-Log (`ki.lektion.teilen`, `ki.lektion.loeschen`).
+- **Rechte**: `canViewKi` (alle Stabsrollen), `canManageKiEinstellungen`
+  (ADMIN), `canAdminKi` (ADMIN/CHEF). Navigationseintrag «KI-Lektor» erscheint
+  für alle Stabsrollen; das Admin-Ziel ist zusätzlich als Kachel unter
+  `/stammdaten` verlinkt.
+- Logik in `src/lib/ki/` (`logik.ts` pure + getestet — 19 Tests;
+  `einstellungen.ts` Settings/Key-Maskierung; `openrouter.ts` API-Client;
+  `modelle.ts` Modellliste; `daten.ts` Datenladen; `actions.ts` Server-Actions;
+  `pdf.ts`/`druck.ts` PDF). UI in `src/app/(verwaltung)/ki-generator/`,
+  `src/app/(verwaltung)/stammdaten/ki-generator/` + `src/components/ki/`.
+- **Hinweis Betrieb**: Ohne hinterlegten Key ist der Generator deaktiviert und
+  zeigt einen Hinweis; ein Live-E2E-Test gegen OpenRouter benötigt einen
+  gültigen Key. Abgedeckt sind Unit-Tests der Logik (Prompt-Bau, JSON-Parsing,
+  Rohtext-Fallback, Key-Maskierung) sowie Build/Typecheck/Lint.
+
 ## Technologie-Stack
 
 | Baustein | Wahl | Bemerkung |
