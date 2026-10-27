@@ -210,6 +210,8 @@ model Sprache {
   anfragen          Anfrage[]
   // Modul 14 — KI-Lektionspläne dieser Sprache.
   kiLektionen       KiLektion[]
+  // Modul 15 — SEO-Unterseite der öffentlichen Website.
+  websiteSeite      WebsiteSeite?
 }
 
 /// Niveaustufen (A1 … C2), Sortierung frei definierbar.
@@ -1439,4 +1441,104 @@ model KiLektion {
   @@index([erstelltVonUserId, createdAt])
   @@index([geteilt, createdAt])
   @@index([createdAt])
+}
+
+// ————————————————————————————————————————————————————————————————
+// Modul 15 — Öffentliche Website (CMS)
+// Seiten, Übersetzungen (DE/EN) und das Pop-up werden vom Büro/Chef in der
+// App gepflegt (ohne Programmieren). Sprache-Unterseiten hängen über
+// WebsiteSeite.spracheId direkt an die Stammdaten-Sprache.
+// ————————————————————————————————————————————————————————————————
+
+/// Seitentyp: START = Startseite (nur unter «/» erreichbar),
+/// SPRACHE = SEO-Unterseite einer unterrichteten Sprache,
+/// SEITE = normale CMS-Seite (Über uns, Kontakt, AGB, …).
+enum WebsiteSeiteTyp {
+  START
+  SPRACHE
+  SEITE
+}
+
+/// UI-Sprache der öffentlichen Website (Pflichtenheft: Deutsch + Englisch).
+enum WebsiteLocale {
+  DE
+  EN
+}
+
+model WebsiteSeite {
+  id   String          @id @default(cuid())
+  typ  WebsiteSeiteTyp @default(SEITE)
+  /// URL-Pfad ohne Locale-Präfix («ueber-uns», «sprachen/deutsch», «agb»);
+  /// unique über die ganze Website. Die Startseite («start») ist nur unter «/» erreichbar.
+  slug String          @unique
+
+  /// Nur bei typ SPRACHE: verknüpfte Stammdaten-Sprache (1:1, Cascade beim Löschen).
+  spracheId String? @unique
+  sprache   Sprache? @relation(fields: [spracheId], references: [id], onDelete: Cascade)
+
+  /// Erscheint in der Hauptnavigation (Reihenfolge frei); Rechtsseiten
+  /// (AGB/Datenschutz) stehen stattdessen im Fuss.
+  inNavigation Boolean @default(false)
+  navSortOrder Int     @default(0)
+  /// Link im Fussbereich (AGB, Datenschutz).
+  imFuss       Boolean @default(false)
+
+  active    Boolean   @default(true)
+  archivedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  uebersetzungen WebsiteSeiteUebersetzung[]
+
+  @@index([typ, active])
+  @@index([inNavigation, navSortOrder])
+}
+
+/// Übersetzung einer CMS-Seite (DE Pflicht beim Speichern, EN optional —
+/// fehlt EN, zeigt die Website automatisch die DE-Fassung).
+model WebsiteSeiteUebersetzung {
+  id      String        @id @default(cuid())
+  seiteId String
+  seite   WebsiteSeite  @relation(fields: [seiteId], references: [id], onDelete: Cascade)
+  locale  WebsiteLocale @default(DE)
+
+  titel      String
+  untertitel String?
+  /// Inhalt als strukturierten Klartext: Absätze durch Leerzeilen getrennt,
+  /// Zeilen mit «## » als Zwischentitel, «- » als Aufzählungspunkt.
+  inhalt     String
+
+  /// SEO-Felder (Metadata); leer = Titel/Untertitel verwenden.
+  seoTitel        String?
+  seoBeschreibung String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([seiteId, locale])
+}
+
+/// Pop-up der öffentlichen Website (CMS-pflegbar: Text, Bild, aktiv/inaktiv,
+/// zeitsteuerbar). Es wird genau ein Pop-up angezeigt: das aktive mit dem
+/// spätesten Gültig-ab-Zeitraum, der «jetzt» umfasst.
+model WebsitePopup {
+  id    String @id @default(cuid())
+  titel String
+  text  String
+
+  /// Bild-URL (relativ zu /public oder absolut); optional.
+  bildUrl     String?
+  buttonLabel String?
+  buttonUrl   String?
+
+  /// Inaktiv = nie ausgeliefert.
+  aktiv Boolean @default(false)
+  /// Zeitfenster (UTC-Instant); null = unbeschränkt nach dem anderen Ende.
+  gueltigVon DateTime?
+  gueltigBis DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([aktiv])
 }

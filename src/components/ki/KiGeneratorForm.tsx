@@ -6,6 +6,7 @@
 // Parameter und Ergebnis reisen als versteckte Felder mit.
 
 import { useActionState, useState } from "react";
+import Link from "next/link";
 import { generiereKiLektionAction, speichereKiLektionAction } from "@/lib/ki/actions";
 import { idleKiGeneratorState } from "@/lib/ki/state";
 import { idleFormState } from "@/lib/forms";
@@ -50,9 +51,9 @@ export function KiGeneratorForm({
         <div className="alert-info">
           Die KI ist noch nicht verbunden.{" "}
           {canManageEinstellungen ? (
-            <a href="/stammdaten/ki-generator" className="font-medium underline">
+            <Link href="/stammdaten/ki-generator" className="font-medium underline">
               OpenRouter-Key jetzt in den Stammdaten hinterlegen →
-            </a>
+            </Link>
           ) : (
             "Bitte die Administration bitten, den OpenRouter-Key in den Stammdaten zu hinterlegen."
           )}

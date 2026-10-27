@@ -218,6 +218,109 @@ gegen localhost:3000):
   gültigen Key. Abgedeckt sind Unit-Tests der Logik (Prompt-Bau, JSON-Parsing,
   Rohtext-Fallback, Key-Maskierung) sowie Build/Typecheck/Lint.
 
+## Modul 15 — Öffentliche Website (fertig)
+
+- **Vollständig aus der App verwaltbar (CMS durch Büro/Chef):** unter
+  `/website` (Nav-Eintrag «Website», Rechte `canManageWebsite` = Admin/Chef/Büro,
+  Wächter in allen Actions, alles im Audit-Log `website.*`) werden Seiten
+  angelegt/bearbeitet/deaktiviert/gelöscht — ohne Programmieren. Eine Seite
+  hat feste Einstellungen (Typ Seite/Startseite/Sprachseite, URL-Slug,
+  Navigation/Fuss, aktiv) und **Übersetzungen DE (Pflicht) + EN (optional —
+  fehlt EN, zeigt die Website automatisch die DE-Fassung)** mit Titel,
+  Untertitel, Inhalt und SEO-Feldern (Meta-Titel + -Beschreibung). Der
+  Inhalt ist strukturierter Klartext: Absätze durch Leerzeilen, «## » =
+  Zwischentitel, «- » = Aufzählungspunkt (Parser pure + getestet). Die
+  Startseite und Sprachseiten sind im Typ fixiert (Slug/Typ gesperrt);
+  Rechtsseiten (AGB/Datenschutz) stehen im Fuss.
+- **Startdaten gesät** (Marker `website.startdaten`, unabhängig von den
+  Modul-2-Markern): Start, Über uns, Kontakt, AGB, Datenschutz, «Weitere
+  Sprachen» sowie je **eine SEO-Unterseite pro aktiver Stammdaten-Sprache**
+  (`/sprachen/<name-slug>`, z.B. `/sprachen/deutsch`, `/sprachen/franzoesisch`);
+  in der Verwaltung anpassbar. Neue Stammdaten-Sprachen erscheinen automatisch
+  unter ihrem Pfad (Fallback ohne CMS-Text) und bekommen im CMS eine eigene Seite.
+- **UI-Sprachen Deutsch + Englisch:** DE ohne Präfix, EN unter `/en/…`
+  (z.B. `/en/ueber-uns`); Umschaltung per EN/DE-Knopf im Kopf, hreflang-
+  Alternates + kanonische URLs aus `APP_URL` (Domain-Entscheid bleibt offen —
+  Deployment-Frage, Modul 16). SEO-Unterseiten mit eigenem Meta-Titel und
+  -Beschreibung pro Sprache; CMS-Titel werden als absolute Metadata ausgegeben
+  (kein doppeltes Template-Suffix).
+- **Seiten:** Start (`/`, CMS + Karten zu Einstufungstest/Anfrage + Sprach-
+  Chipliste) · Über uns · Kontakt (CMS + Karten zu den bestehenden Formularen)
+  · Sprach-Unterseiten mit **Live-Kursliste** · AGB/Datenschutz im Fuss.
+  Die bestehenden öffentlichen Bereiche von Modul 13 (`/anfrage` + `/erfolg`,
+  `/einstufungstest` + Ergebnis → Anfrage) bleiben unverändert in Gebrauch —
+  die Kontakt-/Start-Karten verlinken sie, **keine doppelte Logik**; der
+  m13-E2E-Flow läuft weiter durch.
+- **Live-Anzeige freier Plätze** (`src/lib/website/daten.ts`): pro Sprache
+  Kurse im Status GEPLANT/AKTIV; **belegt = Anmeldungen PROBE + AKTIV**
+  (bestehende Anmelde-Daten, keine eigene Berechnung), Obergrenze =
+  Kurs-Maximum, sonst Kursart-Standard. **Gruppenkurse (≥ 2 Plätze) mit
+  mindestens einem freien Platz erscheinen; volle Kurse und Einzel-/Firmen-
+  kurse werden nicht angezeigt** (Badge «n freie Plätze», CTA ins Anfrage-
+  Formular mit vorbefüllter Sprache). Logik-Regeln pure + getestet.
+- **Pop-up CMS-pflegbar** (`WebsitePopup`): Titel, Text, Bild-URL, Button
+  (Label + URL), **aktiv/inaktiv** und **Zeitfenster** («gültig von/bis»,
+  Lokalzeit Europe/Zurich im Formular, UTC in der DB). Auslieferung
+  **serverseitig**: die Seite rendert das aktive Pop-up (spätester passender
+  Zeitraum) direkt im SSR-HTML — kein Layout-Flackern. «Schliessen» setzt per
+  Server-Action einen **Tages-Cookie**, danach liefert der Server das Pop-up
+  gar nicht mehr aus. Es wird genau ein Pop-up angezeigt (mehrere pflegbar).
+  Inaktiv angelegte Vorlage kommt vom Seed.
+- **Routen:** ein optionaler Catch-all `src/app/[[...slug]]/page.tsx` löst
+  Locale (`en`-Präfix) und Pfad auf — CMS-Seiten, Sprachseiten (CMS zuerst,
+  sonst Stammdaten-Fallback), 404 für Unbekanntes. Statische Routen
+  (`/anfrage`, `/einstufungstest`, `/login`, `/portal`, `/bestaetigungen`,
+  `/api`) haben Vorrang und bleiben unverändert. Der CMS-Bereich `/website`
+  ist geschützt (proxy + Server-Guard): Büro/Chef/Admin dürfen, Lehrperson
+  und Teilnehmende werden auf `/dashboard` zurückgeworfen (E2E geprüft).
+- Logik in `src/lib/website/` (`logik.ts` pure + getestet — Slugs/Reservierte
+  Pfade, Pop-up-Zeitfenster, freie Plätze, Inhalts-Parser, UI-Wortschatz
+  DE/EN; `daten.ts` Datenladen; `actions.ts` Server-Actions mit Audit;
+  `seed.ts` Startseiten-Seed); UI öffentlich in
+  `src/components/oeffentlich/` (WebsiteRahmen, WebsiteInhalt/KursListe,
+  WebsitePopupOverlay, OeffentlicheSeite) und CMS in
+  `src/components/website/WebsiteFormen.tsx`. E2E-Verifikation:
+  `tests/integration/modul15_verification.py`.
+- **Hinweise:** Die Modul-13-Formulare (Anfrage, Einstufungstest) sind
+  weiter Deutsch — die EN-Website verlinkt sie (offener Punkt: Formular-UI
+  auf EN übersetzen, falls gewünscht). `<html lang>` bleibt `de` (Root-Layout
+  der gemischten App); die öffentlichen Seiten setzen `lang` auf ihrem
+  Wrapper-Div.
+
+### Test-Daten Modul 15 (lokal, Präfix `m15_`)
+
+Erzeugt und wieder aufgeräumt durch das Playwright-E2E-Skript
+(`tests/integration/modul15_verification.py`, gegen localhost:3000):
+- CMS-Testseite `m15-testseite` (DE + EN, aktiviert/deaktiviert/gelöscht),
+- Pop-up «m15_Popup Test» (Zeitfenster Vergangenheit/Jetzt, inaktiv,
+  Schliessen-Cookie) — bleibt am Ende gelöscht,
+- 2 Testkurse (B1 mit 1 freiem Platz — sichtbar; B2 voll — ausgeblendet),
+  6 m15_-Testpersonen mit Anmeldungen,
+- 1 Anfrage `m15-web@linguasud.test` über die Kontaktseite (OFFEN + Auto-
+  Aufgabe) und 1 m15_-Lehrperson-Konto (Rechteprüfung /website → /dashboard).
+Am Ende räumt das Skript alle m15_-Daten auf; im Audit-Log bleiben die
+`website.*`-Einträge der Testläufe.
+
+## Modul 16 — Deployment (lokale Vorbereitung abgeschlossen)
+
+- **SEO-Ergänzungen zur Website:** `/sitemap.xml` (`src/app/sitemap.ts`) —
+  Anfrage + Einstufungstest plus alle aktiven CMS-/Sprachseiten mit ihren
+  EN-Fassungen (`lastmod` aus `updatedAt`; Prioritäten: Start 1.0, Seiten
+  0.8, EN 0.6–0.9). DB-Zugriff Request-Time über `connection()` — Metadata-
+  Routen unterstützen kein `instant`/Route-Segment-Config. `/robots.txt`
+  (`src/app/robots.ts`): öffentliche Website frei indexierbar, Verwaltung/
+  Portal/API/Beleg-Drucke gesperrt, Sitemap verlinkt; URLs aus `APP_URL`.
+- **Deploy-Pfad verifiziert (Container-Simulation):** `db:status` alle
+  Migrationen applied · `db:verify` «Database marker and schema match
+  contract» · Entrypoint-Befehle idempotent (`prisma db sign` + `prisma db
+  migrate` gegen die lokale DB, db-Ref unverändert) · der **Standalone-Build**
+  bootet wie im Docker-Image: `/api/health` → `{"status":"ok","db":"up"}`,
+  Start/EN/Sprachseiten/Sitemap/robots alle 200.
+- **Offen (Kundendaten nötig):** Domain-Entscheid → `APP_URL` in Coolify
+  (steuert hreflang/Canonical/Sitemap), IONOS-SMTP (`SMTP_*`),
+  QR-IBAN/Gläubigeradresse, Logo-Datei, echte Raum-/Preisdaten, später
+  OpenRouter-Key. Deploy = Push auf `main` (Coolify-Webhook, geht live).
+
 ## Technologie-Stack
 
 | Baustein | Wahl | Bemerkung |

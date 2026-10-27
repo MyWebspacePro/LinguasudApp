@@ -23,9 +23,9 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'fbb48def7deb8c71f91ca1587127f4e683a0942d123b7bb961d6352021b489a2'>;
+  StorageHashBase<'d2ab4950663dcb4308970b1c083febebb64474d9f1cde5ce4c139304e416e05a'>;
 export type ExecutionHash =
-  ExecutionHashBase<'52226a697d30dbcf910ce5c60ab2a67a3c1dedd46a3b94df27dbf3c4075b8f3c'>;
+  ExecutionHashBase<'9510d8e36919fe744468067b262c77c43324714fa95414fae986f66d561563c7'>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
 
@@ -371,6 +371,15 @@ type FieldTypeOverrides = {
           readonly input: 'GEPLANT' | 'FINDET_STATT' | 'ABGESAGT';
         };
       };
+      readonly WebsiteSeite: {
+        readonly typ: {
+          readonly output: 'START' | 'SPRACHE' | 'SEITE';
+          readonly input: 'START' | 'SPRACHE' | 'SEITE';
+        };
+      };
+      readonly WebsiteSeiteUebersetzung: {
+        readonly locale: { readonly output: 'DE' | 'EN'; readonly input: 'DE' | 'EN' };
+      };
     };
   };
 };
@@ -516,6 +525,15 @@ type ColumnTypeOverrides = {
         readonly output: 'GEPLANT' | 'FINDET_STATT' | 'ABGESAGT';
         readonly input: 'GEPLANT' | 'FINDET_STATT' | 'ABGESAGT';
       };
+    };
+    readonly WebsiteSeite: {
+      readonly typ: {
+        readonly output: 'START' | 'SPRACHE' | 'SEITE';
+        readonly input: 'START' | 'SPRACHE' | 'SEITE';
+      };
+    };
+    readonly WebsiteSeiteUebersetzung: {
+      readonly locale: { readonly output: 'DE' | 'EN'; readonly input: 'DE' | 'EN' };
     };
   };
 };
@@ -1225,8 +1243,14 @@ export namespace Models {
     kiLektionen: public_KiLektion[];
     kurse: public_Kurs[];
     qualifikationen: public_Lehrqualifikation[];
+    websiteSeite: public_WebsiteSeite | null;
     readonly [RelationKeys]?:
-      'anfragen' | 'einstufungsfragen' | 'kiLektionen' | 'kurse' | 'qualifikationen';
+      | 'anfragen'
+      | 'einstufungsfragen'
+      | 'kiLektionen'
+      | 'kurse'
+      | 'qualifikationen'
+      | 'websiteSeite';
   };
   export type public_Standort = {
     active: FieldOutputTypes['public']['Standort']['active'];
@@ -1353,6 +1377,50 @@ export namespace Models {
     termine: public_Vermietung[];
     readonly [RelationKeys]?: 'mieter' | 'raum' | 'termine';
   };
+  export type public_WebsitePopup = {
+    aktiv: FieldOutputTypes['public']['WebsitePopup']['aktiv'];
+    bildUrl: FieldOutputTypes['public']['WebsitePopup']['bildUrl'];
+    buttonLabel: FieldOutputTypes['public']['WebsitePopup']['buttonLabel'];
+    buttonUrl: FieldOutputTypes['public']['WebsitePopup']['buttonUrl'];
+    createdAt: FieldOutputTypes['public']['WebsitePopup']['createdAt'];
+    gueltigBis: FieldOutputTypes['public']['WebsitePopup']['gueltigBis'];
+    gueltigVon: FieldOutputTypes['public']['WebsitePopup']['gueltigVon'];
+    id: FieldOutputTypes['public']['WebsitePopup']['id'];
+    text: FieldOutputTypes['public']['WebsitePopup']['text'];
+    titel: FieldOutputTypes['public']['WebsitePopup']['titel'];
+    updatedAt: FieldOutputTypes['public']['WebsitePopup']['updatedAt'];
+    readonly [RelationKeys]?: never;
+  };
+  export type public_WebsiteSeite = {
+    active: FieldOutputTypes['public']['WebsiteSeite']['active'];
+    archivedAt: FieldOutputTypes['public']['WebsiteSeite']['archivedAt'];
+    createdAt: FieldOutputTypes['public']['WebsiteSeite']['createdAt'];
+    id: FieldOutputTypes['public']['WebsiteSeite']['id'];
+    imFuss: FieldOutputTypes['public']['WebsiteSeite']['imFuss'];
+    inNavigation: FieldOutputTypes['public']['WebsiteSeite']['inNavigation'];
+    navSortOrder: FieldOutputTypes['public']['WebsiteSeite']['navSortOrder'];
+    slug: FieldOutputTypes['public']['WebsiteSeite']['slug'];
+    spracheId: FieldOutputTypes['public']['WebsiteSeite']['spracheId'];
+    typ: FieldOutputTypes['public']['WebsiteSeite']['typ'];
+    updatedAt: FieldOutputTypes['public']['WebsiteSeite']['updatedAt'];
+    sprache: public_Sprache | null;
+    uebersetzungen: public_WebsiteSeiteUebersetzung[];
+    readonly [RelationKeys]?: 'sprache' | 'uebersetzungen';
+  };
+  export type public_WebsiteSeiteUebersetzung = {
+    createdAt: FieldOutputTypes['public']['WebsiteSeiteUebersetzung']['createdAt'];
+    id: FieldOutputTypes['public']['WebsiteSeiteUebersetzung']['id'];
+    inhalt: FieldOutputTypes['public']['WebsiteSeiteUebersetzung']['inhalt'];
+    locale: FieldOutputTypes['public']['WebsiteSeiteUebersetzung']['locale'];
+    seiteId: FieldOutputTypes['public']['WebsiteSeiteUebersetzung']['seiteId'];
+    seoBeschreibung: FieldOutputTypes['public']['WebsiteSeiteUebersetzung']['seoBeschreibung'];
+    seoTitel: FieldOutputTypes['public']['WebsiteSeiteUebersetzung']['seoTitel'];
+    titel: FieldOutputTypes['public']['WebsiteSeiteUebersetzung']['titel'];
+    untertitel: FieldOutputTypes['public']['WebsiteSeiteUebersetzung']['untertitel'];
+    updatedAt: FieldOutputTypes['public']['WebsiteSeiteUebersetzung']['updatedAt'];
+    seite: public_WebsiteSeite;
+    readonly [RelationKeys]?: 'seite';
+  };
   export type public_Zahlung = {
     actorName: FieldOutputTypes['public']['Zahlung']['actorName'];
     actorUserId: FieldOutputTypes['public']['Zahlung']['actorUserId'];
@@ -1415,6 +1483,9 @@ export declare const models: {
     Vermietung: Models.public_Vermietung;
     VermietungMieter: Models.public_VermietungMieter;
     VermietungSerie: Models.public_VermietungSerie;
+    WebsitePopup: Models.public_WebsitePopup;
+    WebsiteSeite: Models.public_WebsiteSeite;
+    WebsiteSeiteUebersetzung: Models.public_WebsiteSeiteUebersetzung;
     Zahlung: Models.public_Zahlung;
   };
 };
@@ -6422,6 +6493,323 @@ type ContractBase = Omit<
                 },
               ];
             };
+            readonly WebsitePopup: {
+              columns: {
+                readonly aktiv: {
+                  readonly dataType: 'pg/bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                  readonly many: false;
+                };
+                readonly bildUrl: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly buttonLabel: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly buttonUrl: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly gueltigBis: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly gueltigVon: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly text: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly titel: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly updatedAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'WebsitePopup_aktiv_idx';
+                  readonly columns: readonly ['aktiv'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [];
+            };
+            readonly WebsiteSeite: {
+              columns: {
+                readonly active: {
+                  readonly dataType: 'pg/bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', true>;
+                  };
+                  readonly many: false;
+                };
+                readonly archivedAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: true;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly imFuss: {
+                  readonly dataType: 'pg/bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                  readonly many: false;
+                };
+                readonly inNavigation: {
+                  readonly dataType: 'pg/bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                  readonly many: false;
+                };
+                readonly navSortOrder: {
+                  readonly dataType: 'pg/int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/int4@1', 0>;
+                  };
+                  readonly many: false;
+                };
+                readonly slug: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly spracheId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly typ: {
+                  readonly dataType: 'pg/enum';
+                  readonly codecId: 'pg/enum@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/enum@1', 'SEITE'>;
+                  };
+                  readonly typeParams: { readonly typeName: 'WebsiteSeiteTyp' };
+                  readonly many: false;
+                };
+                readonly updatedAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'WebsiteSeite_inNavigation_navSortOrder_idx';
+                  readonly columns: readonly ['inNavigation', 'navSortOrder'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'WebsiteSeite_slug_key';
+                  readonly columns: readonly ['slug'];
+                  readonly unique: true;
+                },
+                {
+                  readonly name: 'WebsiteSeite_spracheId_key';
+                  readonly columns: readonly ['spracheId'];
+                  readonly unique: true;
+                },
+                {
+                  readonly name: 'WebsiteSeite_typ_active_idx';
+                  readonly columns: readonly ['typ', 'active'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'WebsiteSeite';
+                    readonly columns: readonly ['spracheId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'Sprache';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
+            readonly WebsiteSeiteUebersetzung: {
+              columns: {
+                readonly createdAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+                readonly id: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly inhalt: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly locale: {
+                  readonly dataType: 'pg/enum';
+                  readonly codecId: 'pg/enum@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/enum@1', 'DE'>;
+                  };
+                  readonly typeParams: { readonly typeName: 'WebsiteLocale' };
+                  readonly many: false;
+                };
+                readonly seiteId: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly seoBeschreibung: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly seoTitel: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly titel: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly many: false;
+                };
+                readonly untertitel: {
+                  readonly dataType: 'pg/text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                  readonly many: false;
+                };
+                readonly updatedAt: {
+                  readonly dataType: 'pg/timestamp';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly nullable: false;
+                  readonly typeParams: { readonly precision: 3 };
+                  readonly many: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'WebsiteSeiteUebersetzung_seiteId_locale_key';
+                  readonly columns: readonly ['seiteId', 'locale'];
+                  readonly unique: true;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'WebsiteSeiteUebersetzung';
+                    readonly columns: readonly ['seiteId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'WebsiteSeite';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
             readonly Zahlung: {
               columns: {
                 readonly actorName: {
@@ -6622,6 +7010,14 @@ type ContractBase = Omit<
               readonly kind: 'valueSet';
               readonly values: readonly ['GEPLANT', 'FINDET_STATT', 'ABGESAGT'];
             };
+            readonly WebsiteLocale: {
+              readonly kind: 'valueSet';
+              readonly values: readonly ['DE', 'EN'];
+            };
+            readonly WebsiteSeiteTyp: {
+              readonly kind: 'valueSet';
+              readonly values: readonly ['START', 'SPRACHE', 'SEITE'];
+            };
           };
         };
       };
@@ -6755,6 +7151,18 @@ type ContractBase = Omit<
     readonly VermietungSerie: {
       readonly namespace: 'public' & NamespaceId;
       readonly model: 'VermietungSerie';
+    };
+    readonly WebsitePopup: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'WebsitePopup';
+    };
+    readonly WebsiteSeite: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'WebsiteSeite';
+    };
+    readonly WebsiteSeiteUebersetzung: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'WebsiteSeiteUebersetzung';
     };
     readonly Zahlung: { readonly namespace: 'public' & NamespaceId; readonly model: 'Zahlung' };
   };
@@ -11092,6 +11500,18 @@ type ContractBase = Omit<
                   readonly targetFields: readonly ['spracheId'];
                 };
               };
+              readonly websiteSeite: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'WebsiteSeite';
+                };
+                readonly cardinality: '1:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['spracheId'];
+                };
+              };
             };
             readonly storage: {
               readonly table: 'Sprache';
@@ -11896,6 +12316,280 @@ type ContractBase = Omit<
               };
             };
           };
+          readonly WebsitePopup: {
+            readonly fields: {
+              readonly aktiv: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly bildUrl: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly buttonLabel: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly buttonUrl: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly gueltigBis: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly gueltigVon: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly text: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly titel: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+            };
+            readonly relations: Record<string, never>;
+            readonly storage: {
+              readonly table: 'WebsitePopup';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly aktiv: { readonly column: 'aktiv' };
+                readonly bildUrl: { readonly column: 'bildUrl' };
+                readonly buttonLabel: { readonly column: 'buttonLabel' };
+                readonly buttonUrl: { readonly column: 'buttonUrl' };
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly gueltigBis: { readonly column: 'gueltigBis' };
+                readonly gueltigVon: { readonly column: 'gueltigVon' };
+                readonly id: { readonly column: 'id' };
+                readonly text: { readonly column: 'text' };
+                readonly titel: { readonly column: 'titel' };
+                readonly updatedAt: { readonly column: 'updatedAt' };
+              };
+            };
+          };
+          readonly WebsiteSeite: {
+            readonly fields: {
+              readonly active: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly archivedAt: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly imFuss: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly inNavigation: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
+              readonly navSortOrder: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly slug: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly spracheId: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly typ: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/enum@1';
+                  readonly typeParams: { readonly typeName: 'WebsiteSeiteTyp' };
+                };
+              };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+            };
+            readonly relations: {
+              readonly sprache: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Sprache';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: true;
+                readonly on: {
+                  readonly localFields: readonly ['spracheId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly uebersetzungen: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'WebsiteSeiteUebersetzung';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['seiteId'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'WebsiteSeite';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly active: { readonly column: 'active' };
+                readonly archivedAt: { readonly column: 'archivedAt' };
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly id: { readonly column: 'id' };
+                readonly imFuss: { readonly column: 'imFuss' };
+                readonly inNavigation: { readonly column: 'inNavigation' };
+                readonly navSortOrder: { readonly column: 'navSortOrder' };
+                readonly slug: { readonly column: 'slug' };
+                readonly spracheId: { readonly column: 'spracheId' };
+                readonly typ: { readonly column: 'typ' };
+                readonly updatedAt: { readonly column: 'updatedAt' };
+              };
+            };
+          };
+          readonly WebsiteSeiteUebersetzung: {
+            readonly fields: {
+              readonly createdAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly inhalt: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly locale: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/enum@1';
+                  readonly typeParams: { readonly typeName: 'WebsiteLocale' };
+                };
+              };
+              readonly seiteId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly seoBeschreibung: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly seoTitel: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly titel: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly untertitel: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly updatedAt: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamp-string@1';
+                  readonly typeParams: { readonly precision: 3 };
+                };
+              };
+            };
+            readonly relations: {
+              readonly seite: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'WebsiteSeite';
+                };
+                readonly cardinality: 'N:1';
+                readonly nullable: false;
+                readonly on: {
+                  readonly localFields: readonly ['seiteId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'WebsiteSeiteUebersetzung';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly createdAt: { readonly column: 'createdAt' };
+                readonly id: { readonly column: 'id' };
+                readonly inhalt: { readonly column: 'inhalt' };
+                readonly locale: { readonly column: 'locale' };
+                readonly seiteId: { readonly column: 'seiteId' };
+                readonly seoBeschreibung: { readonly column: 'seoBeschreibung' };
+                readonly seoTitel: { readonly column: 'seoTitel' };
+                readonly titel: { readonly column: 'titel' };
+                readonly untertitel: { readonly column: 'untertitel' };
+                readonly updatedAt: { readonly column: 'updatedAt' };
+              };
+            };
+          };
           readonly Zahlung: {
             readonly fields: {
               readonly actorName: {
@@ -12626,6 +13320,57 @@ type ContractBase = Omit<
           readonly onUpdate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
           readonly ref: {
             readonly entry: 'VermietungSerie';
+            readonly field: 'updatedAt';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'WebsitePopup';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly onUpdate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'WebsitePopup';
+            readonly field: 'updatedAt';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'WebsiteSeite';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly onUpdate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'WebsiteSeite';
+            readonly field: 'updatedAt';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'cuid2'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'WebsiteSeiteUebersetzung';
+            readonly field: 'id';
+            readonly namespace: 'public';
+          };
+        },
+        {
+          readonly onCreate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly onUpdate: { readonly id: 'timestampStringNow'; readonly kind: 'generator' };
+          readonly ref: {
+            readonly entry: 'WebsiteSeiteUebersetzung';
             readonly field: 'updatedAt';
             readonly namespace: 'public';
           };

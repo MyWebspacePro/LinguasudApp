@@ -184,6 +184,18 @@
       "model": "VermietungSerie",
       "namespace": "public"
     },
+    "WebsitePopup": {
+      "model": "WebsitePopup",
+      "namespace": "public"
+    },
+    "WebsiteSeite": {
+      "model": "WebsiteSeite",
+      "namespace": "public"
+    },
+    "WebsiteSeiteUebersetzung": {
+      "model": "WebsiteSeiteUebersetzung",
+      "namespace": "public"
+    },
     "Zahlung": {
       "model": "Zahlung",
       "namespace": "public"
@@ -6943,6 +6955,22 @@
                   "model": "Lehrqualifikation",
                   "namespace": "public"
                 }
+              },
+              "websiteSeite": {
+                "cardinality": "1:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "spracheId"
+                  ]
+                },
+                "to": {
+                  "model": "WebsiteSeite",
+                  "namespace": "public"
+                }
               }
             },
             "storage": {
@@ -8195,6 +8223,441 @@
               "table": "VermietungSerie"
             }
           },
+          "WebsitePopup": {
+            "fields": {
+              "aktiv": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "bildUrl": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "buttonLabel": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "buttonUrl": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "gueltigBis": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "gueltigVon": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "text": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "titel": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "aktiv": {
+                  "column": "aktiv"
+                },
+                "bildUrl": {
+                  "column": "bildUrl"
+                },
+                "buttonLabel": {
+                  "column": "buttonLabel"
+                },
+                "buttonUrl": {
+                  "column": "buttonUrl"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "gueltigBis": {
+                  "column": "gueltigBis"
+                },
+                "gueltigVon": {
+                  "column": "gueltigVon"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "text": {
+                  "column": "text"
+                },
+                "titel": {
+                  "column": "titel"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "WebsitePopup"
+            }
+          },
+          "WebsiteSeite": {
+            "fields": {
+              "active": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "archivedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "imFuss": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "inNavigation": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "navSortOrder": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "slug": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "spracheId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "typ": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "WebsiteSeiteTyp"
+                  }
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              }
+            },
+            "relations": {
+              "sprache": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "spracheId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Sprache",
+                  "namespace": "public"
+                }
+              },
+              "uebersetzungen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "seiteId"
+                  ]
+                },
+                "to": {
+                  "model": "WebsiteSeiteUebersetzung",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "active": {
+                  "column": "active"
+                },
+                "archivedAt": {
+                  "column": "archivedAt"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "imFuss": {
+                  "column": "imFuss"
+                },
+                "inNavigation": {
+                  "column": "inNavigation"
+                },
+                "navSortOrder": {
+                  "column": "navSortOrder"
+                },
+                "slug": {
+                  "column": "slug"
+                },
+                "spracheId": {
+                  "column": "spracheId"
+                },
+                "typ": {
+                  "column": "typ"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "WebsiteSeite"
+            }
+          },
+          "WebsiteSeiteUebersetzung": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "inhalt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "locale": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "WebsiteLocale"
+                  }
+                }
+              },
+              "seiteId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "seoBeschreibung": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "seoTitel": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "titel": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "untertitel": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              }
+            },
+            "relations": {
+              "seite": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "seiteId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "WebsiteSeite",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "inhalt": {
+                  "column": "inhalt"
+                },
+                "locale": {
+                  "column": "locale"
+                },
+                "seiteId": {
+                  "column": "seiteId"
+                },
+                "seoBeschreibung": {
+                  "column": "seoBeschreibung"
+                },
+                "seoTitel": {
+                  "column": "seoTitel"
+                },
+                "titel": {
+                  "column": "titel"
+                },
+                "untertitel": {
+                  "column": "untertitel"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "WebsiteSeiteUebersetzung"
+            }
+          },
           "Zahlung": {
             "fields": {
               "actorName": {
@@ -8529,6 +8992,23 @@
                 "ABGESAGT"
               ],
               "typeName": "VermietungStatus"
+            },
+            "WebsiteLocale": {
+              "kind": "postgres-enum",
+              "members": [
+                "DE",
+                "EN"
+              ],
+              "typeName": "WebsiteLocale"
+            },
+            "WebsiteSeiteTyp": {
+              "kind": "postgres-enum",
+              "members": [
+                "START",
+                "SPRACHE",
+                "SEITE"
+              ],
+              "typeName": "WebsiteSeiteTyp"
             }
           },
           "table": {
@@ -14636,6 +15116,379 @@
               },
               "uniques": []
             },
+            "WebsitePopup": {
+              "columns": {
+                "aktiv": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nullable": false
+                },
+                "bildUrl": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "buttonLabel": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "buttonUrl": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "gueltigBis": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "gueltigVon": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "text": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "titel": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "aktiv"
+                  ],
+                  "name": "WebsitePopup_aktiv_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "WebsiteSeite": {
+              "columns": {
+                "active": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": true
+                  },
+                  "nullable": false
+                },
+                "archivedAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "imFuss": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nullable": false
+                },
+                "inNavigation": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nullable": false
+                },
+                "navSortOrder": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nullable": false
+                },
+                "slug": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "spracheId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "typ": {
+                  "codecId": "pg/enum@1",
+                  "dataType": "pg/enum",
+                  "default": {
+                    "kind": "literal",
+                    "value": "SEITE"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "WebsiteSeiteTyp"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "WebsiteSeiteTyp",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "WebsiteSeite_spracheId_key"
+                  },
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "spracheId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "WebsiteSeite"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Sprache"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "inNavigation",
+                    "navSortOrder"
+                  ],
+                  "name": "WebsiteSeite_inNavigation_navSortOrder_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "slug"
+                  ],
+                  "name": "WebsiteSeite_slug_key",
+                  "unique": true
+                },
+                {
+                  "columns": [
+                    "spracheId"
+                  ],
+                  "name": "WebsiteSeite_spracheId_key",
+                  "unique": true
+                },
+                {
+                  "columns": [
+                    "typ",
+                    "active"
+                  ],
+                  "name": "WebsiteSeite_typ_active_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "WebsiteSeiteUebersetzung": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "inhalt": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "locale": {
+                  "codecId": "pg/enum@1",
+                  "dataType": "pg/enum",
+                  "default": {
+                    "kind": "literal",
+                    "value": "DE"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "WebsiteLocale"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "WebsiteLocale",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "seiteId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "seoBeschreibung": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "seoTitel": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "titel": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "untertitel": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "WebsiteSeiteUebersetzung_seiteId_locale_key"
+                  },
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "seiteId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "WebsiteSeiteUebersetzung"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "WebsiteSeite"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "seiteId",
+                    "locale"
+                  ],
+                  "name": "WebsiteSeiteUebersetzung_seiteId_locale_key",
+                  "unique": true
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "Zahlung": {
               "columns": {
                 "actorName": {
@@ -14926,6 +15779,21 @@
                 "FINDET_STATT",
                 "ABGESAGT"
               ]
+            },
+            "WebsiteLocale": {
+              "kind": "valueSet",
+              "values": [
+                "DE",
+                "EN"
+              ]
+            },
+            "WebsiteSeiteTyp": {
+              "kind": "valueSet",
+              "values": [
+                "START",
+                "SPRACHE",
+                "SEITE"
+              ]
             }
           }
         },
@@ -14933,10 +15801,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "fbb48def7deb8c71f91ca1587127f4e683a0942d123b7bb961d6352021b489a2"
+    "storageHash": "d2ab4950663dcb4308970b1c083febebb64474d9f1cde5ce4c139304e416e05a"
   },
   "execution": {
-    "executionHash": "52226a697d30dbcf910ce5c60ab2a67a3c1dedd46a3b94df27dbf3c4075b8f3c",
+    "executionHash": "9510d8e36919fe744468067b262c77c43324714fa95414fae986f66d561563c7",
     "mutations": {
       "defaults": [
         {
@@ -15854,6 +16722,84 @@
           },
           "ref": {
             "entry": "VermietungSerie",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "WebsitePopup",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "WebsitePopup",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "WebsiteSeite",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "WebsiteSeite",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "WebsiteSeiteUebersetzung",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "WebsiteSeiteUebersetzung",
             "field": "updatedAt",
             "namespace": "public"
           }

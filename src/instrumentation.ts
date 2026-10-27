@@ -3,7 +3,8 @@
  * bevor der Server Anfragen annimmt — nach den Migrationen (Entrypoint).
  * Legt das erste Admin-Konto an, falls die Datenbank leer ist, sorgt einmalig
  * für die Stammdaten-Startdaten (Modul 2) und den Fragenkatalog des
- * Einstufungstests (Modul 13) und startet die nächtlichen Jobs (Modul 6/7/9).
+ * Einstufungstests (Modul 13), die Startseiten
+ * der öffentlichen Website (Modul 15) und startet die nächtlichen Jobs (Modul 6/7/9).
  */
 export async function register(): Promise<void> {
   if (process.env.NEXT_RUNTIME !== "nodejs") return;
@@ -13,6 +14,8 @@ export async function register(): Promise<void> {
   await seedStartdaten();
   const { seedEinstufungsfragen } = await import("@/lib/anfragen/seed");
   await seedEinstufungsfragen();
+  const { seedWebsiteStartdaten } = await import("@/lib/website/seed");
+  await seedWebsiteStartdaten();
   const { startLektionsJob } = await import("@/lib/kurse/lektionsjob");
   startLektionsJob();
   const { startAnwesenheitsJob } = await import("@/lib/anwesenheit/erinnerungsjob");

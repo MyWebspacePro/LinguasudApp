@@ -16,6 +16,7 @@ import {
   canViewStammdaten,
   canViewUsers,
   canViewVermietung,
+  canManageWebsite,
   hasRole,
 } from "@/lib/auth/permissions";
 import { logoutAction } from "@/lib/auth/actions";
@@ -58,6 +59,9 @@ async function VerwaltungGate({ children }: { children: ReactNode }) {
   if (canViewAnfragen(roles)) {
     navItems.push({ href: "/anfragen", label: "Anfragen" });
     navItems.push({ href: "/aufgaben", label: "Aufgaben" });
+  }
+  if (canManageWebsite(roles)) {
+    navItems.push({ href: "/website", label: "Website" });
   }
   if (canViewVermietung(roles)) {
     navItems.push({ href: "/vermietungen", label: "Vermietung" });

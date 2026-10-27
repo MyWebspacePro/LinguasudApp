@@ -41,4 +41,5 @@ export const PROTECTED_PATH_PREFIXES = [
   "/audit",
   "/portal",
   "/passwort-aendern",
+  "/website",
 ] as const;

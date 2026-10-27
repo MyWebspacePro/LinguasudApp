@@ -32,5 +32,6 @@ export const config = {
     "/audit/:path*",
     "/portal/:path*",
     "/passwort-aendern/:path*",
+    "/website/:path*",
   ],
 };

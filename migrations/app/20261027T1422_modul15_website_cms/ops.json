@@ -1,0 +1,1008 @@
+[
+  {
+    "id": "createNativeEnumType.KiModus",
+    "label": "Create enum type \"KiModus\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "KiModus"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"KiModus\"",
+        "sql": "CREATE TYPE \"public\".\"KiModus\" AS ENUM ('STRUKTUR', 'FREI')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "createNativeEnumType.WebsiteLocale",
+    "label": "Create enum type \"WebsiteLocale\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "WebsiteLocale"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"WebsiteLocale\"",
+        "sql": "CREATE TYPE \"public\".\"WebsiteLocale\" AS ENUM ('DE', 'EN')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "createNativeEnumType.WebsiteSeiteTyp",
+    "label": "Create enum type \"WebsiteSeiteTyp\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "type",
+        "name": "WebsiteSeiteTyp"
+      }
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "create enum type \"WebsiteSeiteTyp\"",
+        "sql": "CREATE TYPE \"public\".\"WebsiteSeiteTyp\" AS ENUM ('START', 'SPRACHE', 'SEITE')",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.KiLektion",
+    "label": "Create table \"KiLektion\"",
+    "summary": "Creates table \"KiLektion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "KiLektion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"KiLektion\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"KiLektion\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"KiLektion\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"KiLektion\"",
+        "sql": "CREATE TABLE \"public\".\"KiLektion\" (\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"dauerMs\" int4,\n  \"ergebnis\" jsonb,\n  \"erstelltVonName\" text NOT NULL,\n  \"erstelltVonUserId\" text NOT NULL,\n  \"geteilt\" bool DEFAULT false NOT NULL,\n  \"id\" text NOT NULL,\n  \"kursartId\" text,\n  \"modell\" text,\n  \"modus\" \"KiModus\" NOT NULL,\n  \"niveauId\" text,\n  \"parameter\" jsonb,\n  \"prompt\" text NOT NULL,\n  \"spracheId\" text,\n  \"thema\" text,\n  \"titel\" text NOT NULL,\n  \"tokenInput\" int4,\n  \"tokenOutput\" int4,\n  \"updatedAt\" timestamp(3) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"KiLektion\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"KiLektion\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"KiLektion\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.WebsitePopup",
+    "label": "Create table \"WebsitePopup\"",
+    "summary": "Creates table \"WebsitePopup\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "WebsitePopup"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"WebsitePopup\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"WebsitePopup\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"WebsitePopup\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"WebsitePopup\"",
+        "sql": "CREATE TABLE \"public\".\"WebsitePopup\" (\n  \"aktiv\" bool DEFAULT false NOT NULL,\n  \"bildUrl\" text,\n  \"buttonLabel\" text,\n  \"buttonUrl\" text,\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"gueltigBis\" timestamp(3),\n  \"gueltigVon\" timestamp(3),\n  \"id\" text NOT NULL,\n  \"text\" text NOT NULL,\n  \"titel\" text NOT NULL,\n  \"updatedAt\" timestamp(3) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"WebsitePopup\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"WebsitePopup\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"WebsitePopup\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.WebsiteSeite",
+    "label": "Create table \"WebsiteSeite\"",
+    "summary": "Creates table \"WebsiteSeite\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "WebsiteSeite"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"WebsiteSeite\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"WebsiteSeite\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"WebsiteSeite\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"WebsiteSeite\"",
+        "sql": "CREATE TABLE \"public\".\"WebsiteSeite\" (\n  \"active\" bool DEFAULT true NOT NULL,\n  \"archivedAt\" timestamp(3),\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"imFuss\" bool DEFAULT false NOT NULL,\n  \"inNavigation\" bool DEFAULT false NOT NULL,\n  \"navSortOrder\" int4 DEFAULT 0 NOT NULL,\n  \"slug\" text NOT NULL,\n  \"spracheId\" text,\n  \"typ\" \"WebsiteSeiteTyp\" DEFAULT 'SEITE'::\"WebsiteSeiteTyp\" NOT NULL,\n  \"updatedAt\" timestamp(3) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"WebsiteSeite\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"WebsiteSeite\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"WebsiteSeite\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "table.WebsiteSeiteUebersetzung",
+    "label": "Create table \"WebsiteSeiteUebersetzung\"",
+    "summary": "Creates table \"WebsiteSeiteUebersetzung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "WebsiteSeiteUebersetzung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"WebsiteSeiteUebersetzung\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"WebsiteSeiteUebersetzung\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"WebsiteSeiteUebersetzung\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"WebsiteSeiteUebersetzung\"",
+        "sql": "CREATE TABLE \"public\".\"WebsiteSeiteUebersetzung\" (\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"id\" text NOT NULL,\n  \"inhalt\" text NOT NULL,\n  \"locale\" \"WebsiteLocale\" DEFAULT 'DE'::\"WebsiteLocale\" NOT NULL,\n  \"seiteId\" text NOT NULL,\n  \"seoBeschreibung\" text,\n  \"seoTitel\" text,\n  \"titel\" text NOT NULL,\n  \"untertitel\" text,\n  \"updatedAt\" timestamp(3) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"WebsiteSeiteUebersetzung\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"WebsiteSeiteUebersetzung\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"WebsiteSeiteUebersetzung\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.KiLektion.KiLektion_createdAt_idx",
+    "label": "Create index \"KiLektion_createdAt_idx\" on \"KiLektion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "KiLektion_createdAt_idx",
+        "table": "KiLektion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"KiLektion_createdAt_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"KiLektion_createdAt_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"KiLektion_createdAt_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"KiLektion_createdAt_idx\"",
+        "sql": "CREATE INDEX \"KiLektion_createdAt_idx\" ON \"public\".\"KiLektion\" (\"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"KiLektion_createdAt_idx\" exists on \"KiLektion\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"KiLektion_createdAt_idx\"",
+          "i",
+          "I",
+          "\"public\".\"KiLektion\"",
+          "btree",
+          "[\"createdAt\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.KiLektion.KiLektion_erstelltVonUserId_createdAt_idx",
+    "label": "Create index \"KiLektion_erstelltVonUserId_createdAt_idx\" on \"KiLektion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "KiLektion_erstelltVonUserId_createdAt_idx",
+        "table": "KiLektion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"KiLektion_erstelltVonUserId_createdAt_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"KiLektion_erstelltVonUserId_createdAt_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"KiLektion_erstelltVonUserId_createdAt_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"KiLektion_erstelltVonUserId_createdAt_idx\"",
+        "sql": "CREATE INDEX \"KiLektion_erstelltVonUserId_createdAt_idx\" ON \"public\".\"KiLektion\" (\"erstelltVonUserId\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"KiLektion_erstelltVonUserId_createdAt_idx\" exists on \"KiLektion\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"KiLektion_erstelltVonUserId_createdAt_idx\"",
+          "i",
+          "I",
+          "\"public\".\"KiLektion\"",
+          "btree",
+          "[\"erstelltVonUserId\",\"createdAt\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.KiLektion.KiLektion_geteilt_createdAt_idx",
+    "label": "Create index \"KiLektion_geteilt_createdAt_idx\" on \"KiLektion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "KiLektion_geteilt_createdAt_idx",
+        "table": "KiLektion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"KiLektion_geteilt_createdAt_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"KiLektion_geteilt_createdAt_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"KiLektion_geteilt_createdAt_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"KiLektion_geteilt_createdAt_idx\"",
+        "sql": "CREATE INDEX \"KiLektion_geteilt_createdAt_idx\" ON \"public\".\"KiLektion\" (\"geteilt\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"KiLektion_geteilt_createdAt_idx\" exists on \"KiLektion\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"KiLektion_geteilt_createdAt_idx\"",
+          "i",
+          "I",
+          "\"public\".\"KiLektion\"",
+          "btree",
+          "[\"geteilt\",\"createdAt\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.WebsitePopup.WebsitePopup_aktiv_idx",
+    "label": "Create index \"WebsitePopup_aktiv_idx\" on \"WebsitePopup\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "WebsitePopup_aktiv_idx",
+        "table": "WebsitePopup"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"WebsitePopup_aktiv_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"WebsitePopup_aktiv_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"WebsitePopup_aktiv_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"WebsitePopup_aktiv_idx\"",
+        "sql": "CREATE INDEX \"WebsitePopup_aktiv_idx\" ON \"public\".\"WebsitePopup\" (\"aktiv\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"WebsitePopup_aktiv_idx\" exists on \"WebsitePopup\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"WebsitePopup_aktiv_idx\"",
+          "i",
+          "I",
+          "\"public\".\"WebsitePopup\"",
+          "btree",
+          "[\"aktiv\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.WebsiteSeite.WebsiteSeite_inNavigation_navSortOrder_idx",
+    "label": "Create index \"WebsiteSeite_inNavigation_navSortOrder_idx\" on \"WebsiteSeite\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "WebsiteSeite_inNavigation_navSortOrder_idx",
+        "table": "WebsiteSeite"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"WebsiteSeite_inNavigation_navSortOrder_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"WebsiteSeite_inNavigation_navSortOrder_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"WebsiteSeite_inNavigation_navSortOrder_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"WebsiteSeite_inNavigation_navSortOrder_idx\"",
+        "sql": "CREATE INDEX \"WebsiteSeite_inNavigation_navSortOrder_idx\" ON \"public\".\"WebsiteSeite\" (\"inNavigation\", \"navSortOrder\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"WebsiteSeite_inNavigation_navSortOrder_idx\" exists on \"WebsiteSeite\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"WebsiteSeite_inNavigation_navSortOrder_idx\"",
+          "i",
+          "I",
+          "\"public\".\"WebsiteSeite\"",
+          "btree",
+          "[\"inNavigation\",\"navSortOrder\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.WebsiteSeite.WebsiteSeite_slug_key",
+    "label": "Create index \"WebsiteSeite_slug_key\" on \"WebsiteSeite\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "WebsiteSeite_slug_key",
+        "table": "WebsiteSeite"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"WebsiteSeite_slug_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"WebsiteSeite_slug_key\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"WebsiteSeite_slug_key\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"WebsiteSeite_slug_key\"",
+        "sql": "CREATE UNIQUE INDEX \"WebsiteSeite_slug_key\" ON \"public\".\"WebsiteSeite\" (\"slug\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"WebsiteSeite_slug_key\" exists on \"WebsiteSeite\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"WebsiteSeite_slug_key\"",
+          "i",
+          "I",
+          "\"public\".\"WebsiteSeite\"",
+          "btree",
+          "[\"slug\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.WebsiteSeite.WebsiteSeite_spracheId_key",
+    "label": "Create index \"WebsiteSeite_spracheId_key\" on \"WebsiteSeite\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "WebsiteSeite_spracheId_key",
+        "table": "WebsiteSeite"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"WebsiteSeite_spracheId_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"WebsiteSeite_spracheId_key\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"WebsiteSeite_spracheId_key\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"WebsiteSeite_spracheId_key\"",
+        "sql": "CREATE UNIQUE INDEX \"WebsiteSeite_spracheId_key\" ON \"public\".\"WebsiteSeite\" (\"spracheId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"WebsiteSeite_spracheId_key\" exists on \"WebsiteSeite\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"WebsiteSeite_spracheId_key\"",
+          "i",
+          "I",
+          "\"public\".\"WebsiteSeite\"",
+          "btree",
+          "[\"spracheId\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.WebsiteSeite.WebsiteSeite_typ_active_idx",
+    "label": "Create index \"WebsiteSeite_typ_active_idx\" on \"WebsiteSeite\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "WebsiteSeite_typ_active_idx",
+        "table": "WebsiteSeite"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"WebsiteSeite_typ_active_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"WebsiteSeite_typ_active_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"WebsiteSeite_typ_active_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"WebsiteSeite_typ_active_idx\"",
+        "sql": "CREATE INDEX \"WebsiteSeite_typ_active_idx\" ON \"public\".\"WebsiteSeite\" (\"typ\", \"active\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"WebsiteSeite_typ_active_idx\" exists on \"WebsiteSeite\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"WebsiteSeite_typ_active_idx\"",
+          "i",
+          "I",
+          "\"public\".\"WebsiteSeite\"",
+          "btree",
+          "[\"typ\",\"active\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.WebsiteSeiteUebersetzung.WebsiteSeiteUebersetzung_seiteId_locale_key",
+    "label": "Create index \"WebsiteSeiteUebersetzung_seiteId_locale_key\" on \"WebsiteSeiteUebersetzung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "WebsiteSeiteUebersetzung_seiteId_locale_key",
+        "table": "WebsiteSeiteUebersetzung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"WebsiteSeiteUebersetzung_seiteId_locale_key\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"WebsiteSeiteUebersetzung_seiteId_locale_key\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"WebsiteSeiteUebersetzung_seiteId_locale_key\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"WebsiteSeiteUebersetzung_seiteId_locale_key\"",
+        "sql": "CREATE UNIQUE INDEX \"WebsiteSeiteUebersetzung_seiteId_locale_key\" ON \"public\".\"WebsiteSeiteUebersetzung\" (\"seiteId\", \"locale\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"WebsiteSeiteUebersetzung_seiteId_locale_key\" exists on \"WebsiteSeiteUebersetzung\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND \"i\".\"indisunique\" AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"WebsiteSeiteUebersetzung_seiteId_locale_key\"",
+          "i",
+          "I",
+          "\"public\".\"WebsiteSeiteUebersetzung\"",
+          "btree",
+          "[\"seiteId\",\"locale\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.KiLektion.KiLektion_erstelltVonUserId_fkey",
+    "label": "Add foreign key \"KiLektion_erstelltVonUserId_fkey\" on \"KiLektion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "KiLektion_erstelltVonUserId_fkey",
+        "table": "KiLektion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"KiLektion_erstelltVonUserId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "KiLektion_erstelltVonUserId_fkey",
+          "public",
+          "\"public\".\"KiLektion\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"KiLektion_erstelltVonUserId_fkey\" on \"KiLektion\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"KiLektion_erstelltVonUserId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"KiLektion\"\nADD CONSTRAINT \"KiLektion_erstelltVonUserId_fkey\"\nFOREIGN KEY (\"erstelltVonUserId\")\nREFERENCES \"public\".\"User\" (\"id\")\nON DELETE CASCADE\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"KiLektion_erstelltVonUserId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "KiLektion_erstelltVonUserId_fkey",
+          "public",
+          "\"public\".\"KiLektion\"",
+          "f",
+          "[\"erstelltVonUserId\"]",
+          "\"public\".\"User\"",
+          "[\"id\"]",
+          "c",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.KiLektion.KiLektion_spracheId_fkey",
+    "label": "Add foreign key \"KiLektion_spracheId_fkey\" on \"KiLektion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "KiLektion_spracheId_fkey",
+        "table": "KiLektion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"KiLektion_spracheId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "KiLektion_spracheId_fkey",
+          "public",
+          "\"public\".\"KiLektion\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"KiLektion_spracheId_fkey\" on \"KiLektion\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"KiLektion_spracheId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"KiLektion\"\nADD CONSTRAINT \"KiLektion_spracheId_fkey\"\nFOREIGN KEY (\"spracheId\")\nREFERENCES \"public\".\"Sprache\" (\"id\")\nON DELETE SET NULL\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"KiLektion_spracheId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "KiLektion_spracheId_fkey",
+          "public",
+          "\"public\".\"KiLektion\"",
+          "f",
+          "[\"spracheId\"]",
+          "\"public\".\"Sprache\"",
+          "[\"id\"]",
+          "n",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.KiLektion.KiLektion_niveauId_fkey",
+    "label": "Add foreign key \"KiLektion_niveauId_fkey\" on \"KiLektion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "KiLektion_niveauId_fkey",
+        "table": "KiLektion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"KiLektion_niveauId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "KiLektion_niveauId_fkey",
+          "public",
+          "\"public\".\"KiLektion\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"KiLektion_niveauId_fkey\" on \"KiLektion\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"KiLektion_niveauId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"KiLektion\"\nADD CONSTRAINT \"KiLektion_niveauId_fkey\"\nFOREIGN KEY (\"niveauId\")\nREFERENCES \"public\".\"Niveau\" (\"id\")\nON DELETE SET NULL\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"KiLektion_niveauId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "KiLektion_niveauId_fkey",
+          "public",
+          "\"public\".\"KiLektion\"",
+          "f",
+          "[\"niveauId\"]",
+          "\"public\".\"Niveau\"",
+          "[\"id\"]",
+          "n",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.KiLektion.KiLektion_kursartId_fkey",
+    "label": "Add foreign key \"KiLektion_kursartId_fkey\" on \"KiLektion\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "KiLektion_kursartId_fkey",
+        "table": "KiLektion"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"KiLektion_kursartId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "KiLektion_kursartId_fkey",
+          "public",
+          "\"public\".\"KiLektion\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"KiLektion_kursartId_fkey\" on \"KiLektion\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"KiLektion_kursartId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"KiLektion\"\nADD CONSTRAINT \"KiLektion_kursartId_fkey\"\nFOREIGN KEY (\"kursartId\")\nREFERENCES \"public\".\"Kursart\" (\"id\")\nON DELETE SET NULL\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"KiLektion_kursartId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "KiLektion_kursartId_fkey",
+          "public",
+          "\"public\".\"KiLektion\"",
+          "f",
+          "[\"kursartId\"]",
+          "\"public\".\"Kursart\"",
+          "[\"id\"]",
+          "n",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.WebsiteSeite.WebsiteSeite_spracheId_fkey",
+    "label": "Add foreign key \"WebsiteSeite_spracheId_fkey\" on \"WebsiteSeite\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "WebsiteSeite_spracheId_fkey",
+        "table": "WebsiteSeite"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"WebsiteSeite_spracheId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "WebsiteSeite_spracheId_fkey",
+          "public",
+          "\"public\".\"WebsiteSeite\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"WebsiteSeite_spracheId_fkey\" on \"WebsiteSeite\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"WebsiteSeite_spracheId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"WebsiteSeite\"\nADD CONSTRAINT \"WebsiteSeite_spracheId_fkey\"\nFOREIGN KEY (\"spracheId\")\nREFERENCES \"public\".\"Sprache\" (\"id\")\nON DELETE CASCADE\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"WebsiteSeite_spracheId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "WebsiteSeite_spracheId_fkey",
+          "public",
+          "\"public\".\"WebsiteSeite\"",
+          "f",
+          "[\"spracheId\"]",
+          "\"public\".\"Sprache\"",
+          "[\"id\"]",
+          "c",
+          "c"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.WebsiteSeiteUebersetzung.WebsiteSeiteUebersetzung_seiteId_fkey",
+    "label": "Add foreign key \"WebsiteSeiteUebersetzung_seiteId_fkey\" on \"WebsiteSeiteUebersetzung\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "WebsiteSeiteUebersetzung_seiteId_fkey",
+        "table": "WebsiteSeiteUebersetzung"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"WebsiteSeiteUebersetzung_seiteId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "WebsiteSeiteUebersetzung_seiteId_fkey",
+          "public",
+          "\"public\".\"WebsiteSeiteUebersetzung\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "FK \"WebsiteSeiteUebersetzung_seiteId_fkey\" on \"WebsiteSeiteUebersetzung\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"WebsiteSeiteUebersetzung_seiteId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"WebsiteSeiteUebersetzung\"\nADD CONSTRAINT \"WebsiteSeiteUebersetzung_seiteId_fkey\"\nFOREIGN KEY (\"seiteId\")\nREFERENCES \"public\".\"WebsiteSeite\" (\"id\")\nON DELETE CASCADE\nON UPDATE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"WebsiteSeiteUebersetzung_seiteId_fkey\" exists with the planned columns, referenced table and actions",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3) AND \"c\".\"contype\" = $4 AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"conkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"conrelid\" AND key_attribute.attnum = key_column.attnum) = ($5)::jsonb AND \"c\".\"confrelid\" = to_regclass($6) AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"c\".\"confkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"c\".\"confrelid\" AND key_attribute.attnum = key_column.attnum) = ($7)::jsonb AND \"c\".\"confdeltype\" = $8 AND \"c\".\"confupdtype\" = $9)) AS \"result\"",
+        "params": [
+          "WebsiteSeiteUebersetzung_seiteId_fkey",
+          "public",
+          "\"public\".\"WebsiteSeiteUebersetzung\"",
+          "f",
+          "[\"seiteId\"]",
+          "\"public\".\"WebsiteSeite\"",
+          "[\"id\"]",
+          "c",
+          "c"
+        ]
+      }
+    ]
+  }
+]

@@ -145,6 +145,14 @@ export function canManageAnfragen(roles: Role[]): boolean {
   return hasRole(roles, "ADMIN") || hasRole(roles, "CHEF") || hasRole(roles, "BUERO");
 }
 
+/**
+ * Öffentliche Website (Modul 15): CMS durch Büro/Chef (Pflichtenheft) —
+ * Seiten, Übersetzungen und Pop-up pflegen; Admin ohnehin.
+ */
+export function canManageWebsite(roles: Role[]): boolean {
+  return hasRole(roles, "ADMIN") || hasRole(roles, "CHEF") || hasRole(roles, "BUERO");
+}
+
 // ——— Modul 14: KI-Lektionsgenerator ————————————————————————————————
 
 /**
