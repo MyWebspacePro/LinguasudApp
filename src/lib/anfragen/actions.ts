@@ -11,7 +11,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { db, roleList, toDbTime } from "@/lib/db";
+import { db, roleList, toDbTime, type Anrede } from "@/lib/db";
 import { getAuthContext } from "@/lib/auth/session";
 import { canManageAnfragen, canManageStammdaten } from "@/lib/auth/permissions";
 import { recordAudit } from "@/lib/audit";
@@ -162,8 +162,12 @@ export async function anfrageAbsendenAction(_prev: FormState, formData: FormData
     spracheId: sprache?.id ?? null,
     niveauId: niveau?.id ?? null,
     empfohlenesNiveauId: empfohlenesNiveau?.id ?? null,
+    // Json-Feld: bewusst als plain Objekt bauen (JsonValue-kompatibel).
     testResultat: testResultat
-      ? { proNiveau: testResultat.proNiveau, empfehlungCode: testResultat.empfehlungCode }
+      ? {
+          proNiveau: testResultat.proNiveau.map((e) => ({ code: e.code, richtig: e.richtig, total: e.total })),
+          empfehlungCode: testResultat.empfehlungCode,
+        }
       : null,
   });
 
@@ -219,7 +223,12 @@ export async function anfrageAbsendenAction(_prev: FormState, formData: FormData
       spracheId: sprache?.id ?? null,
       niveauId: niveau?.id ?? null,
       empfohlenesNiveauId: empfohlenesNiveau?.id ?? null,
-      testResultat,
+      testResultat: testResultat
+        ? {
+            proNiveau: testResultat.proNiveau.map((e) => ({ code: e.code, richtig: e.richtig, total: e.total })),
+            empfehlungCode: testResultat.empfehlungCode,
+          }
+        : null,
     },
     request: meta,
   });
@@ -373,7 +382,7 @@ export async function zuordneAnfrageNeuePersonAction(_prev: FormState, formData:
   try {
     const person = await db.orm.public.Person.create({
       status: "INTERESSENT",
-      anrede,
+      anrede: anrede as Anrede,
       vorname,
       nachname,
       email: anfrage.email,

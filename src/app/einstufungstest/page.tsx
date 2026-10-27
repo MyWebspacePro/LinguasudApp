@@ -1,9 +1,9 @@
 import { Suspense } from "react";
+import { connection } from "next/server";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { OeffentlichKopf } from "@/components/oeffentlich/OeffentlichKopf";
-import { einstufungsTestAction } from "@/lib/anfragen/actions";
 
 export const metadata: Metadata = {
   title: "Einstufungstest · Sprachschule linguasud",
@@ -33,6 +33,9 @@ export default function EinstufungstestPage() {
 }
 
 async function Sprachwahl() {
+  // Request-Time-Rendering: der DB-Client nutzt intern crypto.randomUUID(),
+  // das nicht in den Prerender darf (bekannte Next-16-Einschränkung).
+  await connection();
   const [sprachen, fragen] = await Promise.all([
     db.orm.public.Sprache.where({ active: true }).orderBy((s) => s.name.asc()).all(),
     db.orm.public.Einstufungsfrage.where((f) => f.active.eq(true)).all(),

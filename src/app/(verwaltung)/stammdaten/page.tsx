@@ -19,6 +19,7 @@ const AREAS = [
   { href: "/stammdaten/dauern", label: "Lektionsdauern", desc: "45/60/90 Minuten …" },
   { href: "/stammdaten/tarife", label: "Tarife & Preise", desc: "Tarifstufen (Zeitfenster) + Preisliste" },
   { href: "/stammdaten/kostentraeger", label: "Kostenträger", desc: "Firmen + öffentliche Einrichtungen" },
+  { href: "/stammdaten/einstufungstest", label: "Fragenkatalog Einstufungstest", desc: "Multiple-Choice-Fragen je Sprache × Niveau (Modul 13)" },
 ] as const;
 
 /** Stammdaten-Übersicht (Modul 2): pflegt nur Admin, Chef sieht lesend. */
@@ -38,7 +39,7 @@ async function StammdatenContent() {
   }
   const canManage = canManageStammdaten(roles);
 
-  const [standorte, raeume, sprachen, niveaus, kursarten, dauern, preise, kostentraeger] =
+  const [standorte, raeume, sprachen, niveaus, kursarten, dauern, preise, kostentraeger, einstufungsfragen] =
     await Promise.all([
       db.orm.public.Standort.aggregate((a) => ({ n: a.count() })).then((r) => r.n),
       db.orm.public.Raum.aggregate((a) => ({ n: a.count() })).then((r) => r.n),
@@ -48,6 +49,7 @@ async function StammdatenContent() {
       db.orm.public.Lektionsdauer.aggregate((a) => ({ n: a.count() })).then((r) => r.n),
       db.orm.public.Preis.aggregate((a) => ({ n: a.count() })).then((r) => r.n),
       db.orm.public.Kostentraeger.aggregate((a) => ({ n: a.count() })).then((r) => r.n),
+      db.orm.public.Einstufungsfrage.aggregate((a) => ({ n: a.count() })).then((r) => r.n),
     ]);
 
   const counts: Record<string, number> = {
@@ -58,6 +60,7 @@ async function StammdatenContent() {
     "/stammdaten/dauern": dauern,
     "/stammdaten/tarife": preise,
     "/stammdaten/kostentraeger": kostentraeger,
+    "/stammdaten/einstufungstest": einstufungsfragen,
   };
 
   return (

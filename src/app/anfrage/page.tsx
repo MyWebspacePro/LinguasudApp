@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { connection } from "next/server";
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
 import { OeffentlichKopf } from "@/components/oeffentlich/OeffentlichKopf";

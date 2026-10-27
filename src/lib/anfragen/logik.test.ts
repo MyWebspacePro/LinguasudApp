@@ -52,7 +52,7 @@ describe("niveauEmpfehlung", () => {
   it("hebt 100 % richtig hervor", () => {
     const e = niveauEmpfehlung([{ code: "B1", richtig: 3, total: 3 }]);
     expect(e?.code).toBe("B1");
-    expect(e?.begruendung).toContain("Gespräch");
+    expect(e?.begruendung).toContain("gespräch");
   });
 
   it("liefert null ohne geprüfte Stufen", () => {

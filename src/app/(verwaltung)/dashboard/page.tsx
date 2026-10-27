@@ -5,6 +5,7 @@ import { db, fromDbTime, toDbTime, type Role } from "@/lib/db";
 import { requireStaff } from "@/lib/auth/session";
 import {
   canManageBueroplan,
+  canViewAnfragen,
   canViewAuditLog,
   canViewAnmeldungen,
   canViewKurse,
@@ -13,7 +14,7 @@ import {
   canViewUsers,
   hasRole,
 } from "@/lib/auth/permissions";
-import { zonedTimeToUtc, addDays, dateKeyOf, heuteDateKey, formatDatumKurz, timeFromMinutes, utcToZoned, weekdayOfDateKey } from "@/lib/zeit";
+import { zonedTimeToUtc, addDays, dateKeyOf, heuteDateKey, formatDatum, formatDatumKurz, timeFromMinutes, utcToZoned, weekdayOfDateKey } from "@/lib/zeit";
 import { istUeberfaellig, type RechnungStatus } from "@/lib/rechnungen/logik";
 import { monatLabel as honorarMonatLabel } from "@/lib/honorare/logik";
 import { ladeMonatsAbrechnung } from "@/lib/honorare/abrechnung";
@@ -36,7 +37,7 @@ export default function DashboardPage() {
 async function DashboardContent() {
   const { user } = await requireStaff();
   const roles = user.roles as Role[];
-  const [userCount, personCount, recentLogins, kursCount, anmeldungAktivCount, lektionenHeute, rechnungsZaehler, honorarAuswertung, vermietungsAuswertung] = await Promise.all([
+  const [userCount, personCount, recentLogins, kursCount, anmeldungAktivCount, lektionenHeute, rechnungsZaehler, honorarAuswertung, vermietungsAuswertung, aufgabenAnfragen] = await Promise.all([
     canViewUsers(roles)
       ? db.orm.public.User.aggregate((a) => ({ n: a.count() })).then((r) => r.n)
       : Promise.resolve(null),
@@ -110,6 +111,30 @@ async function DashboardContent() {
           // Modul 12 — Vermietungs-Umsatz des laufenden Monats (offen/bezahlt
           // aus den Vermietungs-Rechnungen, Muster Honorar-Karte).
           return await ladeVermietungsMonat(heuteDateKey().slice(0, 7));
+        })()
+      : Promise.resolve(null),
+    canViewAnfragen(roles)
+      ? (async () => {
+          // Modul 13 — offene Aufgaben/Anfragen (Muster Honorar-/Vermietungs-Karte).
+          const offeneAufgaben = await db.orm.public.Aufgabe.where({ status: "OFFEN" }).all();
+          const [anfragenOffen, anfragenInBearbeitung] = await Promise.all([
+            db.orm.public.Anfrage.where({ status: "OFFEN" }).aggregate((a) => ({ n: a.count() })).then((r) => r.n),
+            db.orm.public.Anfrage.where({ status: "IN_BEARBEITUNG" }).aggregate((a) => ({ n: a.count() })).then((r) => r.n),
+          ]);
+          const meine = offeneAufgaben
+            .filter((a) => a.assigneeUserId === user.id)
+            .sort((a, b) => String(a.faelligAm ?? "9999").localeCompare(String(b.faelligAm ?? "9999")))
+            .slice(0, 5);
+          return {
+            offenTotal: offeneAufgaben.length,
+            meineOffen: meine.map((a) => ({
+              id: a.id,
+              titel: a.titel,
+              faelligAm: a.faelligAm ? String(a.faelligAm).slice(0, 10) : null,
+            })),
+            anfragenOffen,
+            anfragenInBearbeitung,
+          };
         })()
       : Promise.resolve(null),
   ]);
@@ -268,6 +293,43 @@ async function DashboardContent() {
           </div>
         )}
 
+        {/* Modul 13 — Aufgaben & Anfragen (Büro-Operativ) mit meinen offenen Aufgaben. */}
+        {aufgabenAnfragen && (
+          <div className="card p-5">
+            <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">Aufgaben &amp; Anfragen</p>
+            <p className="mt-1 text-2xl font-semibold text-slate-900">
+              {aufgabenAnfragen.offenTotal}
+            </p>
+            <p className="mt-1 text-sm text-slate-600">
+              offene Aufgaben ({aufgabenAnfragen.meineOffen.length} mir zugewiesen) ·{" "}
+              {aufgabenAnfragen.anfragenOffen + aufgabenAnfragen.anfragenInBearbeitung} Anfragen in Bearbeitung ·{" "}
+              <Link href="/aufgaben" className="font-medium text-brand-700 hover:text-brand-800">
+                Aufgaben
+              </Link>{" "}
+              ·{" "}
+              <Link href="/anfragen" className="font-medium text-brand-700 hover:text-brand-800">
+                Anfragen
+              </Link>
+            </p>
+            {aufgabenAnfragen.meineOffen.length > 0 && (
+              <ul className="mt-2 divide-y divide-line text-sm">
+                {aufgabenAnfragen.meineOffen.map((a) => (
+                  <li key={a.id} className="flex items-baseline justify-between gap-3 py-1.5">
+                    <span className="min-w-0 truncate">
+                      <Link href={`/aufgaben/${a.id}`} className="text-slate-700 hover:text-brand-700">
+                        {a.titel}
+                      </Link>
+                    </span>
+                    <span className={`shrink-0 text-xs ${a.faelligAm && a.faelligAm < heuteDateKey() ? "text-red-700" : "text-slate-500"}`}>
+                      {a.faelligAm ? `fällig ${formatDatum(a.faelligAm)}` : "ohne Fälligkeit"}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+
         {canViewUsers(roles) && (
           <div className="card p-5">
             <p className="text-xs font-semibold tracking-wide text-slate-500 uppercase">Konten</p>
@@ -319,7 +381,7 @@ async function DashboardContent() {
       <div className="card p-5">
         <h2 className="text-sm font-semibold text-slate-800">Nächste Ausbaustufen</h2>
         <ul className="mt-2 grid gap-1.5 text-sm text-slate-600 sm:grid-cols-2">
-          <li>Modul 13+ — Aufgaben &amp; Anfragen, KI-Generator, Website</li>
+          <li>Modul 14+ — KI-Generator, öffentliche Website</li>
         </ul>
       </div>
 

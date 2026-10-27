@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { connection } from "next/server";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -43,6 +44,8 @@ export default async function EinstufungstestSprachePage({
 }
 
 async function TestFormular({ spracheId }: { spracheId: string }) {
+  // Request-Time-Rendering: der DB-Client nutzt intern crypto.randomUUID().
+  await connection();
   const sprache = await db.orm.public.Sprache.where({ id: spracheId }).first();
   if (!sprache) notFound();
 

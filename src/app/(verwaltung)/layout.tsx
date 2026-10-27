@@ -5,6 +5,7 @@ import type { Role } from "@/lib/db";
 import { requireStaff } from "@/lib/auth/session";
 import {
   canManageBueroplan,
+  canViewAnfragen,
   canViewAnmeldungen,
   canViewAuditLog,
   canViewHonorare,
@@ -52,6 +53,10 @@ async function VerwaltungGate({ children }: { children: ReactNode }) {
   if (canViewAnmeldungen(roles)) {
     navItems.push({ href: "/anmeldungen", label: "Anmeldungen" });
     navItems.push({ href: "/rechnungen", label: "Rechnungen" });
+  }
+  if (canViewAnfragen(roles)) {
+    navItems.push({ href: "/anfragen", label: "Anfragen" });
+    navItems.push({ href: "/aufgaben", label: "Aufgaben" });
   }
   if (canViewVermietung(roles)) {
     navItems.push({ href: "/vermietungen", label: "Vermietung" });
