@@ -134,3 +134,52 @@ export function passwordResetMail(to: string, name: string, url: string, isInvit
   const text = `${anrede}\n\n${intro}\n\nLink (60 Minuten gültig): ${url}\n\nWenn Sie diese Anfrage nicht ausgelöst haben, ignorieren Sie diese E-Mail.`;
   return { to, subject: title, text, html: brandWrapper(title, body) };
 }
+
+// ——— Modul 13 — Anfragen ——————————————————————————————————————————————
+
+function faktenZeilenHtml(zeilen: readonly string[]): string {
+  return zeilen
+    .map((z) => `<p style="margin:0 0 4px;font-size:14px;">${z}</p>`)
+    .join("");
+}
+
+/**
+ * Bestätigung an die Anfragenden (Modul 13, öffentliches Anfrage-Formular).
+ * `zeilen` enthält die erfassten Angaben (Sprache/Niveau/Empfehlung …) als
+ * fertige Textzeilen.
+ */
+export function anfrageBestaetigungsMail(to: string, name: string, zeilen: readonly string[]): MailInput {
+  const title = "Ihre Anfrage bei der Sprachschule linguasud";
+  const body =
+    `<p style="margin:0 0 8px;font-size:14px;">Hallo ${name},</p>` +
+    `<p style="margin:0 0 8px;font-size:14px;">besten Dank für Ihre Anfrage — wir haben Ihre Angaben erhalten und melden uns in den nächsten Tagen bei Ihnen.</p>` +
+    `<div style="margin:12px 0;padding:12px 16px;background:#faf9f7;border:1px solid #e7e4df;border-radius:6px;">${faktenZeilenHtml(zeilen)}</div>` +
+    `<p style="margin:12px 0 0;font-size:13px;color:#64748b;">Freundliche Grüsse<br>Ihr Linguasud-Team</p>`;
+  const text =
+    `Hallo ${name},\n\nbesten Dank für Ihre Anfrage — wir haben Ihre Angaben erhalten und melden uns in den nächsten Tagen bei Ihnen.\n\n` +
+    `${zeilen.join("\n")}\n\nFreundliche Grüsse\nIhr Linguasud-Team\nSprachschule linguasud`;
+  return { to, subject: title, text, html: brandWrapper(title, body) };
+}
+
+/** Benachrichtigung ans Büro über eine neue Anfrage (Modul 13). */
+export function anfrageBueroMail(
+  to: string,
+  details: { name: string; email: string; telefon: string | null; zeilen: readonly string[]; nachricht: string | null },
+): MailInput {
+  const title = `Neue Anfrage von ${details.name}`;
+  const body =
+    `<p style="margin:0 0 8px;font-size:14px;">Neue Anfrage über die Website:</p>` +
+    `<div style="margin:8px 0;padding:12px 16px;background:#faf9f7;border:1px solid #e7e4df;border-radius:6px;">` +
+    faktenZeilenHtml(details.zeilen) +
+    `</div>` +
+    (details.nachricht
+      ? `<p style="margin:8px 0 0;font-size:14px;"><strong>Nachricht:</strong></p><p style="margin:4px 0 8px;font-size:14px;white-space:pre-line;">${details.nachricht}</p>`
+      : "") +
+    `<p style="margin:12px 0 0;font-size:13px;color:#64748b;">Die Anfrage ist in der Verwaltung unter «Anfragen» erfasst; eine Aufgabe wurde angelegt.</p>`;
+  const text =
+    `Neue Anfrage über die Website:\n\n` +
+    `${details.zeilen.join("\n")}\n` +
+    (details.nachricht ? `\nNachricht:\n${details.nachricht}\n` : "") +
+    `\nDie Anfrage ist in der Verwaltung unter «Anfragen» erfasst; eine Aufgabe wurde angelegt.`;
+  return { to, subject: title, text, html: brandWrapper(title, body) };
+}

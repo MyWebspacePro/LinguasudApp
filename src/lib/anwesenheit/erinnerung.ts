@@ -9,8 +9,9 @@ import { db, toDbTime } from "@/lib/db";
 import { fromDbTime } from "@/lib/domain";
 import { recordAudit } from "@/lib/audit";
 import { sendMail } from "@/lib/mail";
-import { formatDatumKurz, heuteDateKey, timeFromMinutes, utcToZoned } from "@/lib/zeit";
+import { addDays, dateKeyToUtcMidnight, formatDatum, formatDatumKurz, heuteDateKey, timeFromMinutes, utcToZoned } from "@/lib/zeit";
 import { lektionsEndeDateKey } from "./logik";
+import { erstelleAutomatischeAufgabe } from "@/lib/aufgaben/automatik";
 
 const MARKER_KEY = "anwesenheit.erinnertAm";
 
@@ -55,6 +56,30 @@ export async function erinnereOffeneAnwesenheiten(heuteKey: string = heuteDateKe
 
   // Nur Lektionen, deren Ende-Tag vor heute liegt (nach der Lektion, 24-h-Fenster).
   const offen = lektionen.filter((l) => lektionsEndeDateKey(l.startAt, l.dauerMinuten) < heuteKey);
+
+  // Büro-Aufgabe je offener Anwesenheit (Modul 13) — unabhängig vom
+  // E-Mail-Ergebnis, damit der Vorgang im Aufgaben-System nachverfolgbar
+  // bleibt. Dedup pro Lektion (dedupKey); Fehler dürfen den Lauf nicht abbrechen.
+  try {
+    for (const lektion of offen) {
+      const local = utcToZoned(fromDbTime(lektion.startAt));
+      await erstelleAutomatischeAufgabe({
+        quelle: "anwesenheit",
+        dedupKey: `anwesenheit:${lektion.id}`,
+        titel: `Anwesenheit erfassen: ${lektion.kurs.code}, ${formatDatumKurz(local.dateKey)}`,
+        beschreibung:
+          `Lektion vom ${formatDatum(local.dateKey)} ${timeFromMinutes(local.minuteOfDay)}–` +
+          `${timeFromMinutes(local.minuteOfDay + lektion.dauerMinuten)}` +
+          (lektion.lehrperson ? ` · Lehrperson: ${lektion.lehrperson.vorname} ${lektion.lehrperson.nachname}` : "") +
+          `. Erfassung im Raumplaner (Klick auf die Lektion); die Lehrperson wurde per E-Mail erinnert.`,
+        kursId: lektion.kursId,
+        personId: lektion.lehrpersonId,
+        faelligAm: dateKeyToUtcMidnight(addDays(heuteKey, 1)),
+      });
+    }
+  } catch (error) {
+    console.error("Automatische Anwesenheits-Aufgaben fehlgeschlagen:", error);
+  }
 
   // Nach Lehrperson gruppieren.
   const nachLehrperson = new Map<string, typeof offen>();

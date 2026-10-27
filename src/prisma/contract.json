@@ -4,6 +4,10 @@
   "target": "postgres",
   "profileHash": "3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2",
   "roots": {
+    "Anfrage": {
+      "model": "Anfrage",
+      "namespace": "public"
+    },
     "Anmeldung": {
       "model": "Anmeldung",
       "namespace": "public"
@@ -14,6 +18,10 @@
     },
     "AuditLog": {
       "model": "AuditLog",
+      "namespace": "public"
+    },
+    "Aufgabe": {
+      "model": "Aufgabe",
       "namespace": "public"
     },
     "BueroAbweichung": {
@@ -30,6 +38,10 @@
     },
     "BueroUrlaubskontingent": {
       "model": "BueroUrlaubskontingent",
+      "namespace": "public"
+    },
+    "Einstufungsfrage": {
+      "model": "Einstufungsfrage",
       "namespace": "public"
     },
     "Etage": {
@@ -116,6 +128,10 @@
       "model": "Preis",
       "namespace": "public"
     },
+    "PublicFormVersuch": {
+      "model": "PublicFormVersuch",
+      "namespace": "public"
+    },
     "Raum": {
       "model": "Raum",
       "namespace": "public"
@@ -173,6 +189,292 @@
     "namespaces": {
       "public": {
         "models": {
+          "Anfrage": {
+            "fields": {
+              "ablehnungsGrund": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "bestaetigtAm": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "bestaetigtVia": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "email": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "empfohlenesNiveauId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "nachricht": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "name": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "niveauId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "personId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "spracheId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "AnfrageStatus"
+                  }
+                }
+              },
+              "telefon": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "testResultat": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/jsonb@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "zugeordnetAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "zugeordnetVonName": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "aufgaben": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "anfrageId"
+                  ]
+                },
+                "to": {
+                  "model": "Aufgabe",
+                  "namespace": "public"
+                }
+              },
+              "empfohlenesNiveau": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "empfohlenesNiveauId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Niveau",
+                  "namespace": "public"
+                }
+              },
+              "niveau": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "niveauId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Niveau",
+                  "namespace": "public"
+                }
+              },
+              "person": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "personId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Person",
+                  "namespace": "public"
+                }
+              },
+              "sprache": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "spracheId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Sprache",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "ablehnungsGrund": {
+                  "column": "ablehnungsGrund"
+                },
+                "bestaetigtAm": {
+                  "column": "bestaetigtAm"
+                },
+                "bestaetigtVia": {
+                  "column": "bestaetigtVia"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "email": {
+                  "column": "email"
+                },
+                "empfohlenesNiveauId": {
+                  "column": "empfohlenesNiveauId"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "nachricht": {
+                  "column": "nachricht"
+                },
+                "name": {
+                  "column": "name"
+                },
+                "niveauId": {
+                  "column": "niveauId"
+                },
+                "personId": {
+                  "column": "personId"
+                },
+                "spracheId": {
+                  "column": "spracheId"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "telefon": {
+                  "column": "telefon"
+                },
+                "testResultat": {
+                  "column": "testResultat"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                },
+                "zugeordnetAt": {
+                  "column": "zugeordnetAt"
+                },
+                "zugeordnetVonName": {
+                  "column": "zugeordnetVonName"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Anfrage"
+            }
+          },
           "Anmeldung": {
             "fields": {
               "billingTyp": {
@@ -860,6 +1162,247 @@
               "table": "AuditLog"
             }
           },
+          "Aufgabe": {
+            "fields": {
+              "anfrageId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "assigneeUserId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "beschreibung": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "dedupKey": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "erledigtAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "erledigtVonName": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "faelligAm": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "kursId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "personId": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "quelle": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/enum@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "typeName": "AufgabeStatus"
+                  }
+                }
+              },
+              "titel": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              }
+            },
+            "relations": {
+              "anfrage": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "anfrageId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Anfrage",
+                  "namespace": "public"
+                }
+              },
+              "assignee": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "assigneeUserId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "User",
+                  "namespace": "public"
+                }
+              },
+              "kurs": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "kursId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Kurs",
+                  "namespace": "public"
+                }
+              },
+              "person": {
+                "cardinality": "N:1",
+                "nullable": true,
+                "on": {
+                  "localFields": [
+                    "personId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Person",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "anfrageId": {
+                  "column": "anfrageId"
+                },
+                "assigneeUserId": {
+                  "column": "assigneeUserId"
+                },
+                "beschreibung": {
+                  "column": "beschreibung"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "dedupKey": {
+                  "column": "dedupKey"
+                },
+                "erledigtAt": {
+                  "column": "erledigtAt"
+                },
+                "erledigtVonName": {
+                  "column": "erledigtVonName"
+                },
+                "faelligAm": {
+                  "column": "faelligAm"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "kursId": {
+                  "column": "kursId"
+                },
+                "personId": {
+                  "column": "personId"
+                },
+                "quelle": {
+                  "column": "quelle"
+                },
+                "status": {
+                  "column": "status"
+                },
+                "titel": {
+                  "column": "titel"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Aufgabe"
+            }
+          },
           "BueroAbweichung": {
             "fields": {
               "art": {
@@ -1293,6 +1836,199 @@
               },
               "namespaceId": "public",
               "table": "BueroUrlaubskontingent"
+            }
+          },
+          "Einstufungsfrage": {
+            "fields": {
+              "active": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
+              "antwort1": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "antwort2": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "antwort3": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "antwort4": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "archivedAt": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "niveauId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "richtig": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "sortOrder": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "spracheId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "text": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "updatedAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              }
+            },
+            "relations": {
+              "niveau": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "niveauId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Niveau",
+                  "namespace": "public"
+                }
+              },
+              "sprache": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "spracheId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Sprache",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "active": {
+                  "column": "active"
+                },
+                "antwort1": {
+                  "column": "antwort1"
+                },
+                "antwort2": {
+                  "column": "antwort2"
+                },
+                "antwort3": {
+                  "column": "antwort3"
+                },
+                "antwort4": {
+                  "column": "antwort4"
+                },
+                "archivedAt": {
+                  "column": "archivedAt"
+                },
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "niveauId": {
+                  "column": "niveauId"
+                },
+                "richtig": {
+                  "column": "richtig"
+                },
+                "sortOrder": {
+                  "column": "sortOrder"
+                },
+                "spracheId": {
+                  "column": "spracheId"
+                },
+                "text": {
+                  "column": "text"
+                },
+                "updatedAt": {
+                  "column": "updatedAt"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Einstufungsfrage"
             }
           },
           "Etage": {
@@ -2171,6 +2907,21 @@
                 },
                 "to": {
                   "model": "Anmeldung",
+                  "namespace": "public"
+                }
+              },
+              "aufgaben": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "kursId"
+                  ]
+                },
+                "to": {
+                  "model": "Aufgabe",
                   "namespace": "public"
                 }
               },
@@ -3784,6 +4535,51 @@
               }
             },
             "relations": {
+              "anfragen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "niveauId"
+                  ]
+                },
+                "to": {
+                  "model": "Anfrage",
+                  "namespace": "public"
+                }
+              },
+              "anfragenEmpfohlen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "empfohlenesNiveauId"
+                  ]
+                },
+                "to": {
+                  "model": "Anfrage",
+                  "namespace": "public"
+                }
+              },
+              "einstufungsfragen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "niveauId"
+                  ]
+                },
+                "to": {
+                  "model": "Einstufungsfrage",
+                  "namespace": "public"
+                }
+              },
               "kurse": {
                 "cardinality": "1:N",
                 "on": {
@@ -4128,6 +4924,21 @@
               }
             },
             "relations": {
+              "anfragen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "personId"
+                  ]
+                },
+                "to": {
+                  "model": "Anfrage",
+                  "namespace": "public"
+                }
+              },
               "anmeldungen": {
                 "cardinality": "1:N",
                 "on": {
@@ -4155,6 +4966,21 @@
                 },
                 "to": {
                   "model": "Anmeldung",
+                  "namespace": "public"
+                }
+              },
+              "aufgaben": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "personId"
+                  ]
+                },
+                "to": {
+                  "model": "Aufgabe",
                   "namespace": "public"
                 }
               },
@@ -4764,6 +5590,70 @@
               },
               "namespaceId": "public",
               "table": "Preis"
+            }
+          },
+          "PublicFormVersuch": {
+            "fields": {
+              "createdAt": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamp-string@1",
+                  "kind": "scalar",
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "email": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "form": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "ip": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {},
+            "storage": {
+              "fields": {
+                "createdAt": {
+                  "column": "createdAt"
+                },
+                "email": {
+                  "column": "email"
+                },
+                "form": {
+                  "column": "form"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "ip": {
+                  "column": "ip"
+                }
+              },
+              "namespaceId": "public",
+              "table": "PublicFormVersuch"
             }
           },
           "Raum": {
@@ -5670,6 +6560,36 @@
               }
             },
             "relations": {
+              "anfragen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "spracheId"
+                  ]
+                },
+                "to": {
+                  "model": "Anfrage",
+                  "namespace": "public"
+                }
+              },
+              "einstufungsfragen": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "spracheId"
+                  ]
+                },
+                "to": {
+                  "model": "Einstufungsfrage",
+                  "namespace": "public"
+                }
+              },
               "kurse": {
                 "cardinality": "1:N",
                 "on": {
@@ -6165,6 +7085,21 @@
                 },
                 "to": {
                   "model": "AuditLog",
+                  "namespace": "public"
+                }
+              },
+              "aufgabenAlsZugewiesene": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "assigneeUserId"
+                  ]
+                },
+                "to": {
+                  "model": "Aufgabe",
                   "namespace": "public"
                 }
               },
@@ -7064,6 +7999,16 @@
       "public": {
         "entries": {
           "native_enum": {
+            "AnfrageStatus": {
+              "kind": "postgres-enum",
+              "members": [
+                "OFFEN",
+                "IN_BEARBEITUNG",
+                "ZUGEORDNET",
+                "ABGELEHNT"
+              ],
+              "typeName": "AnfrageStatus"
+            },
             "AnmeldungStatus": {
               "kind": "postgres-enum",
               "members": [
@@ -7090,6 +8035,14 @@
                 "ABWESEND_UNENTSCHULDIGT"
               ],
               "typeName": "AnwesenheitStatus"
+            },
+            "AufgabeStatus": {
+              "kind": "postgres-enum",
+              "members": [
+                "OFFEN",
+                "ERLEDIGT"
+              ],
+              "typeName": "AufgabeStatus"
             },
             "AuthEventKind": {
               "kind": "postgres-enum",
@@ -7232,6 +8185,236 @@
             }
           },
           "table": {
+            "Anfrage": {
+              "columns": {
+                "ablehnungsGrund": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "bestaetigtAm": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "bestaetigtVia": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "email": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "empfohlenesNiveauId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "nachricht": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "name": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "niveauId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "personId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "spracheId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "status": {
+                  "codecId": "pg/enum@1",
+                  "dataType": "pg/enum",
+                  "default": {
+                    "kind": "literal",
+                    "value": "OFFEN"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "AnfrageStatus"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "AnfrageStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "telefon": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "testResultat": {
+                  "codecId": "pg/jsonb@1",
+                  "dataType": "pg/jsonb",
+                  "nullable": true
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "zugeordnetAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "zugeordnetVonName": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                }
+              },
+              "foreignKeys": [
+                {
+                  "onDelete": "setNull",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "spracheId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Anfrage"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Sprache"
+                  }
+                },
+                {
+                  "onDelete": "setNull",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "niveauId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Anfrage"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Niveau"
+                  }
+                },
+                {
+                  "onDelete": "setNull",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "empfohlenesNiveauId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Anfrage"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Niveau"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "Anfrage_personId_idx"
+                  },
+                  "onDelete": "setNull",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "personId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Anfrage"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Person"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "email"
+                  ],
+                  "name": "Anfrage_email_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "personId"
+                  ],
+                  "name": "Anfrage_personId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "status",
+                    "createdAt"
+                  ],
+                  "name": "Anfrage_status_createdAt_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "Anmeldung": {
               "columns": {
                 "billingTyp": {
@@ -7827,6 +9010,256 @@
               },
               "uniques": []
             },
+            "Aufgabe": {
+              "columns": {
+                "anfrageId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "assigneeUserId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "beschreibung": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "dedupKey": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "erledigtAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "erledigtVonName": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "faelligAm": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "kursId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "personId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                },
+                "quelle": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "default": {
+                    "kind": "literal",
+                    "value": "manual"
+                  },
+                  "nullable": false
+                },
+                "status": {
+                  "codecId": "pg/enum@1",
+                  "dataType": "pg/enum",
+                  "default": {
+                    "kind": "literal",
+                    "value": "OFFEN"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "typeName": "AufgabeStatus"
+                  },
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "AufgabeStatus",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
+                "titel": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "Aufgabe_assigneeUserId_status_idx"
+                  },
+                  "onDelete": "setNull",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "assigneeUserId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Aufgabe"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "User"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "Aufgabe_personId_idx"
+                  },
+                  "onDelete": "setNull",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "personId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Aufgabe"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Person"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "Aufgabe_kursId_idx"
+                  },
+                  "onDelete": "setNull",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "kursId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Aufgabe"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Kurs"
+                  }
+                },
+                {
+                  "index": {
+                    "name": "Aufgabe_anfrageId_idx"
+                  },
+                  "onDelete": "cascade",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "anfrageId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Aufgabe"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Anfrage"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "anfrageId"
+                  ],
+                  "name": "Aufgabe_anfrageId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "assigneeUserId",
+                    "status"
+                  ],
+                  "name": "Aufgabe_assigneeUserId_status_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "dedupKey"
+                  ],
+                  "name": "Aufgabe_dedupKey_key",
+                  "unique": true
+                },
+                {
+                  "columns": [
+                    "kursId"
+                  ],
+                  "name": "Aufgabe_kursId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "personId"
+                  ],
+                  "name": "Aufgabe_personId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "status",
+                    "faelligAm"
+                  ],
+                  "name": "Aufgabe_status_faelligAm_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "BueroAbweichung": {
               "columns": {
                 "art": {
@@ -8207,6 +9640,166 @@
                   ],
                   "name": "BueroUrlaubskontingent_personId_jahr_key",
                   "unique": true
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
+            "Einstufungsfrage": {
+              "columns": {
+                "active": {
+                  "codecId": "pg/bool@1",
+                  "dataType": "pg/bool",
+                  "default": {
+                    "kind": "literal",
+                    "value": true
+                  },
+                  "nullable": false
+                },
+                "antwort1": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "antwort2": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "antwort3": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "antwort4": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "archivedAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": true,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "niveauId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "richtig": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "nullable": false
+                },
+                "sortOrder": {
+                  "codecId": "pg/int4@1",
+                  "dataType": "pg/int4",
+                  "default": {
+                    "kind": "literal",
+                    "value": 0
+                  },
+                  "nullable": false
+                },
+                "spracheId": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "text": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "updatedAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                }
+              },
+              "foreignKeys": [
+                {
+                  "index": {
+                    "name": "Einstufungsfrage_spracheId_niveauId_sortOrder_idx"
+                  },
+                  "onDelete": "restrict",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "spracheId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Einstufungsfrage"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Sprache"
+                  }
+                },
+                {
+                  "onDelete": "restrict",
+                  "onUpdate": "cascade",
+                  "source": {
+                    "columns": [
+                      "niveauId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Einstufungsfrage"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Niveau"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "active"
+                  ],
+                  "name": "Einstufungsfrage_active_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "spracheId",
+                    "niveauId",
+                    "sortOrder"
+                  ],
+                  "name": "Einstufungsfrage_spracheId_niveauId_sortOrder_idx",
+                  "unique": false
                 }
               ],
               "primaryKey": {
@@ -10845,6 +12438,69 @@
               },
               "uniques": []
             },
+            "PublicFormVersuch": {
+              "columns": {
+                "createdAt": {
+                  "codecId": "pg/timestamp-string@1",
+                  "dataType": "pg/timestamp",
+                  "default": {
+                    "expression": "now()",
+                    "kind": "function"
+                  },
+                  "nullable": false,
+                  "typeParams": {
+                    "precision": 3
+                  }
+                },
+                "email": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "form": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": false
+                },
+                "ip": {
+                  "codecId": "pg/text@1",
+                  "dataType": "pg/text",
+                  "nullable": true
+                }
+              },
+              "foreignKeys": [],
+              "indexes": [
+                {
+                  "columns": [
+                    "form",
+                    "email",
+                    "createdAt"
+                  ],
+                  "name": "PublicFormVersuch_form_email_createdAt_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "form",
+                    "ip",
+                    "createdAt"
+                  ],
+                  "name": "PublicFormVersuch_form_ip_createdAt_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": []
+            },
             "Raum": {
               "columns": {
                 "active": {
@@ -12523,6 +14179,15 @@
             }
           },
           "valueSet": {
+            "AnfrageStatus": {
+              "kind": "valueSet",
+              "values": [
+                "OFFEN",
+                "IN_BEARBEITUNG",
+                "ZUGEORDNET",
+                "ABGELEHNT"
+              ]
+            },
             "AnmeldungStatus": {
               "kind": "valueSet",
               "values": [
@@ -12545,6 +14210,13 @@
                 "ANWESEND",
                 "ABWESEND_ENTSCHULDIGT",
                 "ABWESEND_UNENTSCHULDIGT"
+              ]
+            },
+            "AufgabeStatus": {
+              "kind": "valueSet",
+              "values": [
+                "OFFEN",
+                "ERLEDIGT"
               ]
             },
             "AuthEventKind": {
@@ -12677,12 +14349,38 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "e558cb7e1b5d2b4abae3142585604187b29c286de6e1444d7725e567b0cab6e4"
+    "storageHash": "10cd32cbcf39c462c93242877cb595645363916a4759257d4049964301779c75"
   },
   "execution": {
-    "executionHash": "f351136e3d525e275f4fa177c75a00cd2933eae9ddd05272d5bb320f79e7cd22",
+    "executionHash": "b29acf087a08c605e4d88904959a0f6f0b6f460671ecbe71cfc212171edb6607",
     "mutations": {
       "defaults": [
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Anfrage",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Anfrage",
+            "field": "updatedAt",
+            "namespace": "public"
+          }
+        },
         {
           "onCreate": {
             "id": "cuid2",
@@ -12743,6 +14441,32 @@
           "ref": {
             "entry": "AuditLog",
             "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Aufgabe",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Aufgabe",
+            "field": "updatedAt",
             "namespace": "public"
           }
         },
@@ -12832,6 +14556,32 @@
           "ref": {
             "entry": "BueroUrlaubskontingent",
             "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Einstufungsfrage",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "onUpdate": {
+            "id": "timestampStringNow",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "Einstufungsfrage",
+            "field": "updatedAt",
             "namespace": "public"
           }
         },
@@ -13212,6 +14962,17 @@
           },
           "ref": {
             "entry": "Preis",
+            "field": "id",
+            "namespace": "public"
+          }
+        },
+        {
+          "onCreate": {
+            "id": "cuid2",
+            "kind": "generator"
+          },
+          "ref": {
+            "entry": "PublicFormVersuch",
             "field": "id",
             "namespace": "public"
           }

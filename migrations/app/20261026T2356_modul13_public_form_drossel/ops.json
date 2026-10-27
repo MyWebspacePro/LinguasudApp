@@ -1,0 +1,147 @@
+[
+  {
+    "id": "table.PublicFormVersuch",
+    "label": "Create table \"PublicFormVersuch\"",
+    "summary": "Creates table \"PublicFormVersuch\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "PublicFormVersuch"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"PublicFormVersuch\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"PublicFormVersuch\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "table \"PublicFormVersuch\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"PublicFormVersuch\"",
+        "sql": "CREATE TABLE \"public\".\"PublicFormVersuch\" (\n  \"createdAt\" timestamp(3) DEFAULT (now()) NOT NULL,\n  \"email\" text NOT NULL,\n  \"form\" text NOT NULL,\n  \"id\" text NOT NULL,\n  \"ip\" text,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"PublicFormVersuch\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3))) AS \"result\"",
+        "params": [
+          "\"public\".\"PublicFormVersuch\"",
+          "r",
+          "p"
+        ],
+        "expectation": {
+          "expects": "present",
+          "object": "table \"PublicFormVersuch\""
+        }
+      }
+    ]
+  },
+  {
+    "id": "index.PublicFormVersuch.PublicFormVersuch_form_email_createdAt_idx",
+    "label": "Create index \"PublicFormVersuch_form_email_createdAt_idx\" on \"PublicFormVersuch\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "PublicFormVersuch_form_email_createdAt_idx",
+        "table": "PublicFormVersuch"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"PublicFormVersuch_form_email_createdAt_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"PublicFormVersuch_form_email_createdAt_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"PublicFormVersuch_form_email_createdAt_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"PublicFormVersuch_form_email_createdAt_idx\"",
+        "sql": "CREATE INDEX \"PublicFormVersuch_form_email_createdAt_idx\" ON \"public\".\"PublicFormVersuch\" (\"form\", \"email\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"PublicFormVersuch_form_email_createdAt_idx\" exists on \"PublicFormVersuch\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"PublicFormVersuch_form_email_createdAt_idx\"",
+          "i",
+          "I",
+          "\"public\".\"PublicFormVersuch\"",
+          "btree",
+          "[\"form\",\"email\",\"createdAt\"]"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.PublicFormVersuch.PublicFormVersuch_form_ip_createdAt_idx",
+    "label": "Create index \"PublicFormVersuch_form_ip_createdAt_idx\" on \"PublicFormVersuch\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "PublicFormVersuch_form_ip_createdAt_idx",
+        "table": "PublicFormVersuch"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"PublicFormVersuch_form_ip_createdAt_idx\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"PublicFormVersuch_form_ip_createdAt_idx\""
+        ],
+        "expectation": {
+          "expects": "absent",
+          "object": "index \"PublicFormVersuch_form_ip_createdAt_idx\""
+        }
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"PublicFormVersuch_form_ip_createdAt_idx\"",
+        "sql": "CREATE INDEX \"PublicFormVersuch_form_ip_createdAt_idx\" ON \"public\".\"PublicFormVersuch\" (\"form\", \"ip\", \"createdAt\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"PublicFormVersuch_form_ip_createdAt_idx\" exists on \"PublicFormVersuch\" with the planned definition",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_class\" AS \"c\" INNER JOIN \"pg_index\" AS \"i\" ON \"i\".\"indexrelid\" = \"c\".\"oid\" INNER JOIN \"pg_am\" AS \"m\" ON \"m\".\"oid\" = \"c\".\"relam\" WHERE (\"c\".\"oid\" = to_regclass($1) AND (\"c\".\"relkind\" = $2 OR \"c\".\"relkind\" = $3) AND \"i\".\"indrelid\" = to_regclass($4) AND NOT (\"i\".\"indisunique\") AND \"m\".\"amname\" = $5 AND (\"i\".\"indexprs\" IS NULL AND (SELECT coalesce(jsonb_agg(key_attribute.attname ORDER BY key_column.position), '[]'::jsonb) FROM unnest(\"i\".\"indkey\"::int2[]) WITH ORDINALITY AS key_column(attnum, position) JOIN pg_attribute key_attribute ON key_attribute.attrelid = \"i\".\"indrelid\" AND key_attribute.attnum = key_column.attnum) = ($6)::jsonb) AND \"i\".\"indpred\" IS NULL)) AS \"result\"",
+        "params": [
+          "\"public\".\"PublicFormVersuch_form_ip_createdAt_idx\"",
+          "i",
+          "I",
+          "\"public\".\"PublicFormVersuch\"",
+          "btree",
+          "[\"form\",\"ip\",\"createdAt\"]"
+        ]
+      }
+    ]
+  }
+]

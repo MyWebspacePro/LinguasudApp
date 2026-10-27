@@ -132,6 +132,19 @@ export function canManageVermietung(roles: Role[]): boolean {
   return hasRole(roles, "ADMIN") || hasRole(roles, "CHEF") || hasRole(roles, "BUERO");
 }
 
+/**
+ * Anfragen & Aufgaben (Modul 13): Büro-Operativ (Muster canManageAnmeldungen)
+ * — Anfragen-Verwaltung mit Zuordnung, Aufgaben-System und Fragenkatalog
+ * separat über canManageStammdaten (Admin).
+ */
+export function canViewAnfragen(roles: Role[]): boolean {
+  return hasRole(roles, "ADMIN") || hasRole(roles, "CHEF") || hasRole(roles, "BUERO");
+}
+
+export function canManageAnfragen(roles: Role[]): boolean {
+  return hasRole(roles, "ADMIN") || hasRole(roles, "CHEF") || hasRole(roles, "BUERO");
+}
+
 /** Darf dieser Akteur dem Ziel diese Rollen zuweisen? */
 export function canAssignRoles(actorRoles: Role[], targetRoles: Role[]): boolean {
   if (hasRole(actorRoles, "ADMIN")) return true;

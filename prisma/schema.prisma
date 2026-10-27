@@ -46,6 +46,8 @@ model User {
   guthabenJournale    GuthabenJournal[]
   zahlungenAlsErfasser Zahlung[]
   honorarAbrechnungenAlsErfasser HonorarAbrechnung[]
+  // Modul 13 — Aufgaben, die dieser Stabs-Person zugewiesen sind.
+  aufgabenAlsZugewiesene Aufgabe[] @relation("AufgabenAlsZugewiesene")
 
   @@index([isActive])
 }
@@ -201,6 +203,9 @@ model Sprache {
 
   qualifikationen Lehrqualifikation[]
   kurse           Kurs[] // Sprache dieses Kurses
+  // Modul 13 — Einstufungstest-Fragen und Anfragen dieser Sprache.
+  einstufungsfragen Einstufungsfrage[]
+  anfragen          Anfrage[]
 }
 
 /// Niveaustufen (A1 … C2), Sortierung frei definierbar.
@@ -217,6 +222,10 @@ model Niveau {
   qualifikationen Lehrqualifikation[]
   kurse           Kurs[] // aktuelles Niveau dieser Kurse
   verlauf         KursNiveauVerlauf[] // Niveau-Abschnitte im Verlauf
+  // Modul 13 — Test-Fragen dieses Niveaus sowie gewünschtes/empfohlenes Niveau von Anfragen.
+  einstufungsfragen Einstufungsfrage[]
+  anfragen          Anfrage[] @relation("AnfragenGewuenschtesNiveau")
+  anfragenEmpfohlen Anfrage[] @relation("AnfragenEmpfohlenesNiveau")
 }
 
 /// Kursarten: Einzel, 2er, 3er, 4er, 6er, Online, Firmenkurs — beliebig erweiterbar.
@@ -391,6 +400,9 @@ model Person {
   rechnungen      Rechnung[] @relation("RechnungenAlsPerson")
   // Modul 10 — Kursbestätigungen dieser Person (Portal: Selbstdrucken).
   bestaetigungen  Kursbestaetigung[] @relation("BestaetigungenAlsPerson")
+  // Modul 13 — Anfragen, die dieser Person zugeordnet wurden, und Aufgaben zu dieser Person.
+  anfragen        Anfrage[] @relation("AnfragenAlsPerson")
+  aufgaben        Aufgabe[] @relation("AufgabenAlsPerson")
 
   @@index([status])
   @@index([nachname, vorname])
@@ -501,6 +513,8 @@ model Kurs {
   lektionen        Lektion[]
   // Modul 10 — Kursbestätigungen für Niveau-Abschnitte dieses Kurses.
   bestaetigungen   Kursbestaetigung[]
+  // Modul 13 — Aufgaben zu diesem Kurs.
+  aufgaben         Aufgabe[] @relation("AufgabenAlsKurs")
 
   @@index([status])
   @@index([lehrpersonId])
@@ -1205,4 +1219,157 @@ model Vermietung {
   @@index([mieterId])
   @@index([startAt])
   @@index([serieId])
+}
+
+// ————————————————————————————————————————————————————————————————
+// Modul 13 — Aufgaben & Anfragen
+// Öffentlicher Online-Einstufungstest (Multiple Choice, automatische
+// Niveau-Empfehlung), Anfrage-Eingang mit Bestätigungs-/Büro-Mail und
+// automatisch angelegter Büro-Aufgabe; schlichtes Aufgaben-System mit
+// optionalen Verknüpfungen zu Person/Kurs/Anfrage. Automatik-Aufgaben
+// sind über dedupKey (unique) gegen Doppel-Anlage pro Vorgang gesichert.
+// ————————————————————————————————————————————————————————————————
+
+/// Frage des Online-Einstufungstests: Multiple Choice mit 4 Antwortoptionen,
+/// je Sprache und Niveau; die Auswertung (pure Logik, src/lib/anfragen/logik.ts)
+/// leitet daraus die Niveau-Empfehlung ab. Pflegbar nur Admin (Stammdaten).
+model Einstufungsfrage {
+  id        String    @id @default(cuid())
+  spracheId String
+  sprache   Sprache   @relation(fields: [spracheId], references: [id], onDelete: Restrict)
+  niveauId  String
+  niveau    Niveau    @relation(fields: [niveauId], references: [id], onDelete: Restrict)
+  /// Fragetext
+  text      String
+  /// Antwortoptionen (4 feste Optionen; Option «richtig» ist die korrekte).
+  antwort1  String
+  antwort2  String
+  antwort3  String
+  antwort4  String
+  /// Index der richtigen Antwort (1–4).
+  richtig   Int
+  /// Reihenfolge innerhalb Sprache × Niveau.
+  sortOrder Int       @default(0)
+  active    Boolean   @default(true)
+  archivedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([spracheId, niveauId, sortOrder])
+  @@index([active])
+}
+
+/// Status-Laufbahn einer Anfrage aus dem öffentlichen Formular.
+enum AnfrageStatus {
+  OFFEN
+  IN_BEARBEITUNG
+  /// Person zugeordnet (nach Identitätsprüfung, Modul 13).
+  ZUGEORDNET
+  ABGELEHNT
+}
+
+model Anfrage {
+  id     String        @id @default(cuid())
+  status AnfrageStatus @default(OFFEN)
+
+  /// Kontakt-Snapshot vom Formular (bewusst Freitext-Kopie — die Person ist
+  /// erst nach der Identitätsprüfung verknüpft).
+  name      String
+  email     String
+  telefon   String?
+  nachricht String?
+
+  /// Gewünschte Sprache/Niveau + Niveau-Empfehlung aus dem Einstufungstest.
+  spracheId String?
+  sprache   Sprache? @relation(fields: [spracheId], references: [id], onDelete: SetNull)
+  niveauId  String?
+  niveau    Niveau?  @relation("AnfragenGewuenschtesNiveau", fields: [niveauId], references: [id], onDelete: SetNull)
+  empfohlenesNiveauId String?
+  empfohlenesNiveau   Niveau?  @relation("AnfragenEmpfohlenesNiveau", fields: [empfohlenesNiveauId], references: [id], onDelete: SetNull)
+  /// Roh-Auswertung des Tests (Json: pro Niveau richtig/total), null ohne Test.
+  testResultat Json?
+
+  /// Zuordnung nach Identitätsprüfung: bestehende Person oder neue
+  /// INTERESSENT-Person; sonst bleibt die Anfrage anonym stehen.
+  personId  String?
+  person    Person? @relation("AnfragenAlsPerson", fields: [personId], references: [id], onDelete: SetNull)
+  zugeordnetAt     DateTime?
+  zugeordnetVonName String?
+  /// Begründung bei Ablehnung (optional dokumentiert).
+  ablehnungsGrund  String?
+
+  /// Bestätigungs-Mail an die Anfragenden (Versand-Resultat dokumentiert).
+  bestaetigtAm  DateTime?
+  bestaetigtVia String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  aufgaben Aufgabe[]
+
+  @@index([status, createdAt])
+  @@index([email])
+  @@index([personId])
+}
+
+/// Status einer Aufgabe: schlicht offen/erledigt (Pflichtenheft — weitere
+/// Stati nur wenn sinnvoll, hier bewusst weggelassen).
+enum AufgabeStatus {
+  OFFEN
+  ERLEDIGT
+}
+
+model Aufgabe {
+  id          String        @id @default(cuid())
+  titel       String
+  beschreibung String?
+  status      AufgabeStatus @default(OFFEN)
+  /// Zugewiesene:r (Stabs-Konto; null = unbeauftragt, freigeben fürs Büro).
+  assigneeUserId String?
+  assignee       User?   @relation("AufgabenAlsZugewiesene", fields: [assigneeUserId], references: [id], onDelete: SetNull)
+  /// Fälligkeit (UTC-Mitternacht des Lokal-Tags, Muster dbDatum()).
+  faelligAm   DateTime?
+  erledigtAt  DateTime?
+  erledigtVonName String?
+
+  /// Optionale Verknüpfungen (nullable FKs).
+  personId  String?
+  person    Person?  @relation("AufgabenAlsPerson", fields: [personId], references: [id], onDelete: SetNull)
+  kursId    String?
+  kurs      Kurs?    @relation("AufgabenAlsKurs", fields: [kursId], references: [id], onDelete: SetNull)
+  anfrageId String?
+  anfrage   Anfrage? @relation(fields: [anfrageId], references: [id], onDelete: Cascade)
+
+  /// Quelle: "manual" | "anfrage" | "paketende" | "anwesenheit".
+  quelle String @default("manual")
+  /// Dedup-Marker der Automatik (z.B. "anfrage:<id>", "paketende:<anmeldungId>",
+  /// "anwesenheit:<lektionId>") — verhindert Doppel-Aufgaben pro Vorgang; beim
+  /// Erledigen wird nie neu angelegt (unique über beide Stati).
+  dedupKey String? @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, faelligAm])
+  @@index([assigneeUserId, status])
+  @@index([anfrageId])
+  @@index([personId])
+  @@index([kursId])
+}
+
+/// Drossel öffentlicher Formulare (Modul 13): fensterbasierte Auswertung pro
+/// E-Mail/IP — das gleiche Muster wie der Brute-Force-Schutz (isRateLimited),
+/// aber getrennt von den Auth-Ereignissen, da öffentliche Formulare kein
+/// Login sind. `form` erlaubt später weitere öffentliche Formulare.
+model PublicFormVersuch {
+  id        String   @id @default(cuid())
+  /// z.B. "anfrage" (Einstufungstest ist rein lesend und braucht keine Drossel).
+  form      String
+  /// Normalisierte E-Mail (klein, getrimmt); "" bei fehlender Angabe.
+  email     String
+  ip        String?
+  createdAt DateTime @default(now())
+
+  @@index([form, email, createdAt])
+  @@index([form, ip, createdAt])
 }

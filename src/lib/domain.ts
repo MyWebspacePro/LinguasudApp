@@ -39,6 +39,10 @@ export type BueroAbwesenheitArt = Models.public_BueroAbwesenheit["art"];
 export type HonorarStatus = Models.public_HonorarAbrechnung["status"];
 /** Status einer Vermietung (Modul 12): geplant → findet statt · abgesagt. */
 export type VermietungStatus = Models.public_Vermietung["status"];
+/** Status-Laufbahn einer Anfrage aus dem öffentlichen Formular (Modul 13). */
+export type AnfrageStatus = Models.public_Anfrage["status"];
+/** Status einer Aufgabe (Modul 13): schlicht offen/erledigt. */
+export type AufgabeStatus = Models.public_Aufgabe["status"];
 
 /** Zeilen-Typen ohne Relationen (das, was Queries zurückgeben). */
 export type UserRow = Scalars<Models.public_User>;
@@ -61,6 +65,9 @@ export type BueroAbwesenheitRow = Scalars<Models.public_BueroAbwesenheit>;
 export type BueroUrlaubskontingentRow = Scalars<Models.public_BueroUrlaubskontingent>;
 export type HonorarSatzRow = Scalars<Models.public_HonorarSatz>;
 export type HonorarAbrechnungRow = Scalars<Models.public_HonorarAbrechnung>;
+export type EinstufungsfrageRow = Scalars<Models.public_Einstufungsfrage>;
+export type AnfrageRow = Scalars<Models.public_Anfrage>;
+export type AufgabeRow = Scalars<Models.public_Aufgabe>;
 
 /** Anrede-Bezeichnungen für Formulare und Anzeigen. */
 export const ANREDE_LABELS: Record<Anrede, string> = {
@@ -156,6 +163,36 @@ export const VERMIETUNG_STATUS_WERTE: readonly VermietungStatus[] = [
   "FINDET_STATT",
   "ABGESAGT",
 ];
+
+/** Anfrage-Status-Bezeichnungen (Modul 13). */
+export const ANFRAGE_STATUS_LABELS: Record<AnfrageStatus, string> = {
+  OFFEN: "offen",
+  IN_BEARBEITUNG: "in Bearbeitung",
+  ZUGEORDNET: "zugeordnet",
+  ABGELEHNT: "abgelehnt",
+};
+
+/** Gültige Anfrage-Status-Werte in Laufbahn-Reihenfolge. */
+export const ANFRAGE_STATUS_WERTE: readonly AnfrageStatus[] = [
+  "OFFEN",
+  "IN_BEARBEITUNG",
+  "ZUGEORDNET",
+  "ABGELEHNT",
+];
+
+/** Aufgaben-Status-Bezeichnungen (Modul 13). */
+export const AUFGABE_STATUS_LABELS: Record<AufgabeStatus, string> = {
+  OFFEN: "offen",
+  ERLEDIGT: "erledigt",
+};
+
+/** Quelle einer Aufgabe (Modul 13) — für Badge und Audit-Kontext. */
+export const AUFGABE_QUELLE_LABELS: Record<string, string> = {
+  manual: "manuell",
+  anfrage: "Anfrage",
+  paketende: "Paket-Ende",
+  anwesenheit: "Anwesenheit",
+};
 
 /** SystemSetting-Schlüssel für den globalen Default-Stundensatz (Modul 11). */
 export const HONORAR_DEFAULT_KEY = "honorar.defaultStundensatz";

@@ -16,9 +16,10 @@ import { canManageAnmeldungen } from "@/lib/auth/permissions";
 import { recordAudit } from "@/lib/audit";
 import type { FormState } from "@/lib/forms";
 import { sendMail } from "@/lib/mail";
-import { dateKeyToUtcMidnight, parseDateKey } from "@/lib/zeit";
+import { dateKeyToUtcMidnight, addDays, heuteDateKey, parseDateKey } from "@/lib/zeit";
 import { autoTarifstufe, verbrauchtImPaket, type TarifstufeOption } from "./paket";
 import { erstellePaketRechnung } from "@/lib/rechnungen/erstellung";
+import { erstelleAutomatischeAufgabe } from "@/lib/aufgaben/automatik";
 
 const str = (fd: FormData, key: string) => String(fd.get(key) ?? "").trim();
 
@@ -567,6 +568,27 @@ export async function paketErinnernAction(_prev: FormState, formData: FormData):
   await db.orm.public.Anmeldung.where({ id: anmeldungId }).update({
     paketEndeGemeldetAt: toDbTime(new Date()),
   });
+
+  // Automatische Büro-Aufgabe (Modul 13): Paket-Ende ohne Antwort nachverfolgen.
+  // Dedup pro Anmeldung (dedupKey) — auch mehrfache Erinnerungen legen keine
+  // zweite Aufgabe an.
+  try {
+    await erstelleAutomatischeAufgabe({
+      quelle: "paketende",
+      dedupKey: `paketende:${anmeldungId}`,
+      titel: `Paket-Ende: Entscheidung von ${anmeldung.person.vorname} ${anmeldung.person.nachname} (${anmeldung.kurs.code}) offen`,
+      beschreibung:
+        "Teilnehmende(r) wurde am Paket-Ende informiert («fortfahren oder beenden?»). " +
+        "Nach der Antwort: «fortfahren» lädt das neue Paket auf (Rechnung entsteht automatisch), «beenden» schliesst die Anmeldung.\n\n" +
+        `Anmeldung: /anmeldungen/${anmeldungId}`,
+      personId: anmeldung.personId,
+      kursId: anmeldung.kursId,
+      faelligAm: dateKeyToUtcMidnight(addDays(heuteDateKey(), 3)),
+    });
+  } catch (error) {
+    console.error("Automatische Paket-Ende-Aufgabe fehlgeschlagen:", error);
+  }
+
   await recordAudit({
     actor,
     action: "anmeldung.paketende_informiert",
