@@ -20,24 +20,24 @@ interface StartFrage {
 }
 
 const START_FRAGEN: StartFrage[] = [
-  // Deutsch — A1
-  { sprache: "Deutsch", niveau: "A1", text: "Ich ___ aus der Schweiz.", antworten: ["bin", "hast", "ist", "sind"], richtig: 1 },
+  // Deutsch — A1 (richtige Antwort bewusst auf wechselnden Positionen)
+  { sprache: "Deutsch", niveau: "A1", text: "Ich ___ aus der Schweiz.", antworten: ["hast", "bin", "ist", "sind"], richtig: 2 },
   { sprache: "Deutsch", niveau: "A1", text: "Wie ___ es Ihnen?", antworten: ["geht", "heiße", "wohne", "komme"], richtig: 1 },
-  { sprache: "Deutsch", niveau: "A1", text: "Das ___ mein Bruder.", antworten: ["ist", "sind", "bist", "wären"], richtig: 1 },
+  { sprache: "Deutsch", niveau: "A1", text: "Das ___ mein Bruder.", antworten: ["sind", "bist", "ist", "wären"], richtig: 3 },
   // Deutsch — A2
-  { sprache: "Deutsch", niveau: "A2", text: "Ich ___ gestern ins Kino gegangen.", antworten: ["bin", "habe", "war", "ging"], richtig: 1 },
+  { sprache: "Deutsch", niveau: "A2", text: "Ich ___ gestern ins Kino gegangen.", antworten: ["habe", "war", "ging", "bin"], richtig: 4 },
   { sprache: "Deutsch", niveau: "A2", text: "Er ___ jeden Tag mit dem Velo zur Arbeit.", antworten: ["fährt", "fahrt", "fahren", "fuhr"], richtig: 1 },
-  { sprache: "Deutsch", niveau: "A2", text: "Ich habe letzte Woche ___ Bücher gelesen.", antworten: ["viele", "viel", "mehr", "meisten"], richtig: 1 },
+  { sprache: "Deutsch", niveau: "A2", text: "Ich habe letzte Woche ___ Bücher gelesen.", antworten: ["mehr", "viele", "viel", "meisten"], richtig: 2 },
   // Deutsch — B1
   { sprache: "Deutsch", niveau: "B1", text: "Obwohl es regnete, ___ wir wandern.", antworten: ["gingen", "gehen", "gehen würden", "gegangen"], richtig: 1 },
-  { sprache: "Deutsch", niveau: "B1", text: "Ich hätte gern ___ Kaffee, bitte.", antworten: ["einen", "eine", "ein", "einem"], richtig: 1 },
-  { sprache: "Deutsch", niveau: "B1", text: "Er hat das Auto ___.", antworten: ["reparieren", "repariert", "reparieren zu", "zum Reparieren"], richtig: 1 },
+  { sprache: "Deutsch", niveau: "B1", text: "Ich hätte gern ___ Kaffee, bitte.", antworten: ["eine", "ein", "einen", "einem"], richtig: 3 },
+  { sprache: "Deutsch", niveau: "B1", text: "Er hat das Auto ___.", antworten: ["repariert", "reparieren", "reparieren zu", "zum Reparieren"], richtig: 2 },
   // Englisch — A1
-  { sprache: "Englisch", niveau: "A1", text: "She ___ a teacher.", antworten: ["is", "are", "am", "be"], richtig: 1 },
-  { sprache: "Englisch", niveau: "A1", text: "I ___ from Italy.", antworten: ["am", "is", "are", "be"], richtig: 1 },
+  { sprache: "Englisch", niveau: "A1", text: "She ___ a teacher.", antworten: ["am", "is", "are", "be"], richtig: 2 },
+  { sprache: "Englisch", niveau: "A1", text: "I ___ from Italy.", antworten: ["be", "are", "is", "am"], richtig: 4 },
   // Englisch — A2
   { sprache: "Englisch", niveau: "A2", text: "We ___ to Spain last year.", antworten: ["went", "go", "have gone", "going"], richtig: 1 },
-  { sprache: "Englisch", niveau: "A2", text: "There ___ some milk in the fridge.", antworten: ["is", "are", "were", "be"], richtig: 1 },
+  { sprache: "Englisch", niveau: "A2", text: "There ___ some milk in the fridge.", antworten: ["are", "were", "is", "be"], richtig: 3 },
 ];
 
 const SEED_MARKER = "anfragen.fragenStartdaten";
