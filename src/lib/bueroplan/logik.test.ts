@@ -6,6 +6,7 @@ import {
   BUERO_URLAUB_DEFAULT_TAGE,
   diensteFuerWochentag,
   istGueltigesZeitfenster,
+  jahresSegmente,
   kontingentFuerJahr,
   planDesTages,
   urlaubRest,
@@ -160,6 +161,63 @@ describe("kontingentFuerJahr / urlaubRest", () => {
   it("rechnet den Rest (negativ = überschritten)", () => {
     expect(urlaubRest(12, 20)).toBe(8);
     expect(urlaubRest(21, 20)).toBe(-1);
+  });
+});
+
+describe("jahresSegmente", () => {
+  it("liefert ohne Abwesenheiten genau ein Segment ohne Art über das ganze Jahr", () => {
+    expect(jahresSegmente([], 2026)).toEqual([{ vonKey: "2026-01-01", bisKey: "2026-12-31", art: null }]);
+  });
+
+  it("fasst zusammenhängende Abwesenheits-Tage zu einem Segment zusammen", () => {
+    const abwesenheiten: AbwesenheitBereich[] = [
+      { art: "URLAUB", vonKey: "2026-02-23", bisKey: "2026-02-27", bemerkung: null },
+    ];
+    expect(jahresSegmente(abwesenheiten, 2026)).toEqual([
+      { vonKey: "2026-01-01", bisKey: "2026-02-22", art: null },
+      { vonKey: "2026-02-23", bisKey: "2026-02-27", art: "URLAUB" },
+      { vonKey: "2026-02-28", bisKey: "2026-12-31", art: null },
+    ]);
+  });
+
+  it("klemmt Bereiche am Jahresrand auf das jeweilige Jahr", () => {
+    const abwesenheiten: AbwesenheitBereich[] = [
+      { art: "URLAUB", vonKey: "2026-12-28", bisKey: "2027-01-02", bemerkung: null },
+    ];
+    expect(jahresSegmente(abwesenheiten, 2026).at(-1)).toEqual({
+      vonKey: "2026-12-28",
+      bisKey: "2026-12-31",
+      art: "URLAUB",
+    });
+    expect(jahresSegmente(abwesenheiten, 2027)[0]).toEqual({
+      vonKey: "2027-01-01",
+      bisKey: "2027-01-02",
+      art: "URLAUB",
+    });
+  });
+
+  it("gibt bei Überlappung der zuerst gelisteten Abwesenheit Vorrang (wie planDesTages)", () => {
+    const abwesenheiten: AbwesenheitBereich[] = [
+      { art: "URLAUB", vonKey: "2026-07-06", bisKey: "2026-07-10", bemerkung: null },
+      { art: "KRANKHEIT", vonKey: "2026-07-08", bisKey: "2026-07-12", bemerkung: null },
+    ];
+    expect(jahresSegmente(abwesenheiten, 2026)).toEqual([
+      { vonKey: "2026-01-01", bisKey: "2026-07-05", art: null },
+      { vonKey: "2026-07-06", bisKey: "2026-07-10", art: "URLAUB" },
+      { vonKey: "2026-07-11", bisKey: "2026-07-12", art: "KRANKHEIT" },
+      { vonKey: "2026-07-13", bisKey: "2026-12-31", art: null },
+    ]);
+  });
+
+  it("ignoriert unsortierte Bereiche defensiv", () => {
+    const abwesenheiten: AbwesenheitBereich[] = [
+      { art: "URLAUB", vonKey: "2026-02-27", bisKey: "2026-02-23", bemerkung: null },
+    ];
+    expect(jahresSegmente(abwesenheiten, 2026)).toEqual([{ vonKey: "2026-01-01", bisKey: "2026-12-31", art: null }]);
+  });
+
+  it("deckt auch das Schaltjahr vollständig ab", () => {
+    expect(jahresSegmente([], 2028)).toEqual([{ vonKey: "2028-01-01", bisKey: "2028-12-31", art: null }]);
   });
 });
 

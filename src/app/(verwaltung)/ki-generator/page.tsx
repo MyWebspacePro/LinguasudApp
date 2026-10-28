@@ -10,7 +10,7 @@ import { getKiEinstellungen } from "@/lib/ki/einstellungen";
 import { KiGeneratorForm } from "@/components/ki/KiGeneratorForm";
 
 export const metadata: Metadata = {
-  title: "KI-Lektor",
+  title: "Lektionen-Generator",
 };
 
 export default function KiGeneratorPage() {
@@ -32,7 +32,7 @@ async function KiGeneratorContent() {
     <div className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-lg font-semibold text-slate-900">KI-Lektor</h1>
+          <h1 className="text-lg font-semibold text-slate-900">Lektionen-Generator</h1>
           <p className="mt-0.5 text-sm text-slate-600">
             Lektionspläne generieren, prüfen und in der Bibliothek ablegen — gespeicherte Lektionen
             lassen sich als PDF drucken und für das Kollegium freigeben.

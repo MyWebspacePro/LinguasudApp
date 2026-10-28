@@ -4,9 +4,10 @@
 // - Öffentlich: Einstufungstest auswerten (redirect aufs Ergebnis) und das
 //   Anfrage-Formular (Drossel + Honeypot, Bestätigungs- und Büro-Mail,
 //   automatische Büro-Aufgabe, Audit mit actor: null).
-// - Verwaltung (Admin/Chef/Büro, Muster canManageAnmeldungen): Statuswechsel,
-//   Zuordnung nach Identitätsprüfung (bestehende Person oder neue
-//   INTERESSENT-Person) — alles im Audit-Log (anfrage.*).
+// - Verwaltung (Admin/Chef/Büro, Muster canManageAnmeldungen): manuelle
+//   Erfassung (z.B. telefonisch), Statuswechsel, Zuordnung nach
+//   Identitätsprüfung (bestehende Person oder neue INTERESSENT-Person) —
+//   alles im Audit-Log (anfrage.*).
 // - Fragenkatalog (nur Admin, Stammdaten): Fragen pflegen.
 
 import { revalidatePath } from "next/cache";
@@ -258,6 +259,61 @@ async function anfrageBueroNotification(
 }
 
 // ——— Verwaltung: Status & Zuordnung ——————————————————————————————————————
+
+/** Manuelle Erfassung durchs Büro (z.B. telefonischer Eingang): legt die
+ * Anfrage wie ein Website-Eingang als «offen» an — ohne Mails an die Person,
+ * ohne Drossel, ohne Aufgabe (das Büro ist ja gerade dran); Herkunft steht
+ * im Audit-Log. */
+export async function erfasseAnfrageManuellAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  const guard = await requireAnfragenManager();
+  if ("failure" in guard) return guard.failure;
+  const actor = guard.actor;
+
+  const name = str(formData, "name");
+  const emailRaw = str(formData, "email");
+  const email = emailRaw.toLowerCase();
+  const telefon = str(formData, "telefon") || null;
+  const nachricht = str(formData, "nachricht") || null;
+  const spracheId = str(formData, "spracheId") || null;
+  const niveauId = str(formData, "niveauId") || null;
+
+  const fieldErrors: Record<string, string> = {};
+  if (!name) fieldErrors.name = "Pflichtfeld";
+  if (!email) fieldErrors.email = "Pflichtfeld";
+  else if (!istGueltigeEmail(email)) fieldErrors.email = "Ungültige E-Mail-Adresse";
+  if (Object.keys(fieldErrors).length > 0) {
+    return { error: "Bitte prüfen Sie die Eingaben.", fieldErrors };
+  }
+
+  const [sprache, niveau] = await Promise.all([
+    spracheId ? db.orm.public.Sprache.where({ id: spracheId }).first() : null,
+    niveauId ? db.orm.public.Niveau.where({ id: niveauId }).first() : null,
+  ]);
+  if (spracheId && !sprache) return { error: "Sprache nicht gefunden." };
+  if (niveauId && !niveau) return { error: "Niveau nicht gefunden." };
+
+  const created = await db.orm.public.Anfrage.create({
+    status: "OFFEN",
+    name,
+    email,
+    telefon,
+    nachricht,
+    spracheId: sprache?.id ?? null,
+    niveauId: niveau?.id ?? null,
+  });
+
+  await recordAudit({
+    actor,
+    action: "anfrage.manuell_erfasst",
+    entity: "anfrage",
+    entityId: created.id,
+    summary: `Anfrage von «${name}» (${email}) manuell erfasst${sprache ? ` — Sprache ${sprache.name}` : ""}${niveau ? `, Niveau ${niveau.code}` : ""}`,
+    details: { name, email, telefon, spracheId: sprache?.id ?? null, niveauId: niveau?.id ?? null, nachricht },
+  });
+
+  revalidateAnfragen(`/anfragen/${created.id}`);
+  redirect(`/anfragen/${created.id}`);
+}
 
 async function requireAnfragenManager(): Promise<
   { actor: { id: string; email: string; name: string } } | { failure: FormState }

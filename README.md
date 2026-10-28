@@ -127,7 +127,10 @@ Die vollständigen Anforderungen stehen im **[PFLICHTENHEFT.md](./PFLICHTENHEFT.
 - **Anfragen-Verwaltung** (`/anfragen`, Büro-Operativ): Liste mit
   Status-Filter und Zählern (offen / in Bearbeitung / zugeordnet /
   abgelehnt); Detail mit Kontakt-Snapshot, Test-Rohresultat und Statuswechsel.
-  Zuordnung nach Identitätsprüfung an eine **bestehende Person** oder eine
+  **Manuelle Erfassung** (`/anfragen/neu`, seit 28.10.2026): telefonische oder
+  persönliche Eingänge durchs Büro — Name und E-Mail Pflicht, ohne Mails an
+  die Person, Audit `anfrage.manuell_erfasst`. Zuordnung nach
+  Identitätsprüfung an eine **bestehende Person** oder eine
   **neue INTERESSENT-Person** (Anrede, Vor- und Nachname Pflicht; E-Mail und
   Telefon werden aus der Anfrage übernommen); Zuordnung aufheben möglich.
   Audit `anfrage.*`.
@@ -173,7 +176,7 @@ gegen localhost:3000):
 
 ## Modul 14 — KI-Lektionsgenerator (fertig)
 
-- **KI-Lektor** (`/ki-generator`, Stabsrollen mit `canViewKi`): Lektionspläne
+- **Lektionen-Generator** (`/ki-generator`, Stabsrollen mit `canViewKi`): Lektionspläne
   per OpenRouter generieren. Formular mit Sprache, Niveau, Kursart, Thema,
   Dauer, Teilnehmerzahl und optionalen Zusatzwünschen; Ergebnis wird direkt
   angezeigt, geprüft und erst danach in der Bibliothek gespeichert. Zwei
@@ -205,7 +208,7 @@ gegen localhost:3000):
   Kollegium um (`geteilt`); Löschen nur mit Bestätigungs-Checkbox. Beides im
   Audit-Log (`ki.lektion.teilen`, `ki.lektion.loeschen`).
 - **Rechte**: `canViewKi` (alle Stabsrollen), `canManageKiEinstellungen`
-  (ADMIN), `canAdminKi` (ADMIN/CHEF). Navigationseintrag «KI-Lektor» erscheint
+  (ADMIN), `canAdminKi` (ADMIN/CHEF). Navigationseintrag «Lektionen-Generator» erscheint
   für alle Stabsrollen; das Admin-Ziel ist zusätzlich als Kachel unter
   `/stammdaten` verlinkt.
 - Logik in `src/lib/ki/` (`logik.ts` pure + getestet — 19 Tests;
@@ -485,6 +488,11 @@ PFLICHTENHEFT.md   Anforderungen (verbindlich für die Umsetzung)
   **Büropersonen** — Personen mit Konto der Rolle **Büro, Admin oder Chef** (Verknüpfung über
   `User.personId`); reine Lehrpersonen organisieren sich selbst und erscheinen nicht. Wochen-Navigation
   (‹ / Diese Woche / ›), heutige Spalte hervorgehoben, Legende der Blöcke.
+- **Jahresübersicht unter der Wochenansicht** (seit 28.10.2026): horizontal scrollende Tabelle mit
+  einer Zeile pro Person und einer Tages-Spalte (Jan–Dez, `?jahr=` wählbar, default = Jahr der
+  angezeigten Woche). Abwesenheiten als farbige Balken (`jahresSegmente` fasst zusammenhängende
+  Tage zusammen), Wochenenden grau hinterlegt, sticky Namensspalte mit Urlaubs-Saldo
+  (genutzt / Kontingent), heutige Tagesspalte markiert.
 - **Wiederkehrendes Pensum pro Person** (`BueroDienst`): beliebig viele Zeitblöcke pro Wochentag
   (z.B. 45 Min vor + nach Unterricht, «2 Vormittage + 3 Nachmittage»), mehrere Personen parallel.
 - **Tages-Abweichungen** (`BueroAbweichung`, ein Eintrag pro Person und Tag): **abweichende

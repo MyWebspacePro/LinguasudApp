@@ -75,9 +75,14 @@ async function AnfragenContent({
             Zuordnung nach Identitätsprüfung.
           </p>
         </div>
-        <Link href="/anfrage" className="btn-secondary" target="_blank">
-          Formular ansehen ↗
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href="/anfragen/neu" className="btn-primary">
+            Anfrage erfassen
+          </Link>
+          <Link href="/anfrage" className="btn-secondary" target="_blank">
+            Formular ansehen ↗
+          </Link>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-2 text-sm">

@@ -73,7 +73,7 @@ async function VerwaltungGate({ children }: { children: ReactNode }) {
     navItems.push({ href: "/planer", label: "Raumplaner" });
   }
   if (canViewKi(roles)) {
-    navItems.push({ href: "/ki-generator", label: "KI-Lektor" });
+    navItems.push({ href: "/ki-generator", label: "Lektionen-Generator" });
   }
   if (canManageBueroplan(roles)) {
     navItems.push({ href: "/bueroplan", label: "Büroplan" });
@@ -118,18 +118,18 @@ async function VerwaltungGate({ children }: { children: ReactNode }) {
       </header>
 
       <div className="flex flex-1">
-        <aside className="sticky top-13 hidden h-[calc(100svh-3.25rem)] w-56 shrink-0 flex-col overflow-y-auto bg-brand-100 px-3 py-4 md:flex">
+        <aside className="sticky top-13 hidden h-[calc(100svh-3.25rem)] w-56 shrink-0 flex-col overflow-y-auto bg-brand-800 px-3 py-4 md:flex">
           <NavLinks items={navItems} />
           {hasRole(roles, "TEILNEHMER") && (
             <Link
               href="/portal"
-              className="mt-3 block rounded-lg bg-white/60 px-3 py-1.5 text-sm font-medium text-brand-800 transition hover:bg-white"
+              className="mt-3 block rounded-lg bg-white/10 px-3 py-1.5 text-sm font-medium text-brand-50 transition hover:bg-white/20"
             >
               Mein Portal →
             </Link>
           )}
           <div className="mt-auto space-y-1 pt-4">
-            <p className="px-3 text-[11px] font-semibold tracking-wide text-brand-700/70 uppercase">
+            <p className="px-3 text-[11px] font-semibold tracking-wide text-brand-200 uppercase">
               Meine Rollen
             </p>
             <div className="flex flex-wrap gap-1 px-3 pt-1">
@@ -142,7 +142,7 @@ async function VerwaltungGate({ children }: { children: ReactNode }) {
 
         <main className="min-w-0 flex-1 px-4 py-5 md:px-6">
           {/* Mobile-Navigation */}
-          <div className="mb-4 md:hidden">
+          <div className="mb-4 rounded-xl bg-brand-800 p-2 md:hidden">
             <NavLinks items={navItems} />
           </div>
           {children}
@@ -161,7 +161,7 @@ function ShellSkeleton() {
         </div>
       </div>
       <div className="flex flex-1">
-        <div className="hidden w-56 shrink-0 bg-brand-100 md:block" />
+        <div className="hidden w-56 shrink-0 bg-brand-800 md:block" />
         <div className="m-6 h-64 flex-1 animate-pulse rounded-lg bg-slate-100" />
       </div>
     </div>

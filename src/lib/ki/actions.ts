@@ -63,7 +63,7 @@ async function requireKiAkteur(): Promise<{ akteur: KiAkteur } | { failure: Form
   const { user } = await requireStaff();
   const roles = roleList(user.roles) as Role[];
   if (!canViewKi(roles)) {
-    return { failure: { error: "Kein Zugriff auf den KI-Lektor." } };
+    return { failure: { error: "Kein Zugriff auf den Lektionen-Generator." } };
   }
   const name = `${user.firstName} ${user.lastName}`.trim() || user.email;
   return { akteur: { id: user.id, email: user.email, name, roles } };
@@ -123,7 +123,7 @@ export async function generiereKiLektionAction(
   if (!einstellungen.aktiv || !einstellungen.apiKey) {
     return {
       error:
-        "Die KI ist noch nicht konfiguriert. Admin: Stammdaten → KI-Lektor (OpenRouter-Key und Modell hinterlegen).",
+        "Die KI ist noch nicht konfiguriert. Admin: Stammdaten → Lektionen-Generator (OpenRouter-Key und Modell hinterlegen).",
     };
   }
 

@@ -159,6 +159,40 @@ export function urlaubRest(genutzt: number, kontingent: number): number {
   return kontingent - genutzt;
 }
 
+// ——— Jahresübersicht ————————————————————————————————————————————————
+
+/** Zusammenhängender Bereich gleicher Klassifikation in der Jahresansicht. */
+export interface JahresSegment {
+  vonKey: string;
+  bisKey: string;
+  /** Abwesenheits-Art; null = keine Abwesenheit (Wochenende färbt die Spalte). */
+  art: AbwesenheitArt | null;
+}
+
+/**
+ * Segmente eines Jahres für die horizontal scrollende Jahresübersicht:
+ * jeder Tag wird wie in planDesTages klassifiziert (erste deckende
+ * Abwesenheit gewinnt, unsortierte Bereiche passen nie), zusammenhängende
+ * Tage gleicher Art werden zu einem Segment zusammengefasst. Ranges über
+ * den Jahresrand sind durch den Tag-für-Tag-Weg automatisch geklemmt.
+ */
+export function jahresSegmente(abwesenheiten: readonly AbwesenheitBereich[], jahr: number): JahresSegment[] {
+  const segmente: JahresSegment[] = [];
+  let offen: JahresSegment | null = null;
+  for (let tag = jahrStart(jahr); tag <= jahrEnde(jahr); tag = addDays(tag, 1)) {
+    const abwesend = abwesenheiten.find((a) => a.vonKey <= tag && tag <= a.bisKey);
+    const art = abwesend ? abwesend.art : null;
+    if (offen && offen.art === art) {
+      offen.bisKey = tag;
+    } else {
+      if (offen) segmente.push(offen);
+      offen = { vonKey: tag, bisKey: tag, art };
+    }
+  }
+  if (offen) segmente.push(offen);
+  return segmente;
+}
+
 // ——— Validierungs-Helfer (auch für die Server-Actions) ——————————————
 
 /** "HH:mm" → Minuten seit Mitternacht (null bei ungültig). */

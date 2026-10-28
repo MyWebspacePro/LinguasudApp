@@ -7,6 +7,7 @@
 import { useActionState } from "react";
 
 import {
+  erfasseAnfrageManuellAction,
   hebeAnfrageZuordnungAufAction,
   setzeAnfrageStatusAction,
   zuordneAnfrageNeuePersonAction,
@@ -25,6 +26,91 @@ function FieldError({ message }: { message?: string }) {
 export interface OptionItem {
   id: string;
   label: string;
+}
+
+/** Manuelle Anfrage-Erfassung durchs Büro (z.B. telefonischer Eingang). */
+export function AnfrageErfassenForm({
+  sprachen,
+  niveaus,
+}: {
+  sprachen: readonly OptionItem[];
+  niveaus: readonly OptionItem[];
+}) {
+  const [state, formAction] = useActionState(erfasseAnfrageManuellAction, idleFormState);
+
+  return (
+    <form action={formAction} className="card space-y-4 p-5">
+      <FormAlert state={state} />
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div>
+          <label htmlFor="anf-neu-name" className="label">
+            Name *
+          </label>
+          <input id="anf-neu-name" name="name" className="input" required placeholder="Vor- und Nachname" />
+          <FieldError message={state.fieldErrors?.name} />
+        </div>
+        <div>
+          <label htmlFor="anf-neu-email" className="label">
+            E-Mail *
+          </label>
+          <input id="anf-neu-email" name="email" type="email" className="input" required placeholder="name@beispiel.ch" />
+          <FieldError message={state.fieldErrors?.email} />
+        </div>
+        <div>
+          <label htmlFor="anf-neu-telefon" className="label">
+            Telefon
+          </label>
+          <input id="anf-neu-telefon" name="telefon" className="input" placeholder="Optional" />
+        </div>
+        <div>
+          <label htmlFor="anf-neu-sprache" className="label">
+            Sprache
+          </label>
+          <select id="anf-neu-sprache" name="spracheId" className="input" defaultValue="">
+            <option value="">Keine Angabe</option>
+            {sprachen.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="anf-neu-niveau" className="label">
+            Gewünschtes Niveau
+          </label>
+          <select id="anf-neu-niveau" name="niveauId" className="input" defaultValue="">
+            <option value="">Keine Angabe</option>
+            {niveaus.map((n) => (
+              <option key={n.id} value={n.id}>
+                {n.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+      <div>
+        <label htmlFor="anf-neu-nachricht" className="label">
+          Notiz / Anliegen
+        </label>
+        <textarea
+          id="anf-neu-nachricht"
+          name="nachricht"
+          className="input"
+          rows={4}
+          placeholder="z.B. Telefonnotiz: sucht Kurs ab Januar, zwei Abende pro Woche"
+        />
+      </div>
+      <div className="flex flex-wrap items-center gap-3">
+        <SubmitButton className="btn-primary" pendingText="Erfasse …">
+          Anfrage erfassen
+        </SubmitButton>
+        <p className="text-xs text-slate-500">
+          Erscheint wie ein Website-Eingang als «offen» — ohne Bestätigungs-Mail an die Person.
+        </p>
+      </div>
+    </form>
+  );
 }
 
 /**

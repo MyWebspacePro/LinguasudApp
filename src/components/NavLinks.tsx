@@ -9,8 +9,9 @@ export interface NavItem {
 }
 
 /**
- * Hauptnavigation mit aktiver Markierung. Optimierte Darstellung auf der
- * bordeaux-getönten Sidebar: aktiver Eintrag als weisse Fläche mit Schatten
+ * Hauptnavigation mit aktiver Markierung. Optimiert für die dunkle
+ * Bordeaux-Sidebar (deshalb nur innerhalb eines `bg-brand-800`-Containers
+ * einsetzen): helle Schrift, aktiver Eintrag als weisse Fläche mit Schatten
  * (moderner «Pill»-Stil), inaktive Einträge ruhig und gut lesbar.
  */
 export function NavLinks({ items }: { items: NavItem[] }) {
@@ -29,7 +30,7 @@ export function NavLinks({ items }: { items: NavItem[] }) {
             className={
               active
                 ? "block rounded-lg bg-white px-3 py-1.5 text-sm font-semibold text-brand-800 shadow-sm"
-                : "block rounded-lg px-3 py-1.5 text-sm font-medium text-brand-900/75 transition hover:bg-white/60 hover:text-brand-900"
+                : "block rounded-lg px-3 py-1.5 text-sm font-medium text-brand-100 transition hover:bg-white/10 hover:text-white"
             }
           >
             {item.label}

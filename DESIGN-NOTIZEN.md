@@ -16,6 +16,10 @@ wirken auf alle Seiten.
   Hinweise `slate-400 → slate-500`; Placeholder und Tabellenköpfe
   nachgezogen.
 - **Moderne Radien**: Karten/Inputs/Buttons/Alerts `rounded-lg`.
+- **Sidebar dunkel (27.10.2026)**: Panel `bg-brand-100 → bg-brand-800`
+  (dunkles Magenta/Bordeaux) mit heller Schrift (`brand-100`/`brand-50`);
+  aktiver Nav-Eintrag bleibt weisse Fläche («Pill»), Mobile-Nav als
+  dunkles gerundetes Panel.
 
 ## Für die grosse Design-Runde (nach Modul 2)
 

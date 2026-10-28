@@ -6,15 +6,17 @@ import { db, fromDbTime, type Role } from "@/lib/db";
 import { requireStaff } from "@/lib/auth/session";
 import { canManageBueroplan } from "@/lib/auth/permissions";
 import { RoleBadge } from "@/components/RoleBadge";
-import { addDays, dateKeyOf, formatDatum, formatDatumKurz, heuteDateKey, parseDateKey, weekdayOfDateKey, WOCHENTAG_KURZ } from "@/lib/zeit";
+import { addDays, dateKeyOf, formatDatum, formatDatumKurz, heuteDateKey, MONAT_NAMEN, parseDateKey, tageZwischen, weekdayOfDateKey, WOCHENTAG_KURZ } from "@/lib/zeit";
 import {
   BUERO_ABWESENHEIT_LABELS,
+  jahresSegmente,
   kontingentFuerJahr,
   planDesTages,
   urlaubRest,
   urlaubstageImJahr,
   wochenStart,
   wochenTage,
+  type AbwesenheitArt,
   type AbwesenheitBereich,
   type DienstBlock,
   type TagesAbweichung,
@@ -30,7 +32,15 @@ function datumKeyVon(s: string): string {
   return dateKeyOf(fromDbTime(s));
 }
 
-/** Büroplan (Modul 8): eigene Wochenansicht der Dienst- & Urlaubsplanung — bewusst nicht im Raumplaner. */
+/** Balken-Farben der Jahresübersicht (Familien wie in der Wochenansicht). */
+const JAHR_BALKEN_STILE: Record<AbwesenheitArt, string> = {
+  URLAUB: "bg-sky-300",
+  KRANKHEIT: "bg-red-300",
+  SONSTIGE: "bg-violet-300",
+};
+
+/** Büroplan (Modul 8): Wochenansicht plus horizontal scrollende Jahresübersicht
+ * der Dienst- & Urlaubsplanung — bewusst nicht im Raumplaner. */
 export default function BueroplanPage({
   searchParams,
 }: {
@@ -59,6 +69,9 @@ async function BueroplanContent({
   const montag = wochenStart(startRaw);
   const tage = wochenTage(montag);
   const anzeigeJahr = Number(tage[6]!.slice(0, 4));
+  // Jahr der Übersicht: expliziter ?jahr=-Parameter, sonst das Jahr der angezeigten Woche.
+  const jahr =
+    typeof params.jahr === "string" && /^(19|20)\d{2}$/.test(params.jahr) ? Number(params.jahr) : anzeigeJahr;
 
   const [personen, diensteRows, abweichungenRows, abwesenheitenRows, kontingenteRows] = await Promise.all([
     ladeBueropersonen(),
@@ -90,6 +103,19 @@ async function BueroplanContent({
     liste.push({ art: a.art, vonKey: datumKeyVon(a.von), bisKey: datumKeyVon(a.bis), bemerkung: a.bemerkung });
     abwesenheitenProPerson.set(a.personId, liste);
   }
+
+  // Jahresübersicht: alle Tages-Spalten des Jahres plus Monats-Blöcke der Kopfzeile.
+  const jahrStartKey = `${jahr}-01-01`;
+  const jahrEndKey = `${jahr}-12-31`;
+  const jahresTage: string[] = [];
+  for (let t = jahrStartKey; t <= jahrEndKey; t = addDays(t, 1)) {
+    jahresTage.push(t);
+  }
+  const monate = Array.from({ length: 12 }, (_, i) => {
+    const erster = `${jahr}-${String(i + 1).padStart(2, "0")}-01`;
+    const letzter = i < 11 ? addDays(`${jahr}-${String(i + 2).padStart(2, "0")}-01`, -1) : jahrEndKey;
+    return { name: MONAT_NAMEN[i]!, tage: tageZwischen(erster, letzter) + 1 };
+  });
 
   return (
     <div className="space-y-4">
@@ -193,6 +219,139 @@ async function BueroplanContent({
         </div>
       )}
 
+      {personen.length > 0 && (
+        <section className="space-y-2">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-base font-semibold text-slate-900">Jahresübersicht {jahr}</h2>
+              <p className="mt-0.5 text-sm text-slate-600">
+                Jede Zeile eine Person, jede Spalte ein Tag — Abwesenheiten als Balken, graue Spalten sind
+                Wochenende. Querst scrollen für die vollen zwölf Monate.
+              </p>
+            </div>
+            <nav className="flex items-center gap-1 text-sm" aria-label="Jahres-Navigation">
+              <Link
+                href={`/bueroplan?start=${startRaw}&jahr=${jahr - 1}`}
+                className="btn-secondary px-3 py-1.5"
+                aria-label="Vorheriges Jahr"
+              >
+                ‹
+              </Link>
+              <span className="px-2 text-sm font-medium text-slate-700 tabular-nums">{jahr}</span>
+              <Link
+                href={`/bueroplan?start=${startRaw}&jahr=${jahr + 1}`}
+                className="btn-secondary px-3 py-1.5"
+                aria-label="Nächstes Jahr"
+              >
+                ›
+              </Link>
+            </nav>
+          </div>
+
+          <div className="card overflow-x-auto p-0">
+            {/* Border-separate statt collapse: Sticky-Spalte verliert sonst ihre Rahmen beim Querstrollen. */}
+            <table className="table-fixed border-separate border-spacing-0 text-sm">
+              <colgroup>
+                <col className="w-64" />
+                {jahresTage.map((t) => {
+                  const wochentag = weekdayOfDateKey(t);
+                  return (
+                    <col
+                      key={t}
+                      className={`w-5 ${wochentag === 7 ? "bg-slate-100" : wochentag === 6 ? "bg-slate-50" : ""}`}
+                    />
+                  );
+                })}
+              </colgroup>
+              <thead>
+                <tr>
+                  <th
+                    rowSpan={2}
+                    className="sticky left-0 z-20 border-r border-b border-line bg-paper px-3 py-2 text-left text-xs font-semibold tracking-wide text-slate-500 uppercase"
+                  >
+                    Person · Urlaub {jahr}
+                  </th>
+                  {monate.map((m) => (
+                    <th
+                      key={m.name}
+                      colSpan={m.tage}
+                      className="border-b border-l border-line px-1 py-1.5 text-center text-xs font-semibold text-slate-600"
+                    >
+                      {m.name}
+                    </th>
+                  ))}
+                </tr>
+                <tr>
+                  {jahresTage.map((t, i) => (
+                    <th
+                      key={t}
+                      className={`border-b border-line px-0 py-1 text-center text-[10px] font-normal tabular-nums ${
+                        t === heute ? "bg-sky-200 font-semibold text-sky-950" : "text-slate-400"
+                      } ${
+                        i === 0
+                          ? ""
+                          : weekdayOfDateKey(t) === 1
+                            ? "border-l border-slate-300"
+                            : "border-l border-line"
+                      }`}
+                    >
+                      {Number(t.slice(8))}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {personen.map((p) => {
+                  const abwesenheiten = abwesenheitenProPerson.get(p.personId) ?? [];
+                  const segmente = jahresSegmente(abwesenheiten, jahr);
+                  const genutzt = urlaubstageImJahr(abwesenheiten, jahr);
+                  const kontingent = kontingentFuerJahr(
+                    kontingenteRows.filter((k) => k.personId === p.personId),
+                    jahr,
+                  );
+                  const rest = urlaubRest(genutzt, kontingent);
+                  return (
+                    <tr key={p.personId}>
+                      <td className="sticky left-0 z-10 border-r border-b border-line bg-paper px-3 py-2">
+                        <div className="flex items-baseline justify-between gap-2">
+                          <Link
+                            href={`/bueroplan/${p.personId}`}
+                            className="min-w-0 truncate font-medium text-brand-700 hover:text-brand-800"
+                            title={p.name}
+                          >
+                            {p.name}
+                          </Link>
+                          <span
+                            className={`shrink-0 text-xs tabular-nums ${rest < 0 ? "font-semibold text-red-700" : "text-slate-500"}`}
+                            title={`Urlaub ${jahr}: ${genutzt} von ${kontingent} Tagen genutzt`}
+                          >
+                            {genutzt} / {kontingent}
+                          </span>
+                        </div>
+                      </td>
+                      {segmente.map((s) => (
+                        <td
+                          key={s.vonKey}
+                          colSpan={tageZwischen(s.vonKey, s.bisKey) + 1}
+                          className="border-b border-line px-0 py-1.5 align-middle"
+                        >
+                          {s.art && (
+                            <div
+                              className={`mx-0.5 h-3.5 rounded-sm ${JAHR_BALKEN_STILE[s.art]}`}
+                              title={`${BUERO_ABWESENHEIT_LABELS[s.art]}: ${formatDatum(s.vonKey)} – ${formatDatum(s.bisKey)}`}
+                            />
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
       <div className="flex flex-wrap gap-2 text-xs text-slate-600">
         <span className="rounded bg-sky-100 px-2 py-0.5 font-medium text-sky-800">Urlaub</span>
         <span className="rounded bg-red-100 px-2 py-0.5 font-medium text-red-800">Krankheit</span>
@@ -201,6 +360,9 @@ async function BueroplanContent({
         </span>
         <span className="rounded bg-amber-100 px-2 py-0.5 font-medium text-amber-800">abweichende Arbeitszeit</span>
         <span className="rounded bg-slate-100 px-2 py-0.5 font-medium text-slate-700">dienstfrei</span>
+        <span className="rounded border border-line bg-slate-50 px-2 py-0.5 font-medium text-slate-500">
+          Wochenende (Jahresübersicht)
+        </span>
       </div>
     </div>
   );

@@ -88,7 +88,7 @@ async function StammdatenContent() {
             href="/stammdaten/ki-generator"
             className="card p-5 transition hover:border-brand-300 hover:shadow"
           >
-            <p className="text-sm font-semibold text-slate-900">KI-Lektor (OpenRouter)</p>
+            <p className="text-sm font-semibold text-slate-900">Lektionen-Generator (OpenRouter)</p>
             <p className="mt-1 text-sm text-brand-700">API-Key &amp; Modell</p>
             <p className="mt-1 text-xs text-slate-600">
               Anbindung des KI-Lektionsgenerators aktivieren, Modell wählen und Key verwalten.
