@@ -61,6 +61,20 @@ function betrag(wert: string): string {
   return Number(wert).toLocaleString("de-CH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+/**
+ * StandardFonts.Helvetica nutzt WinAnsiEncoding — Zeichen ausserhalb von
+ * WinAnsi (z. B. Unicode-Minus U+2212 «−») führen in pdf-lib sonst zum
+ * Laufzeitfehler.
+ */
+function winAnsi(text: string): string {
+  return text
+    .replace(/\u2212/g, "-")
+    .replace(/[\u2018\u2019\u201A]/g, "'")
+    .replace(/[\u201C\u201D\u201E]/g, '"')
+    .replace(/\u2026/g, "...")
+    .replace(/[^\x20-\x7E\xA0-\xFF]/g, "");
+}
+
 /** Referenznummer in 2er/5er-Blöcken ("21 00000 00003 …"). */
 export function gruppiereReferenz(referenz: string): string {
   const gruppen: string[] = [referenz.slice(0, 2)];
@@ -79,9 +93,10 @@ export async function baueRechnungsPdf(daten: RechnungPdfDaten): Promise<Uint8Ar
   const schrift = (page: PDFPage, text: string, x: number, y: number, size: number, opts?: { bold?: boolean; grau?: boolean; farbe?: ReturnType<typeof rgb>; align?: "rechts" }) => {
     const f = opts?.bold ? fontBold : font;
     const farbe = opts?.farbe ?? (opts?.grau ? GRAU : SCHWARZ);
+    const sauber = winAnsi(text);
     let xF = x;
-    if (opts?.align === "rechts") xF = x - f.widthOfTextAtSize(text, size);
-    page.drawText(text, { x: xF, y, size, font: f, color: farbe });
+    if (opts?.align === "rechts") xF = x - f.widthOfTextAtSize(sauber, size);
+    page.drawText(sauber, { x: xF, y, size, font: f, color: farbe });
   };
 
   let page = pdf.addPage([A4.breite, A4.hoehe]);
@@ -146,7 +161,7 @@ export async function baueRechnungsPdf(daten: RechnungPdfDaten): Promise<Uint8Ar
   y -= 18;
 
   const umbrechen = (text: string, breite: number, size: number, f: PDFFont): string[] => {
-    const woerter = text.split(/\s+/);
+    const woerter = winAnsi(text).split(/\s+/);
     const zeilen: string[] = [];
     let aktuelle = "";
     for (const wort of woerter) {
@@ -162,11 +177,12 @@ export async function baueRechnungsPdf(daten: RechnungPdfDaten): Promise<Uint8Ar
     return zeilen;
   };
 
+  const sektionTop = ZAHLTEIL_HOEHE;
   const positionstextBreite = spalteMenge - RAND - 24;
   for (const position of daten.positionen) {
     const zeilen = umbrechen(position.text, positionstextBreite, 9.5, font);
     // Platz prüfen: auf neuer Seite fortfahren (Zahlteil bleibt auf der letzten Seite).
-    if (y - zeilen.length * 12 < A4.hoehe * 0.22) {
+    if (y - zeilen.length * 12 < sektionTop + mm(28)) {
       page = pdf.addPage([A4.breite, A4.hoehe]);
       y = A4.hoehe - RAND - 20;
       schrift(page, `Rechnung ${daten.nummer} (Fortsetzung)`, RAND, y, 10, { bold: true, grau: true });
@@ -203,7 +219,7 @@ export async function baueRechnungsPdf(daten: RechnungPdfDaten): Promise<Uint8Ar
   }
   const bezahlt = Number(daten.bezahltChf);
   if (bezahlt > 0) {
-    summenZeile("Bereits bezahlt", `−${betrag(daten.bezahltChf)}`);
+    summenZeile("Bereits bezahlt", `-${betrag(daten.bezahltChf)}`);
     const rest = Math.max(0, Number(daten.totalChf) - bezahlt).toFixed(2);
     summenZeile("Restbetrag", betrag(rest), true, 12);
   } else {
@@ -213,6 +229,10 @@ export async function baueRechnungsPdf(daten: RechnungPdfDaten): Promise<Uint8Ar
 
   if (daten.notiz) {
     for (const zeile of umbrechen(daten.notiz, A4.breite - 2 * RAND, 9, font)) {
+      if (y - 12 < sektionTop + 10) {
+        page = pdf.addPage([A4.breite, A4.hoehe]);
+        y = A4.hoehe - RAND - 20;
+      }
       schrift(page, zeile, RAND, y, 9, { grau: true });
       y -= 12;
     }
@@ -222,7 +242,6 @@ export async function baueRechnungsPdf(daten: RechnungPdfDaten): Promise<Uint8Ar
   // ——— Zahlungshinweis über dem Zahlteil — nur wenn er ohne Überlappung
   // passt; sonst entfällt er (Referenz, Fälligkeit und IBAN stehen im
   // QR-Zahlteil selbst). ———
-  const sektionTop = A4.hoehe - ZAHLTEIL_HOEHE;
   if (y - 48 > sektionTop + 10) {
     schrift(page, `Zahlbar bis spätestens am ${formatDatum(daten.faelligAm)} auf die folgende Konto-Verbindung:`, RAND, y, 9, { grau: true });
     y -= 12;
@@ -254,9 +273,9 @@ async function zeichneZahlteil(
   fontBold: PDFFont,
 ): Promise<void> {
   const page = pdf.getPages()[pdf.getPageCount() - 1];
-  const sektionTop = A4.hoehe - ZAHLTEIL_HOEHE;
+  const sektionTop = ZAHLTEIL_HOEHE;
   const zeile = (text: string, x: number, yOffset: number, size: number, bold = false, grau = false) =>
-    page.drawText(text, { x, y: yOffset, size, font: bold ? fontBold : font, color: grau ? GRAU : SCHWARZ });
+    page.drawText(winAnsi(text), { x, y: yOffset, size, font: bold ? fontBold : font, color: grau ? GRAU : SCHWARZ });
 
   // Umrandung der Sektion + Perforationslinien ( gestrichelt )
   const gestrichelt = [2, 2];
@@ -266,7 +285,7 @@ async function zeichneZahlteil(
   // ——— Empfangsschein (links) ———
   const rx = 10;
   zeile("Empfangsschein", rx, sektionTop - 16, 7, true, true);
-  let y = sektionTop - 44;
+  let y = sektionTop - 34;
   for (const zeileText of [daten.schule.name, daten.schule.strasse, `${daten.schule.plz} ${daten.schule.ort}`]) {
     zeile(zeileText, rx, y, 6.5);
     y -= 8;
@@ -291,7 +310,7 @@ async function zeichneZahlteil(
   zeile("Zahlteil", qx, sektionTop - 16, 7, true, true);
 
   const qrGroesse = mm(46);
-  const qrY = mm(6);
+  const qrY = sektionTop - 32 - qrGroesse;
   const qrPng = await QRCode.toBuffer(daten.qrPayload, {
     errorCorrectionLevel: "M",
     margin: 0,
@@ -311,7 +330,7 @@ async function zeichneZahlteil(
 
   // Labels rechts vom QR-Code.
   const lx = qx + qrGroesse + mm(8);
-  let ly = sektionTop - 48;
+  let ly = sektionTop - 36;
   zeile("Währung / Betrag", lx, ly, 6, false, true);
   ly -= 9;
   zeile("CHF " + betrag(offenerBetrag(daten)), lx, ly, 10, true);

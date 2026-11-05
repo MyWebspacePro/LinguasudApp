@@ -429,16 +429,19 @@ async function OffeneAnwesenheiten({ user, roles }: { user: { personId: string |
     .include("kurs")
     .include("lehrperson");
   if (eigenePersonId) query = query.where((l) => l.lehrpersonId.eq(eigenePersonId));
-  const offene = await query.orderBy((l) => l.startAt.desc()).limit(10).all();
+  const kandidaten = await query.orderBy((l) => l.startAt.desc()).limit(20).all();
+  const offene = kandidaten
+    .filter((l) => fromDbTime(l.startAt).getTime() + l.dauerMinuten * 60_000 <= jetzt.getTime())
+    .slice(0, 10);
   if (offene.length === 0) return null;
 
-  // Erfassungsfortschritt: aktive Anmeldungen je Kurs, Anwesenheiten je Lektion.
+  // Erfassungsfortschritt: aktive/Probe-Anmeldungen je Kurs, Anwesenheiten je Lektion.
   const kursIds = [...new Set(offene.map((l) => l.kursId))];
   const lektionIds = offene.map((l) => l.id);
   const [anmeldungen, erfasst] = await Promise.all([
     db.orm.public.Anmeldung
       .where((a) => a.kursId.in(kursIds))
-      .where((a) => a.status.eq("AKTIV"))
+      .where((a) => a.status.in(["AKTIV", "PROBE"]))
       .all(),
     db.orm.public.Anwesenheit.where((a) => a.lektionId.in(lektionIds)).all(),
   ]);

@@ -16,6 +16,7 @@ import { normalizeTimeInput } from "@/lib/stammdaten/tarif";
 import { formatDatumKurz, parseDateKey, timeFromMinutes, utcToZoned, weekdayOfDateKey, zonedTimeToUtc } from "@/lib/zeit";
 import { generiereLektionen } from "@/lib/kurse/lektionsgenerierung";
 import { informiereKursteilnehmende } from "@/lib/kurse/benachrichtigung";
+import { erledigeAutomatikAufgabe } from "@/lib/aufgaben/automatik";
 
 const str = (fd: FormData, key: string) => String(fd.get(key) ?? "").trim();
 
@@ -245,6 +246,7 @@ export async function sageLektionAbAction(_prev: FormState, formData: FormData):
   if (lektion.status === "ABGESAGT") return { error: "Die Lektion ist bereits abgesagt." };
 
   await db.orm.public.Lektion.where({ id: lektionId }).update({ status: "ABGESAGT", notiz: grund });
+  await erledigeAutomatikAufgabe(`anwesenheit:${lektionId}`, actor.name);
 
   const benachrichtigung = await informiereKursteilnehmende({
     kursId: lektion.kursId,

@@ -15,7 +15,7 @@ import { canManageWebsite } from "@/lib/auth/permissions";
 import { recordAudit } from "@/lib/audit";
 import type { FormState } from "@/lib/forms";
 import { zonedTimeToUtc } from "@/lib/zeit";
-import { istGueltigerSlug, istSlugVerboten } from "./logik";
+import { istGueltigerSlug, istSichereUrl, istSlugVerboten } from "./logik";
 
 const str = (fd: FormData, key: string) => String(fd.get(key) ?? "").trim();
 
@@ -273,6 +273,12 @@ export async function speicherePopupAction(_prev: FormState, formData: FormData)
   }
   if (buttonLabel && !buttonUrl) fieldErrors.buttonUrl = "Button braucht eine URL (oder Button-Label entfernen)";
   if (buttonUrl && !buttonLabel) fieldErrors.buttonLabel = "URL ohne Label — bitte Button-Text angeben";
+  if (buttonUrl && !istSichereUrl(buttonUrl)) {
+    fieldErrors.buttonUrl = "Bitte einen relativen Pfad (/anfrage) oder eine gültige https://-URL angeben";
+  }
+  if (bildUrl && !istSichereUrl(bildUrl)) {
+    fieldErrors.bildUrl = "Bitte einen relativen Pfad (/...) oder eine gültige https://-URL angeben";
+  }
   if (Object.keys(fieldErrors).length > 0) {
     return { error: "Bitte prüfen Sie die Eingaben.", fieldErrors };
   }

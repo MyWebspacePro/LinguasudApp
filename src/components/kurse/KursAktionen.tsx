@@ -131,8 +131,8 @@ export function UnterbrechungenPanel({
   const heute = heuteDateKey();
 
   const statusOf = (u: KursUnterbrechungRow) => {
-    const von = new Date(u.von).toISOString().slice(0, 10);
-    const bis = new Date(u.bis).toISOString().slice(0, 10);
+    const von = String(u.von).slice(0, 10);
+    const bis = String(u.bis).slice(0, 10);
     if (bis < heute) return <span className="text-xs text-slate-500">beendet</span>;
     if (von > heute) return <span className="text-xs text-sky-700">geplant</span>;
     return <span className="text-xs font-semibold text-amber-700">laufend</span>;
@@ -143,8 +143,8 @@ export function UnterbrechungenPanel({
       {unterbrechungen.length > 0 ? (
         <ul className="divide-y divide-line text-sm">
           {unterbrechungen.map((u) => {
-            const von = new Date(u.von).toISOString().slice(0, 10);
-            const bis = new Date(u.bis).toISOString().slice(0, 10);
+            const von = String(u.von).slice(0, 10);
+            const bis = String(u.bis).slice(0, 10);
             return (
               <li key={u.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
                 <span>

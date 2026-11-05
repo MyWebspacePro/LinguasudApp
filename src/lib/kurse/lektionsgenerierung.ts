@@ -5,7 +5,7 @@ import "server-only";
 // bestehende Termine bleiben unberührt). Läuft nächtlich (lektionsjob.ts)
 // und manuell per Planer-Button.
 
-import { db, toDbTime } from "@/lib/db";
+import { db, fromDbTime, toDbTime } from "@/lib/db";
 import { geplanteTermine, horizonVonBis, type UnterbrechungsZeitraum } from "./lektionsplan";
 import { addDays, dateKeyOf, heuteDateKey } from "@/lib/zeit";
 
@@ -39,8 +39,8 @@ export async function generiereLektionen(heuteKey: string = heuteDateKey()): Pro
     if (!kurs.wochentag || !kurs.startZeit || !kurs.dauerMinuten) continue;
 
     const unterbrechungen: UnterbrechungsZeitraum[] = kurs.unterbrechungen.map((u) => ({
-      vonKey: dateKeyOf(new Date(u.von)),
-      bisKey: dateKeyOf(new Date(u.bis)),
+      vonKey: dateKeyOf(fromDbTime(u.von)),
+      bisKey: dateKeyOf(fromDbTime(u.bis)),
     }));
     const termine = geplanteTermine(
       { wochentag: kurs.wochentag, startZeit: kurs.startZeit, dauerMinuten: kurs.dauerMinuten },
@@ -57,7 +57,7 @@ export async function generiereLektionen(heuteKey: string = heuteDateKey()): Pro
       .where((l) => l.startAt.lte(toDbTime(new Date(`${addDays(bisKey, 1)}T00:00:00Z`))))
       .select("startAt")
       .all();
-    const vorhandenSet = new Set(vorhandene.map((l) => new Date(l.startAt).toISOString()));
+    const vorhandenSet = new Set(vorhandene.map((l) => fromDbTime(l.startAt).toISOString()));
 
     for (const termin of termine) {
       if (vorhandenSet.has(termin.startUtcISO)) continue;

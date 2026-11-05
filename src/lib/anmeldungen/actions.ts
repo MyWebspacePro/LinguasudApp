@@ -19,7 +19,7 @@ import { sendMail } from "@/lib/mail";
 import { dateKeyToUtcMidnight, addDays, heuteDateKey, parseDateKey } from "@/lib/zeit";
 import { autoTarifstufe, verbrauchtImPaket, type TarifstufeOption } from "./paket";
 import { erstellePaketRechnung } from "@/lib/rechnungen/erstellung";
-import { erstelleAutomatischeAufgabe } from "@/lib/aufgaben/automatik";
+import { erledigeAutomatikAufgabe, erstelleAutomatischeAufgabe } from "@/lib/aufgaben/automatik";
 
 const str = (fd: FormData, key: string) => String(fd.get(key) ?? "").trim();
 
@@ -324,6 +324,8 @@ export async function beendeAnmeldungAction(_prev: FormState, formData: FormData
     status: "BEENDET",
     paketEntscheid: "BEENDET",
   });
+  await erledigeAutomatikAufgabe(`paketende:${anmeldungId}`, actor.name);
+  await erledigeAutomatikAufgabe(`paketende:${anmeldungId}:${String(anmeldung.paketStartAt).slice(0, 10)}`, actor.name);
   await recordAudit({
     actor,
     action: "anmeldung.beenden",
@@ -494,6 +496,9 @@ export async function paketVerlaengernAction(_prev: FormState, formData: FormDat
     });
   });
 
+  await erledigeAutomatikAufgabe(`paketende:${anmeldungId}`, actor.name);
+  await erledigeAutomatikAufgabe(`paketende:${anmeldungId}:${String(anmeldung.paketStartAt).slice(0, 10)}`, actor.name);
+
   await recordAudit({
     actor,
     action: "anmeldung.paket_verlaengert",
@@ -575,7 +580,7 @@ export async function paketErinnernAction(_prev: FormState, formData: FormData):
   try {
     await erstelleAutomatischeAufgabe({
       quelle: "paketende",
-      dedupKey: `paketende:${anmeldungId}`,
+      dedupKey: `paketende:${anmeldungId}:${String(anmeldung.paketStartAt).slice(0, 10)}`,
       titel: `Paket-Ende: Entscheidung von ${anmeldung.person.vorname} ${anmeldung.person.nachname} (${anmeldung.kurs.code}) offen`,
       beschreibung:
         "Teilnehmende(r) wurde am Paket-Ende informiert («fortfahren oder beenden?»). " +

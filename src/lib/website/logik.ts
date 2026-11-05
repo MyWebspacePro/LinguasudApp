@@ -22,7 +22,38 @@ export const RESERVIERTER_ROOT = new Set([
   "login",
   "passwort-aendern",
   "api",
+  "dashboard",
+  "benutzer",
+  "personen",
+  "audit",
+  "stammdaten",
+  "kurse",
+  "anmeldungen",
+  "planer",
+  "bueroplan",
+  "rechnungen",
+  "honorare",
+  "vermietungen",
+  "aufgaben",
+  "anfragen",
+  "ki-generator",
+  "website",
+  "robots.txt",
+  "sitemap.xml",
 ]);
+
+/** Erlaubte URL-Schemata für Links/Bilder im CMS (verhindert javascript:-URLs). */
+export function istSichereUrl(url: string): boolean {
+  const u = url.trim();
+  if (!u) return false;
+  return (
+    (u.startsWith("/") && !u.startsWith("//")) ||
+    u.startsWith("https://") ||
+    u.startsWith("http://") ||
+    u.startsWith("mailto:") ||
+    u.startsWith("tel:")
+  );
+}
 
 /** Slug aus einem Namen (z.B. Sprache «Französisch» → «franzoesisch»). */
 export function slugifyName(name: string): string {

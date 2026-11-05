@@ -45,6 +45,15 @@ export interface BestaetigungPdfDaten {
 const A4 = { breite: mm(210), hoehe: mm(297) } as const;
 const RAND = mm(20);
 
+function winAnsi(text: string): string {
+  return text
+    .replace(/\u2212/g, "-")
+    .replace(/[\u2018\u2019\u201A]/g, "'")
+    .replace(/[\u201C\u201D\u201E]/g, '"')
+    .replace(/\u2026/g, "...")
+    .replace(/[^\x20-\x7E\xA0-\xFF]/g, "");
+}
+
 /** Erzeugt das Kursbestätigungs-PDF (eine Seite A4). */
 export async function baueBestaetigungsPdf(daten: BestaetigungPdfDaten): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
@@ -63,8 +72,9 @@ export async function baueBestaetigungsPdf(daten: BestaetigungPdfDaten): Promise
   ) => {
     const f = opts?.bold ? fontBold : font;
     const farbe = opts?.farbe ?? (opts?.grau ? GRAU : SCHWARZ);
-    const xF = opts?.align === "rechts" ? x - f.widthOfTextAtSize(text, size) : x;
-    page.drawText(text, { x: xF, y, size, font: f, color: farbe });
+    const sauber = winAnsi(text);
+    const xF = opts?.align === "rechts" ? x - f.widthOfTextAtSize(sauber, size) : x;
+    page.drawText(sauber, { x: xF, y, size, font: f, color: farbe });
   };
 
   // ——— Briefkopf: Logo (Platzhalter-Asset) + Schuladresse ———

@@ -12,6 +12,8 @@ import { baueRechnungsPdf, type RechnungPdfPosition } from "./pdf";
 export function baueQrPayloadFuerRechnung(daten: {
   qrIban: string;
   empfaenger: { name: string; strasse: string; plz: string; ort: string };
+  zahlungspflichtiger?: { name: string; strasse: string; plz: string; ort: string; land: string } | null;
+  faelligAm?: string | null;
   totalChf: string;
   referenzNr: string;
   nummer: string;
@@ -31,9 +33,10 @@ export function baueQrPayloadFuerRechnung(daten: {
       ort: env.QR_RECHNUNG_ORT!,
       land: env.QR_RECHNUNG_LAND,
     },
+    zahlungspflichtiger: daten.zahlungspflichtiger ?? undefined,
     betragChf: daten.totalChf,
     waehrung: "CHF",
-    faelligAm: null,
+    faelligAm: daten.faelligAm ?? null,
     referenzNr: daten.referenzNr,
     mitteilung: `Rechnung ${daten.nummer}`,
   });
@@ -54,12 +57,26 @@ export async function ladeRechnungsPdf(rechnungId: string): Promise<RechnungPdfL
     .orderBy((p) => p.reihenfolge.asc())
     .all();
   const zahlungen = await db.orm.public.Zahlung.where({ rechnungId }).all();
+  const bezahlt = zahlungen.reduce((summe, z) => summe + Number(z.betragChf), 0);
+  const offenerChf =
+    bezahlt > 0
+      ? Math.max(0, Number(rechnung.totalChf) - bezahlt).toFixed(2)
+      : String(rechnung.totalChf);
+  const faelligAm = datumKeyVonDb(rechnung.faelligAm);
 
   const env = getEnv();
   const qrPayload = baueQrPayloadFuerRechnung({
     qrIban: env.QR_RECHNUNG_QR_IBAN ?? "",
     empfaenger: { name: env.QR_RECHNUNG_NAME ?? "", strasse: env.QR_RECHNUNG_STRASSE ?? "", plz: env.QR_RECHNUNG_PLZ ?? "", ort: env.QR_RECHNUNG_ORT ?? "" },
-    totalChf: String(rechnung.totalChf),
+    zahlungspflichtiger: {
+      name: rechnung.empfaengerName,
+      strasse: rechnung.empfaengerStrasse,
+      plz: rechnung.empfaengerPlz,
+      ort: rechnung.empfaengerOrt,
+      land: rechnung.empfaengerLand,
+    },
+    faelligAm,
+    totalChf: offenerChf,
     referenzNr: rechnung.referenzNr,
     nummer: rechnung.nummer,
   });
@@ -70,13 +87,11 @@ export async function ladeRechnungsPdf(rechnungId: string): Promise<RechnungPdfL
     einzelpreisChf: String(p.einzelpreisChf),
   }));
 
-  const bezahlt = zahlungen.reduce((summe, z) => summe + Number(z.betragChf), 0);
-
   const daten = {
     nummer: rechnung.nummer,
     status: rechnung.status as Parameters<typeof baueRechnungsPdf>[0]["status"],
     rechnungsdatum: datumKeyVonDb(rechnung.rechnungsdatum),
-    faelligAm: datumKeyVonDb(rechnung.faelligAm),
+    faelligAm,
     empfaenger: {
       name: rechnung.empfaengerName,
       strasse: rechnung.empfaengerStrasse,

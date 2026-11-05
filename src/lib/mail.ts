@@ -87,6 +87,15 @@ export async function sendMail(input: MailInput): Promise<MailResult> {
 
 // ——— Vorlagen ———————————————————————————————————————————————————
 
+export function escapeHtml(wert: string): string {
+  return wert
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function brandWrapper(title: string, bodyHtml: string): string {
   return `<!doctype html>
 <html lang="de">
@@ -100,7 +109,7 @@ function brandWrapper(title: string, bodyHtml: string): string {
             </td>
           </tr>
           <tr><td style="padding:24px;">
-            <h1 style="margin:0 0 12px;font-size:17px;color:#0f172a;">${title}</h1>
+            <h1 style="margin:0 0 12px;font-size:17px;color:#0f172a;">${escapeHtml(title)}</h1>
             ${bodyHtml}
           </td></tr>
           <tr><td style="padding:14px 24px;border-top:1px solid #e7e4df;font-size:12px;color:#94a3b8;">
@@ -114,9 +123,10 @@ function brandWrapper(title: string, bodyHtml: string): string {
 }
 
 function buttonHtml(url: string, label: string): string {
-  return `<p style="margin:20px 0;"><a href="${url}" style="display:inline-block;background:#712544;color:#ffffff;text-decoration:none;padding:10px 20px;border-radius:6px;font-size:14px;">${label}</a></p>
+  const safeUrl = escapeHtml(url);
+  return `<p style="margin:20px 0;"><a href="${safeUrl}" style="display:inline-block;background:#712544;color:#ffffff;text-decoration:none;padding:10px 20px;border-radius:6px;font-size:14px;">${escapeHtml(label)}</a></p>
   <p style="margin:8px 0;font-size:13px;color:#475569;">Falls die Schaltfläche nicht funktioniert, kopieren Sie diesen Link in den Browser:<br>
-  <a href="${url}" style="color:#712544;word-break:break-all;">${url}</a></p>`;
+  <a href="${safeUrl}" style="color:#712544;word-break:break-all;">${safeUrl}</a></p>`;
 }
 
 /** Passwort-zurücksetzen-/Einladungs-Mail mit Einmal-Link (1 Stunde gültig). */
@@ -126,7 +136,7 @@ export function passwordResetMail(to: string, name: string, url: string, isInvit
     ? "für Sie wurde ein Zugang zur Linguasud-Verwaltung eingerichtet. Bitte setzen Sie damit Ihr persönliches Passwort."
     : "wir haben eine Anfrage zum Zurücksetzen Ihres Passworts erhalten. Sie können Ihr Passwort über den folgenden Link neu setzen.";
   const title = isInvite ? "Willkommen bei Linguasud" : "Passwort zurücksetzen";
-  const body = `<p style="margin:0 0 8px;font-size:14px;">${anrede}</p>
+  const body = `<p style="margin:0 0 8px;font-size:14px;">${escapeHtml(anrede)}</p>
     <p style="margin:0 0 8px;font-size:14px;">${intro}</p>
     <p style="margin:0 0 4px;font-size:13px;color:#64748b;">Der Link ist 60 Minuten gültig und kann nur einmal verwendet werden.</p>
     ${buttonHtml(url, isInvite ? "Passwort festlegen" : "Passwort neu setzen")}
@@ -139,7 +149,7 @@ export function passwordResetMail(to: string, name: string, url: string, isInvit
 
 function faktenZeilenHtml(zeilen: readonly string[]): string {
   return zeilen
-    .map((z) => `<p style="margin:0 0 4px;font-size:14px;">${z}</p>`)
+    .map((z) => `<p style="margin:0 0 4px;font-size:14px;">${escapeHtml(z)}</p>`)
     .join("");
 }
 
@@ -151,7 +161,7 @@ function faktenZeilenHtml(zeilen: readonly string[]): string {
 export function anfrageBestaetigungsMail(to: string, name: string, zeilen: readonly string[]): MailInput {
   const title = "Ihre Anfrage bei der Sprachschule linguasud";
   const body =
-    `<p style="margin:0 0 8px;font-size:14px;">Hallo ${name},</p>` +
+    `<p style="margin:0 0 8px;font-size:14px;">Hallo ${escapeHtml(name)},</p>` +
     `<p style="margin:0 0 8px;font-size:14px;">besten Dank für Ihre Anfrage — wir haben Ihre Angaben erhalten und melden uns in den nächsten Tagen bei Ihnen.</p>` +
     `<div style="margin:12px 0;padding:12px 16px;background:#faf9f7;border:1px solid #e7e4df;border-radius:6px;">${faktenZeilenHtml(zeilen)}</div>` +
     `<p style="margin:12px 0 0;font-size:13px;color:#64748b;">Freundliche Grüsse<br>Ihr Linguasud-Team</p>`;
@@ -173,7 +183,7 @@ export function anfrageBueroMail(
     faktenZeilenHtml(details.zeilen) +
     `</div>` +
     (details.nachricht
-      ? `<p style="margin:8px 0 0;font-size:14px;"><strong>Nachricht:</strong></p><p style="margin:4px 0 8px;font-size:14px;white-space:pre-line;">${details.nachricht}</p>`
+      ? `<p style="margin:8px 0 0;font-size:14px;"><strong>Nachricht:</strong></p><p style="margin:4px 0 8px;font-size:14px;white-space:pre-line;">${escapeHtml(details.nachricht)}</p>`
       : "") +
     `<p style="margin:12px 0 0;font-size:13px;color:#64748b;">Die Anfrage ist in der Verwaltung unter «Anfragen» erfasst; eine Aufgabe wurde angelegt.</p>`;
   const text =

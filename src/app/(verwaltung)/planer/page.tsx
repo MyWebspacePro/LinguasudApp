@@ -222,14 +222,17 @@ async function PlanerContent({
   });
 
   const konfliktBasis: PlanLektion[] = [
-    ...planLektionen.map((l) => ({
-      id: l.id,
-      raumId: l.raumId,
-      startMinute: l.startMinute,
-      dauerMinuten: l.dauerMinuten,
-      lehrpersonId: l.lehrKuerzel, // wird nur auf Gleichheit geprüft
-      ueberbuchbar: l.kursStatus !== "AKTIV" && l.kursStatus !== "GEPLANT" ? true : l.unterbrochen,
-    })),
+    ...planLektionen.map((l) => {
+      const row = relevanteRows.find((r) => r.id === l.id);
+      return {
+        id: l.id,
+        raumId: l.raumId,
+        startMinute: l.startMinute,
+        dauerMinuten: l.dauerMinuten,
+        lehrpersonId: row?.lehrpersonId ?? row?.kurs.lehrpersonId ?? l.lehrKuerzel,
+        ueberbuchbar: l.kursStatus !== "AKTIV" && l.kursStatus !== "GEPLANT" ? true : l.unterbrochen,
+      };
+    }),
     ...planVermietungen.map((v) => ({
       id: v.id,
       raumId: v.raumId,

@@ -108,8 +108,8 @@ export async function ladeKiLektion(
 /** Anzahl sichtbarer Lektionen (für die Stammdaten-/Dashboard-Karte). */
 export async function zaehleKiLektionen(userId: string): Promise<number> {
   const [eigene, geteilte] = await Promise.all([
-    db.orm.public.KiLektion.where((l) => l.erstelltVonUserId.eq(userId)).aggregate((a) => ({ n: a.count() })),
-    db.orm.public.KiLektion.where((l) => l.geteilt.eq(true)).aggregate((a) => ({ n: a.count() })),
+    db.orm.public.KiLektion.where((l) => l.erstelltVonUserId.eq(userId)).select("id").all(),
+    db.orm.public.KiLektion.where((l) => l.geteilt.eq(true)).select("id").all(),
   ]);
-  return Math.max(eigene.n, geteilte.n);
+  return new Set([...eigene.map((l) => l.id), ...geteilte.map((l) => l.id)]).size;
 }

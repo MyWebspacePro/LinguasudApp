@@ -17,6 +17,8 @@ import type { FormState } from "@/lib/forms";
 import { sendMail } from "@/lib/mail";
 import { deltaVonAnwesenheit, istFensterAbgelaufen, istVollstaendigErfasst, journalArtVonAnwesenheit } from "./logik";
 import { paketendeErreicht, verbrauchtImPaket, type JournalEintrag } from "@/lib/anmeldungen/paket";
+import { erledigeAutomatikAufgabe, erstelleAutomatischeAufgabe } from "@/lib/aufgaben/automatik";
+import { addDays, dateKeyToUtcMidnight, heuteDateKey } from "@/lib/zeit";
 
 const str = (fd: FormData, key: string) => String(fd.get(key) ?? "").trim();
 
@@ -275,6 +277,8 @@ export async function schliesseLektionAbAction(_prev: FormState, formData: FormD
     });
   });
 
+  await erledigeAutomatikAufgabe(`anwesenheit:${lektionId}`, actor.name);
+
   // Paketende-Automatik (12./13. Lektion): Schwelle erreicht → informieren.
   const paketendeHinweise: string[] = [];
   for (const anmeldung of aktiveAnmeldungen) {
@@ -284,6 +288,20 @@ export async function schliesseLektionAbAction(_prev: FormState, formData: FormD
     if (paketendeErreicht(verbraucht, anmeldung.paketGroesse) && anmeldung.paketEntscheid === "OFFEN" && !anmeldung.paketEndeGemeldetAt) {
       await informierePaketende(anmeldung.id, anmeldung.person.email, anmeldung.person.vorname, anmeldung.person.nachname, lektion.kursCode, anmeldung.paketGroesse, verbraucht);
       await db.orm.public.Anmeldung.where({ id: anmeldung.id }).update({ paketEndeGemeldetAt: toDbTime(new Date()) });
+      await erstelleAutomatischeAufgabe({
+        quelle: "paketende",
+        dedupKey: `paketende:${anmeldung.id}:${String(anmeldung.paketStartAt).slice(0, 10)}`,
+        titel: `Paket-Ende: Entscheidung von ${anmeldung.person.vorname} ${anmeldung.person.nachname} (${lektion.kursCode}) offen`,
+        beschreibung:
+          "Teilnehmende(r) wurde am Paket-Ende informiert («fortfahren oder beenden?»). " +
+          "Nach der Antwort: «fortfahren» lädt das neue Paket auf (Rechnung entsteht automatisch), «beenden» schliesst die Anmeldung.\n\n" +
+          `Anmeldung: /anmeldungen/${anmeldung.id}`,
+        personId: anmeldung.personId,
+        kursId: anmeldung.kursId,
+        faelligAm: dateKeyToUtcMidnight(addDays(heuteDateKey(), 3)),
+      }).catch((error) => {
+        console.error("Automatische Paket-Ende-Aufgabe fehlgeschlagen:", error);
+      });
       paketendeHinweise.push(`${anmeldung.person.vorname} ${anmeldung.person.nachname}`);
     }
   }

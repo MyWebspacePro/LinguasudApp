@@ -5,7 +5,7 @@ import "server-only";
 // Schutz (isRateLimited), nur die Ereignisse liegen in einer eigenen Tabelle
 // (PublicFormVersuch), da öffentliche Formulare kein Login sind.
 
-import { db, toDbTime } from "@/lib/db";
+import { db, fromDbTime, toDbTime } from "@/lib/db";
 import { isRateLimited } from "@/lib/auth/bruteforce";
 import { ANFRAGE_DROSSEL_OPTIONS, type AnfrageDrosselOptions } from "./logik";
 
@@ -33,7 +33,7 @@ export async function istDrosselAktiv(
     .select("email", "ip", "createdAt")
     .all();
   return isRateLimited(
-    rows.map((e) => ({ email: e.email, ip: e.ip, createdAt: new Date(e.createdAt) })),
+    rows.map((e) => ({ email: e.email, ip: e.ip, createdAt: fromDbTime(e.createdAt) })),
     email,
     ip,
     options,

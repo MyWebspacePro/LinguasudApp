@@ -68,11 +68,18 @@ export async function ladeVermietungsMonat(monatKey: string): Promise<Vermietung
     .where((v) => v.startAt.lt(toDbTime(endeUtc)))
     .all();
   const relevante = termine.filter((v) => v.status !== "ABGESAGT");
-  const rechnungIds = relevante.map((v) => v.rechnungId).filter((id): id is string => id !== null);
-  const rechnungen = rechnungIds.length
-    ? await db.orm.public.Rechnung.where((r) => r.id.in(rechnungIds)).all()
-    : [];
+  const rechnungIds = [...new Set(relevante.map((v) => v.rechnungId).filter((id): id is string => id !== null))];
+  const [rechnungen, zahlungen] = rechnungIds.length
+    ? await Promise.all([
+        db.orm.public.Rechnung.where((r) => r.id.in(rechnungIds)).all(),
+        db.orm.public.Zahlung.where((z) => z.rechnungId.in(rechnungIds)).all(),
+      ])
+    : [[], []];
   const rechnungById = new Map(rechnungen.map((r) => [r.id, r]));
+  const bezahltByRechnungId = new Map<string, number>();
+  for (const z of zahlungen) {
+    bezahltByRechnungId.set(z.rechnungId, (bezahltByRechnungId.get(z.rechnungId) ?? 0) + Number(z.betragChf.toString()));
+  }
 
   let umsatzChf = 0;
   let bezahltChf = 0;
@@ -87,8 +94,15 @@ export async function ladeVermietungsMonat(monatKey: string): Promise<Vermietung
     if (rechnung.status === "STORNIERT") continue;
     const total = Number(rechnung.totalChf.toString());
     umsatzChf += total;
-    if (rechnung.status === "BEZAHLT") bezahltChf += total;
-    else offenChf += total;
+    if (rechnung.status === "BEZAHLT") {
+      bezahltChf += total;
+    } else if (rechnung.status === "TEILBEZAHLT") {
+      const gezahlt = Math.min(total, bezahltByRechnungId.get(rechnung.id) ?? 0);
+      bezahltChf += gezahlt;
+      offenChf += Math.max(0, total - gezahlt);
+    } else {
+      offenChf += total;
+    }
   }
   const runde = (n: number) => Math.round(n * 100) / 100;
   return {

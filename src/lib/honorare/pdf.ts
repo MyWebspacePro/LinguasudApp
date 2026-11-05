@@ -50,14 +50,23 @@ export interface HonorarPdfDaten {
 const A4 = { breite: mm(210), hoehe: mm(297) } as const;
 const RAND = mm(20);
 
-/** Erzeugt den Honorar-Beleg (eine Seite A4). */
+function winAnsi(text: string): string {
+  return text
+    .replace(/\u2212/g, "-")
+    .replace(/[\u2018\u2019\u201A]/g, "'")
+    .replace(/[\u201C\u201D\u201E]/g, '"')
+    .replace(/\u2026/g, "...")
+    .replace(/[^\x20-\x7E\xA0-\xFF]/g, "");
+}
+
+/** Erzeugt den Honorar-Beleg (A4, mit Seitenumbruch bei vielen Lektionen). */
 export async function baueHonorarPdf(daten: HonorarPdfDaten): Promise<Uint8Array> {
   const pdf = await PDFDocument.create();
   pdf.setTitle(`Honorarabrechnung ${daten.lehrpersonName} — ${monatLabel(daten.monatKey)}`);
   pdf.setProducer("LinguasudApp");
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const fontBold = await pdf.embedFont(StandardFonts.HelveticaBold);
-  const page = pdf.addPage([A4.breite, A4.hoehe]);
+  let page = pdf.addPage([A4.breite, A4.hoehe]);
 
   const schrift = (
     text: string,
@@ -68,8 +77,9 @@ export async function baueHonorarPdf(daten: HonorarPdfDaten): Promise<Uint8Array
   ) => {
     const f = opts?.bold ? fontBold : font;
     const farbe = opts?.farbe ?? (opts?.grau ? GRAU : SCHWARZ);
-    const xF = opts?.align === "rechts" ? x - f.widthOfTextAtSize(text, size) : x;
-    page.drawText(text, { x: xF, y, size, font: f, color: farbe });
+    const sauber = winAnsi(text);
+    const xF = opts?.align === "rechts" ? x - f.widthOfTextAtSize(sauber, size) : x;
+    page.drawText(sauber, { x: xF, y, size, font: f, color: farbe });
   };
 
   // ——— Briefkopf: Logo (Platzhalter-Asset) + Schuladresse ———
@@ -127,6 +137,18 @@ export async function baueHonorarPdf(daten: HonorarPdfDaten): Promise<Uint8Array
   y -= 6;
 
   for (const zeile of daten.zeilen) {
+    if (y - 21 < RAND + mm(20)) {
+      page = pdf.addPage([A4.breite, A4.hoehe]);
+      y = A4.hoehe - RAND;
+      schrift(
+        `Honorarabrechnung ${daten.lehrpersonName} — ${monatLabel(daten.monatKey)} (Fortsetzung)`,
+        RAND,
+        y,
+        10,
+        { bold: true, grau: true },
+      );
+      y -= 20;
+    }
     page.drawRectangle({
       x: RAND,
       y: y - 4,
@@ -153,6 +175,11 @@ export async function baueHonorarPdf(daten: HonorarPdfDaten): Promise<Uint8Array
       { align: "rechts", bold: true, grau: zeile.betragChf === null },
     );
     y -= 21;
+  }
+
+  if (y < mm(65)) {
+    page = pdf.addPage([A4.breite, A4.hoehe]);
+    y = A4.hoehe - RAND;
   }
 
   // ——— Total ———
@@ -201,12 +228,13 @@ export async function baueHonorarPdf(daten: HonorarPdfDaten): Promise<Uint8Array
 
 /** Kürzt Text mit Auslassungspunkten, damit er in die Spaltenbreite passt. */
 function kuerzeText(text: string, font: PDFFont, size: number, breite: number): string {
-  if (font.widthOfTextAtSize(text, size) <= breite) return text;
-  let gekuerzt = text;
-  while (gekuerzt.length > 1 && font.widthOfTextAtSize(`${gekuerzt}…`, size) > breite) {
+  const sauber = winAnsi(text);
+  if (font.widthOfTextAtSize(sauber, size) <= breite) return sauber;
+  let gekuerzt = sauber;
+  while (gekuerzt.length > 1 && font.widthOfTextAtSize(`${gekuerzt}...`, size) > breite) {
     gekuerzt = gekuerzt.slice(0, -1);
   }
-  return `${gekuerzt}…`;
+  return `${gekuerzt}...`;
 }
 
 /** Bettet das Logo ein (PNG oder JPEG); bei Fehler bleibt der Text-Briefkopf. */
